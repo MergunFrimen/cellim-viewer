@@ -1,110 +1,139 @@
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, Edit, Trash2 } from "lucide-react";
+
+// Mock data - would be fetched from backend
+const MOCK_ENTRIES = [
+  {
+    id: "1",
+    title: "Neuronal Cell Morphology",
+    type: "Public",
+    lastUpdated: "2024-03-04",
+  },
+  {
+    id: "2",
+    title: "Mitochondrial Network",
+    type: "Private",
+    lastUpdated: "2024-02-15",
+  },
+];
 
 export function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [entries, setEntries] = useState([]);
-  const [newEntry, setNewEntry] = useState({
-    name: "",
-    description: "",
-    isPublic: false,
-  });
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Implement actual authentication logic
-    setIsAuthenticated(true);
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-md mx-auto">
-        <h2 className="text-2xl mb-4">Admin Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-2 border rounded"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded"
-          >
-            Login
-          </button>
-        </form>
-      </div>
-    );
-  }
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="space-y-8">
+      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-2xl mb-4">Create New Entry</h2>
-          <form className="space-y-4">
-            <input
-              type="text"
-              placeholder="Entry Name"
-              value={newEntry.name}
-              onChange={(e) =>
-                setNewEntry({ ...newEntry, name: e.target.value })
-              }
-              className="w-full p-2 border rounded"
-            />
-            <textarea
-              placeholder="Description (Markdown supported)"
-              value={newEntry.description}
-              onChange={(e) =>
-                setNewEntry({ ...newEntry, description: e.target.value })
-              }
-              className="w-full p-2 border rounded h-40"
-            />
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={newEntry.isPublic}
-                onChange={(e) =>
-                  setNewEntry({ ...newEntry, isPublic: e.target.checked })
-                }
-                className="mr-2"
-              />
-              Public Entry
-            </label>
-            <button className="bg-green-500 text-white px-4 py-2 rounded">
-              Create Entry
-            </button>
-          </form>
-        </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Entries Management</h2>
+        <Button onClick={() => setIsAddModalOpen(true)}>
+          <Plus className="mr-2" size={16} /> Add New Entry
+        </Button>
+      </div>
 
-        <div>
-          <h2 className="text-2xl mb-4">Existing Entries</h2>
-          <div className="space-y-2">
-            {entries.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex justify-between items-center border p-2 rounded"
-              >
-                <span>{entry.name}</span>
-                <div className="space-x-2">
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded">
-                    Edit
-                  </button>
-                  <button className="bg-red-500 text-white px-2 py-1 rounded">
-                    Delete
-                  </button>
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Last Updated</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {MOCK_ENTRIES.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell>{entry.title}</TableCell>
+                  <TableCell>
+                    <Select defaultValue={entry.type}>
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Public">Public</SelectItem>
+                        <SelectItem value="Private">Private</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>{entry.lastUpdated}</TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button variant="outline" size="icon">
+                      <Edit size={16} />
+                    </Button>
+                    <Button variant="destructive" size="icon">
+                      <Trash2 size={16} />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+          <Card className="w-[500px]">
+            <CardHeader>
+              <CardTitle>Add New Entry</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Title</Label>
+                  <Input placeholder="Enter entry title" />
+                </div>
+                <div>
+                  <Label>Description</Label>
+                  <Input placeholder="Enter description" />
+                </div>
+                <div>
+                  <Label>Type</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select entry type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button>Create Entry</Button>
                 </div>
               </div>
-            ))}
-          </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      )}
     </div>
   );
 }

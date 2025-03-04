@@ -1,58 +1,83 @@
-import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { FileText, Link as LinkIcon } from "lucide-react";
+
+// Mock data - in real app, this would come from backend
+const MOCK_ENTRIES = [
+  {
+    id: "1",
+    title: "Neuronal Cell Morphology",
+    description: "Detailed visualization of neuronal cell structures",
+    tags: ["Neuroscience", "Cell Morphology"],
+    thumbnailUrl: "/api/placeholder/400/300",
+  },
+  {
+    id: "2",
+    title: "Mitochondrial Network",
+    description: "Complex interactions within mitochondrial networks",
+    tags: ["Cell Biology", "Mitochondria"],
+    thumbnailUrl: "/api/placeholder/400/300",
+  },
+];
 
 export function LandingPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [entries, setEntries] = useState([
-    // Placeholder entries - would be replaced with actual API call
-    {
-      id: "1",
-      name: "Sample Entry 1",
-      description: "A fascinating biological sample",
-    },
-    {
-      id: "2",
-      name: "Sample Entry 2",
-      description: "Another intriguing dataset",
-    },
-  ]);
-
-  const filteredEntries = entries.filter(
-    (entry) =>
-      entry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">CELLIM View Entries</h1>
-
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search entries..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
+    <div className="space-y-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Welcome to CELLIM View</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Explore cutting-edge cellular visualization and research data from the
+          CELLIM research group.
+        </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredEntries.map((entry) => (
-          <div
-            key={entry.id}
-            className="border p-4 rounded shadow hover:shadow-lg transition"
-          >
-            <h2 className="text-xl font-semibold mb-2">{entry.name}</h2>
-            <p className="text-gray-600">{entry.description}</p>
-            <Link
-              to={`/entry/${entry.id}`}
-              className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              View Details
-            </Link>
-          </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        {MOCK_ENTRIES.map((entry) => (
+          <Card key={entry.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle>{entry.title}</CardTitle>
+              <CardDescription>{entry.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col space-y-4">
+              <div className="flex space-x-2">
+                {entry.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex items-center space-x-4">
+                <img
+                  src={entry.thumbnailUrl}
+                  alt={entry.title}
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              </div>
+              <div className="flex justify-between">
+                <Button asChild variant="outline">
+                  <Link to={`/entry/${entry.id}`}>
+                    <FileText className="mr-2" size={16} /> View Details
+                  </Link>
+                </Button>
+                <Button variant="secondary">
+                  <LinkIcon className="mr-2" size={16} /> Share
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ))}
+      </div>
+
+      <div className="text-center">
+        <Button size="lg">Explore More Entries</Button>
       </div>
     </div>
   );
