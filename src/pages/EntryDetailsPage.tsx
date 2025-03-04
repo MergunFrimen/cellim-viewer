@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Eye, Info, Share2 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Mock data - would be fetched from backend
 const MOCK_ENTRY = {
@@ -19,7 +20,33 @@ This entry represents a comprehensive visualization of neuronal cell structures,
 - Detailed neuronal network mapping
 - Synaptic connection analysis
 - Cellular compartment visualization
-  `,
+
+# GFM
+
+## Autolink literals
+
+www.example.com, https://example.com, and contact@example.com.
+
+## Footnote
+
+A note[^1]
+
+[^1]: Big note.
+
+## Strikethrough
+
+~one~ or ~~two~~ tildes.
+
+## Table
+
+| a | b  |  c |  d  |
+| - | :- | -: | :-: |
+
+## Tasklist
+
+* [ ] to do
+* [x] done  
+`,
   tags: ["Neuroscience", "Cell Morphology"],
   views: [
     {
@@ -81,7 +108,86 @@ export function EntryDetailsPage() {
         <TabsContent value="description">
           <Card>
             <CardContent className="p-6">
-              <ReactMarkdown>{MOCK_ENTRY.fullDescription}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // Headers
+                  h1: ({ children }) => (
+                    <h1 className="scroll-m-20 text-xl font-semibold tracking-tight mb-3">
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="scroll-m-20 text-lg font-semibold tracking-tight mb-2">
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="scroll-m-20 text-base font-semibold tracking-tight mb-2">
+                      {children}
+                    </h3>
+                  ),
+                  // Paragraphs and text
+                  p: ({ children }) => (
+                    <p className="text-xs leading-6 text-foreground/90 mb-3">
+                      {children}
+                    </p>
+                  ),
+                  // Links
+                  a: ({ href, children }) => (
+                    <a href={href || "#"} className="text-blue-500">
+                      {children}
+                    </a>
+                  ),
+                  // Blockquotes
+                  blockquote: ({ children }) => (
+                    <blockquote className="mt-4 border-l-2 border-primary pl-6 italic text-foreground/80">
+                      {children}
+                    </blockquote>
+                  ),
+                  // Lists
+                  ul: ({ children }) => (
+                    <ul className="my-4 ml-6 list-disc text-xs text-foreground/90 [&>li]:mt-1.5">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="my-4 ml-6 list-decimal text-xs text-foreground/90 [&>li]:mt-1.5">
+                      {children}
+                    </ol>
+                  ),
+                  // Tables
+                  table: ({ children }) => (
+                    <div className="my-4 w-full overflow-y-auto">
+                      <table className="w-full border-collapse text-xs">
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => (
+                    <thead className="border-b">{children}</thead>
+                  ),
+                  tr: ({ children }) => (
+                    <tr className="m-0 border-t p-0 even:bg-muted">
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th className="border px-3 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right">
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border px-3 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                      {children}
+                    </td>
+                  ),
+                  // Horizontal rule
+                  hr: () => <hr className="my-4 border-muted" />,
+                }}
+              >
+                {MOCK_ENTRY.fullDescription}
+              </ReactMarkdown>
             </CardContent>
           </Card>
         </TabsContent>

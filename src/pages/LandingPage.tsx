@@ -8,7 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { FileText, Link as LinkIcon } from "lucide-react";
+import { FileText, ImageIcon, Link as LinkIcon } from "lucide-react";
 
 // Mock data - in real app, this would come from backend
 const MOCK_ENTRIES = [
@@ -17,14 +17,12 @@ const MOCK_ENTRIES = [
     title: "Neuronal Cell Morphology",
     description: "Detailed visualization of neuronal cell structures",
     tags: ["Neuroscience", "Cell Morphology"],
-    thumbnailUrl: "/api/placeholder/400/300",
   },
   {
     id: "2",
     title: "Mitochondrial Network",
     description: "Complex interactions within mitochondrial networks",
     tags: ["Cell Biology", "Mitochondria"],
-    thumbnailUrl: "/api/placeholder/400/300",
   },
 ];
 
@@ -55,14 +53,10 @@ export function LandingPage() {
                 ))}
               </div>
               <div className="flex items-center space-x-4">
-                <img
-                  src={entry.thumbnailUrl}
-                  alt={entry.title}
-                  className="w-full h-48 object-cover rounded-md"
-                />
+                <ImageIcon className="w-full h-48" />
               </div>
               <div className="flex justify-between">
-                <Button asChild variant="outline">
+                <Button variant="default" asChild>
                   <Link to={`/entry/${entry.id}`}>
                     <FileText className="mr-2" size={16} /> View Details
                   </Link>
