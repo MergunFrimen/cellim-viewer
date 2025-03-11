@@ -45,3 +45,13 @@ uvx ruff check --fix
 ```shell
 uv run mypy .
 ```
+
+## Pre-commit hooks
+
+1. Edit [.pre-commit-config.yaml](./.pre-commit-config.yaml)
+
+2. Install git hook scripts
+
+```shell
+uvx pre-commit install
+```

@@ -17,3 +17,6 @@ dependencies = [
 dev = [
     "mypy>=1.15.0",
 ]
+
+[tool.ruff]
+line-length = 100
