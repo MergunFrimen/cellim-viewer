@@ -10,13 +10,14 @@ from app.schemas.entry import SearchResults
 
 router = APIRouter()
 
+
 @router.get("/", response_model=SearchResults)
 def list_entries(
-        search: Optional[str] = None,
-        public_only: bool = True,
-        skip: int = 0,
-        limit: int = 100,
-        db: Session = Depends(get_db)
+    search: Optional[str] = None,
+    public_only: bool = True,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
 ):
     """List entries with optional keyword search"""
     query = db.query(Entry)
@@ -29,10 +30,7 @@ def list_entries(
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            or_(
-                Entry.name.ilike(search_term),
-                Entry.description.ilike(search_term)
-            )
+            or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
         )
 
     # Count results
@@ -50,5 +48,5 @@ def list_entries(
         "total": total,
         "page": page,
         "per_page": limit,
-        "total_pages": total_pages
+        "total_pages": total_pages,
     }

@@ -9,6 +9,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+
 # Dependency to get DB session
 def get_db():
     db = SessionLocal()
@@ -16,6 +17,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 def create_tables():
     """Create database tables if they don't exist"""

@@ -10,9 +10,11 @@ class ViewBase(BaseModel):
     title: str
     description: Optional[str] = None
 
+
 class EntryBase(BaseModel):
     name: str
     description: Optional[str] = None
+
 
 # Read schemas (returned from API)
 class ViewRead(ViewBase):
@@ -24,6 +26,7 @@ class ViewRead(ViewBase):
     class Config:
         orm_mode = True
 
+
 class EntryRead(EntryBase):
     id: UUID
     created_at: datetime
@@ -32,6 +35,7 @@ class EntryRead(EntryBase):
 
     class Config:
         orm_mode = True
+
 
 # Schema for search results
 class SearchResults(BaseModel):

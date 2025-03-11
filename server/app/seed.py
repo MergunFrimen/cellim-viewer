@@ -2,6 +2,7 @@
 Database seeding script for CELLIM View.
 Run this script to populate the database with initial data.
 """
+
 import json
 import os
 import sys
@@ -19,7 +20,7 @@ Base.metadata.create_all(bind=engine)
 def import_from_json(json_file_path):
     """Import entries from a JSON file."""
     try:
-        with open(json_file_path, 'r') as f:
+        with open(json_file_path, "r") as f:
             entries_data = json.load(f)
 
         db = SessionLocal()
@@ -38,7 +39,9 @@ def import_from_json(json_file_path):
                     db.add(view)
 
             db.commit()
-            print(f"Successfully imported {len(entries_data)} entries from {json_file_path}")
+            print(
+                f"Successfully imported {len(entries_data)} entries from {json_file_path}"
+            )
 
         except Exception as e:
             db.rollback()
