@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { DatasetEntry } from "@/types";
-import { ImageIcon, Info, Share2 } from "lucide-react";
+import { ImageIcon, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 
