@@ -29,9 +29,7 @@ export function EntryPreview({ entry }: { entry: DatasetEntry }) {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="default" size="sm" asChild>
-          <Link to={`/entry/${entry.id}`}>
-            View Details
-          </Link>
+          <Link to={`/entry/${entry.id}`}>View Details</Link>
         </Button>
         <Button variant="ghost" size="sm">
           <Share2 size={16} className="mr-2" /> Share

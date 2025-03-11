@@ -1,13 +1,7 @@
 import { EntryPreview } from "@/components/EntryPreview";
 import { Button } from "@/components/ui/button";
 import { DatasetEntry } from "@/types";
-import {
-  ArrowRight,
-  Database,
-  Globe,
-  Lock,
-  Share2
-} from "lucide-react";
+import { ArrowRight, Database, Globe, Lock, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import mockData from "../data/mock.json" with { type: "json" };
 
