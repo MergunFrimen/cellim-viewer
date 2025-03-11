@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import entries, views
-from app.shared.config import settings
 from app.database import create_tables
+from app.shared.config import settings
 
 app = FastAPI(
     title="CELLIM View API",
