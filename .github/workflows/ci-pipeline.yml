@@ -29,7 +29,10 @@ jobs:
         run: uv sync --all-extras --dev --project server
 
       - name: Run linter
-        run: uv run --project server ruff check
+        run: uvx --project server/ ruff check
 
       - name: Run formatting check
-        run: uv run --project server ruff format --check
+        run: uvx --project server/ ruff format --check     
+      
+      - name: Mypy type check
+        run: uv run --project server/ mypy .
