@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "lint": "eslint .",
     "preview": "vite preview",
-    "repomix": "npx repomix --ignore 'src/components/ui/*' --copy --output repopack.txt && rm -f repopack.txt"
+    "repomix": "npx repomix --ignore 'src/components/ui/*,index.css,README.md' --copy --output repopack.txt && rm -f repopack.txt"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.2",

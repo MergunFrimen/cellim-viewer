@@ -1,78 +1,125 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EntryPreview } from "@/components/EntryPreview";
 import { Button } from "@/components/ui/button";
+import { DatasetEntry } from "@/types";
+import {
+  ArrowRight,
+  Database,
+  Globe,
+  Lock,
+  Share2
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { FileText, ImageIcon, Link as LinkIcon } from "lucide-react";
-
-// Mock data - in real app, this would come from backend
-const MOCK_ENTRIES = [
-  {
-    id: "1",
-    title: "Neuronal Cell Morphology",
-    description: "Detailed visualization of neuronal cell structures",
-    tags: ["Neuroscience", "Cell Morphology"],
-  },
-  {
-    id: "2",
-    title: "Mitochondrial Network",
-    description: "Complex interactions within mitochondrial networks",
-    tags: ["Cell Biology", "Mitochondria"],
-  },
-];
+import mockData from "../data/mock.json" with { type: "json" };
 
 export function LandingPage() {
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to CELLIM View</h1>
+    <div className="space-y-24">
+      {/* Hero Section */}
+      <section className="text-center space-y-4 mt-24">
+        <h1 className="text-4xl md:text-5xl font-bold">CELLIM View</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Explore cutting-edge cellular visualization and research data from the
-          CELLIM research group.
+          Advanced visualization platform for cellular and molecular data from
+          the CELLIM research group
         </p>
-      </div>
+      </section>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {MOCK_ENTRIES.map((entry) => (
-          <Card key={entry.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>{entry.title}</CardTitle>
-              <CardDescription>{entry.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col space-y-4">
-              <div className="flex space-x-2">
-                {entry.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex items-center space-x-4">
-                <ImageIcon className="w-full h-48" />
-              </div>
-              <div className="flex justify-between">
-                <Button variant="default" asChild>
-                  <Link to={`/entry/${entry.id}`}>
-                    <FileText className="mr-2" size={16} /> View Details
-                  </Link>
-                </Button>
-                <Button variant="secondary">
-                  <LinkIcon className="mr-2" size={16} /> Share
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* Featured Visualizations */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Featured Visualizations</h2>
+          <Button variant="outline" asChild>
+            <Link to="/search">
+              View All <ArrowRight size={16} className="ml-2" />
+            </Link>
+          </Button>
+        </div>
 
-      <div className="text-center">
-        <Button size="lg">Explore More Entries</Button>
-      </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {mockData.slice(0, 3).map((entry: DatasetEntry) => (
+            <EntryPreview entry={entry} />
+          ))}
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="grid md:grid-cols-2 gap-12 items-center mb-24">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">About CELLIM View</h2>
+          <div className="space-y-4 text-muted-foreground">
+            <p>
+              CELLIM View is a specialized platform designed to visualize
+              complex cellular and molecular data produced by the CELLIM
+              research group. Our platform enables researchers to explore
+              detailed cellular structures and interactions through advanced
+              visualization techniques.
+            </p>
+            <p>
+              Featuring support for both volume and segmentation visualizations,
+              CELLIM View offers powerful tools to examine neuronal networks,
+              mitochondrial structures, and other cellular components with
+              unprecedented detail.
+            </p>
+          </div>
+          <div className="mt-6 space-x-4">
+            <Button asChild>
+              <Link to="/search">Browse Library</Link>
+            </Button>
+            <Button variant="outline">Learn More</Button>
+          </div>
+        </div>
+        <div className="bg-muted rounded-lg p-10">
+          <h3 className="font-semibold mb-4">Key Features</h3>
+          <ul className="space-y-6">
+            <li className="flex">
+              <div className="mr-4 bg-primary/10 p-2 rounded-full">
+                <Database size={20} className="text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium">Public & Private Repositories</h4>
+                <p className="text-sm text-muted-foreground">
+                  Access public visualizations or create private ones shared via
+                  secure links
+                </p>
+              </div>
+            </li>
+            <li className="flex">
+              <div className="mr-4 bg-primary/10 p-2 rounded-full">
+                <Globe size={20} className="text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium">Multiple Visualization Types</h4>
+                <p className="text-sm text-muted-foreground">
+                  Support for MolViewSpec states and VolSeg entries with custom
+                  camera positions
+                </p>
+              </div>
+            </li>
+            <li className="flex">
+              <div className="mr-4 bg-primary/10 p-2 rounded-full">
+                <Share2 size={20} className="text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium">Shareable States</h4>
+                <p className="text-sm text-muted-foreground">
+                  Generate links to specific views and camera positions for
+                  collaboration
+                </p>
+              </div>
+            </li>
+            <li className="flex">
+              <div className="mr-4 bg-primary/10 p-2 rounded-full">
+                <Lock size={20} className="text-primary" />
+              </div>
+              <div>
+                <h4 className="font-medium">Secure Access Control</h4>
+                <p className="text-sm text-muted-foreground">
+                  Protect sensitive data with UUID-based private sharing
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

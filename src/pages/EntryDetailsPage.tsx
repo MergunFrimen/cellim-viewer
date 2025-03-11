@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Eye, Info, Share2 } from "lucide-react";
+import { Eye, Info, Share2 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -77,9 +77,6 @@ export function EntryDetailsPage() {
         <div className="flex space-x-2">
           <Button variant="outline">
             <Share2 className="mr-2" size={16} /> Share
-          </Button>
-          <Button>
-            <Copy className="mr-2" size={16} /> Copy Link
           </Button>
         </div>
       </div>
@@ -224,7 +221,7 @@ export function EntryDetailsPage() {
           <Card>
             <CardContent className="p-6 flex justify-center items-center min-h-[500px]">
               <div className="text-center text-muted-foreground">
-                Visualization for {activeView.title} will be rendered here
+                Visualization for "{activeView.title}" will be rendered here
               </div>
             </CardContent>
           </Card>

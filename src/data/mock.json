@@ -1,0 +1,40 @@
+[
+    {
+        "id": "1",
+        "title": "Neuronal Cell Morphology",
+        "description": "Detailed visualization of neuronal cell structures",
+        "tags": [
+            "Neuroscience",
+            "Cell Morphology"
+        ]
+    },
+    {
+        "id": "2",
+        "title": "Mitochondrial Network",
+        "description": "Complex interactions within mitochondrial networks",
+        "tags": [
+            "Cell Biology",
+            "Mitochondria"
+        ]
+    },
+    {
+        "id": "3",
+        "title": "Cellular Organelles",
+        "description": "Comprehensive visualization of various cellular organelles",
+        "tags": [
+            "Cell Biology",
+            "Organelles",
+            "3D Visualization"
+        ]
+    },
+    {
+        "id": "4",
+        "title": "Cytoskeleton Structure",
+        "description": "Visualization of the cytoskeleton and its components",
+        "tags": [
+            "Cell Biology",
+            "Cytoskeleton",
+            "Structural Biology"
+        ]
+    }
+]
