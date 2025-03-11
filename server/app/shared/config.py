@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List
 from pydantic_settings import BaseSettings
 
 
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "cellim_viewer")
-    DATABASE_URL: Optional[str] = os.getenv(
+    DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
         f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}",
     )

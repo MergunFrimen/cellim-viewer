@@ -1,12 +1,11 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.models.entry import Entry
 from app.schemas.entry import SearchResults
+from fastapi import APIRouter, Depends
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -30,7 +29,10 @@ def list_entries(
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
+            or_(
+                Entry.name.ilike(search_term),
+                Entry.description.ilike(search_term),
+            )
         )
 
     # Count results
