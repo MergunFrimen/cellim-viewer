@@ -10,7 +10,7 @@ import sys
 # Add the project root to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import SessionLocal, engine, Base
+from app.database import Base, SessionLocal, engine
 from app.models.entry import Entry, View
 
 # Ensure tables exist

@@ -1,11 +1,12 @@
 from typing import Optional
 
-from app.database import get_db
-from app.models.entry import Entry
-from app.schemas.entry import SearchResults
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.entry import Entry
+from app.schemas.entry import SearchResults
 
 router = APIRouter()
 
