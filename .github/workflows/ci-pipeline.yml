@@ -1,5 +1,10 @@
 name: CI Pipeline
 
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
   uv-example:
     name: python
