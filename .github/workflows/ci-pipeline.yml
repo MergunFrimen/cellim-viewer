@@ -26,7 +26,7 @@ jobs:
           python-version-file: "server/pyproject.toml"
 
       - name: Install the project
-        run: uv sync --all-extras --dev
+        run: uv sync --all-extras --dev --project server
 
       - name: Run linter
         run: uv run ruff check
