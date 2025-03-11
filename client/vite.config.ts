@@ -11,4 +11,7 @@ export default defineConfig({
     },
   },
   base: "/cellim-viewer",
+  server: {
+    port: 3000,
+  },
 });

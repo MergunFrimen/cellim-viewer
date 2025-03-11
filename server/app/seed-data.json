@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Golgi Apparatus 3D Model",
+    "description": "High-resolution 3D visualization of a Golgi apparatus from a mammalian cell. This dataset includes segmented cisternae and vesicles, allowing for detailed analysis of Golgi morphology.",
+    "views": [
+      {
+        "title": "Complete Golgi Stack",
+        "description": "Complete visualization of the Golgi stack including cis, medial, and trans compartments"
+      },
+      {
+        "title": "Trans Golgi Network",
+        "description": "Detailed view of the trans Golgi network and associated vesicles"
+      }
+    ]
+  },
+  {
+    "name": "Nuclear Pore Complex",
+    "description": "Detailed structure of the nuclear pore complex showing all major protein components and their arrangement.",
+    "views": [
+      {
+        "title": "Complete NPC",
+        "description": "Full 3D model of the nuclear pore complex"
+      },
+      {
+        "title": "Central Channel",
+        "description": "Close-up view of the central transport channel"
+      },
+      {
+        "title": "Cytoplasmic Filaments",
+        "description": "Detailed view of the cytoplasmic filaments"
+      }
+    ]
+  }
+]
