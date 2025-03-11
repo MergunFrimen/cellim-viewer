@@ -29,7 +29,7 @@ jobs:
         run: uvx --project server/ ruff check --diff
 
       - name: Run formatting check
-        run: uvx --project server/ ruff format --check     
+        run: uvx --project server/ ruff format --check --diff  
       
       - name: Mypy type check
         run: uv run --project server/ mypy .

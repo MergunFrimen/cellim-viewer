@@ -39,9 +39,7 @@ def import_from_json(json_file_path):
                     db.add(view)
 
             db.commit()
-            print(
-                f"Successfully imported {len(entries_data)} entries from {json_file_path}"
-            )
+            print(f"Successfully imported {len(entries_data)} entries from {json_file_path}")
 
         except Exception as e:
             db.rollback()
