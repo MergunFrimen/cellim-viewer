@@ -4,12 +4,6 @@
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-2. Install Python 3.12
-
-```shell
-uv python install 3.12
-```
-
 ## How to setup environment
 
 1. Create virtual environment
@@ -22,39 +16,32 @@ uv venv
 source .venv/bin/activate
 ```
 
-3. Install dependencies
-
-```shell
-# runtime
-uv sync
-```
-
 ## How to run app
 
 ```shell
-python main.py
+uv run main.py
 ```
 
 ## Tests
 
 ```shell
-pytest
+uvx pytest
 ```
 
 ## Formatter
 
 ```shell
-ruff format
+uvx ruff format
 ```
 
 ## Linter
 
 ```shell
-ruff check --fix
+uvx ruff check --fix
 ```
 
 ## Type checker
 
 ```shell
-mypy .
+uv run mypy .
 ```

@@ -24,7 +24,7 @@ class ViewRead(ViewBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class EntryRead(EntryBase):
@@ -34,7 +34,7 @@ class EntryRead(EntryBase):
     views: List[ViewRead] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Schema for search results
