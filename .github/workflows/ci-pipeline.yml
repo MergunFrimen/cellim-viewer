@@ -29,7 +29,7 @@ jobs:
         run: uv sync --all-extras --dev --project server
 
       - name: Run linter
-        run: uvx --project server/ ruff check
+        run: uvx --project server/ ruff check --diff
 
       - name: Run formatting check
         run: uvx --project server/ ruff format --check     
