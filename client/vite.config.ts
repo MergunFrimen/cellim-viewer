@@ -13,5 +13,8 @@ export default defineConfig({
   base: "/cellim-viewer",
   server: {
     port: 3000,
+    proxy: {
+      '/api': 'http://0.0.0.0:8000/api',
+    }
   },
 });

@@ -1,8 +1,8 @@
+// src/pages/SearchPage.tsx
+import { useEntries } from "@/hooks/useEntries";
 import { EntryPreview } from "@/components/EntryPreview";
 import { Input } from "@/components/ui/input";
-import { DatasetEntry } from "@/types";
 import { Search } from "lucide-react";
-import mockData from "../data/mock.json" with { type: "json" };
 import {
   Pagination,
   PaginationContent,
@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/pagination";
 
 export function SearchPage() {
+  const { data, isLoading, error } = useEntries();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="space-y-12">
       {/* Search */}
@@ -34,8 +39,8 @@ export function SearchPage() {
 
       {/* Paginated results */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {mockData.map((entry: DatasetEntry) => (
-          <EntryPreview entry={entry} />
+        {data?.results.map((entry) => (
+          <EntryPreview key={entry.id} entry={entry} />
         ))}
       </div>
 

@@ -1,3 +1,5 @@
+// src/pages/EntryDetailsPage.tsx
+import { useEntryViews } from "@/hooks/useEntryViews";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,73 +8,23 @@ import { Eye, Info, Share2 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-// Mock data - would be fetched from backend
-const MOCK_ENTRY = {
-  id: "1",
-  title: "Neuronal Cell Morphology",
-  description: "Detailed visualization of neuronal cell structures",
-  fullDescription: `
-## Neuronal Cell Morphology Study
-
-This entry represents a comprehensive visualization of neuronal cell structures, showcasing:
-
-- Detailed neuronal network mapping
-- Synaptic connection analysis
-- Cellular compartment visualization
-
-# GFM
-
-## Autolink literals
-
-www.example.com, https://example.com, and contact@example.com.
-
-## Footnote
-
-A note[^1]
-
-[^1]: Big note.
-
-## Strikethrough
-
-~one~ or ~~two~~ tildes.
-
-## Table
-
-| a | b  |  c |  d  |
-| - | :- | -: | :-: |
-
-## Tasklist
-
-* [ ] to do
-* [x] done  
-`,
-  tags: ["Neuroscience", "Cell Morphology"],
-  views: [
-    {
-      id: "view1",
-      title: "Primary Neuronal Network",
-      description: "Overview of the primary neuronal connections",
-      type: "molviewspec",
-    },
-    {
-      id: "view2",
-      title: "Synaptic Detail",
-      description: "Close-up of synaptic interactions",
-      type: "volseg",
-    },
-  ],
-};
+import { useParams } from "react-router-dom";
+import { ViewResponse } from "@/types";
 
 export function EntryDetailsPage() {
-  const [activeView, setActiveView] = useState(MOCK_ENTRY.views[0]);
+  const { id } = useParams<{ id: string }>();
+  const { data: views, isLoading, error } = useEntryViews(id!);
+  const [activeView, setActiveView] = useState(views?.[0]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{MOCK_ENTRY.title}</h1>
-          <p className="text-muted-foreground mt-2">{MOCK_ENTRY.description}</p>
+          <h1 className="text-3xl font-bold">Entry Title</h1>
+          <p className="text-muted-foreground mt-2">Entry Description</p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline">
@@ -82,7 +34,7 @@ export function EntryDetailsPage() {
       </div>
 
       <div className="flex space-x-4">
-        {MOCK_ENTRY.tags.map((tag) => (
+        {Array.from(["tag1", "tag2"]).map((tag) => (
           <Badge key={tag} variant="secondary">
             {tag}
           </Badge>
@@ -183,7 +135,7 @@ export function EntryDetailsPage() {
                   hr: () => <hr className="my-4 border-muted" />,
                 }}
               >
-                {MOCK_ENTRY.fullDescription}
+                MARKDOWN
               </ReactMarkdown>
             </CardContent>
           </Card>
@@ -196,19 +148,19 @@ export function EntryDetailsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {MOCK_ENTRY.views.map((view) => (
+                {views?.map((view: ViewResponse) => (
                   <div
                     key={view.id}
                     className={`
                       border p-4 rounded-lg cursor-pointer 
-                      ${activeView.id === view.id ? "bg-secondary" : "hover:bg-secondary/50"}
+                      ${activeView?.id === view.id ? "bg-secondary" : "hover:bg-secondary/50"}
                     `}
                     onClick={() => setActiveView(view)}
                   >
                     <h3 className="font-semibold">{view.title}</h3>
                     <p className="text-muted-foreground">{view.description}</p>
                     <Badge variant="outline" className="mt-2">
-                      {view.type}
+                      badge
                     </Badge>
                   </div>
                 ))}
@@ -221,7 +173,7 @@ export function EntryDetailsPage() {
           <Card>
             <CardContent className="p-6 flex justify-center items-center min-h-[500px]">
               <div className="text-center text-muted-foreground">
-                Visualization for "{activeView.title}" will be rendered here
+                Visualization for "{activeView?.title}" will be rendered here
               </div>
             </CardContent>
           </Card>
