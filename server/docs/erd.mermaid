@@ -1,0 +1,58 @@
+erDiagram
+    ENTRY {
+        int id PK
+        string name
+        string description
+        string author_email
+        string thumbnail_path
+        boolean is_public
+        string sharing_uuid
+        string edit_uuid
+        datetime created_at
+        datetime updated_at
+    }
+
+    VIEW {
+        int id PK
+        int entry_id FK
+        string title
+        string description
+        json mvsj
+        json associated_json
+        json camera_position
+        datetime created_at
+        datetime updated_at
+    }
+
+    ENTRY_VIEW {
+        int id PK
+        int entry_id FK
+        int view_id FK
+    }
+
+    KEYWORD {
+        int id PK
+        string word
+    }
+
+    SEGMENT {
+        int id PK
+        int volume_id FK
+        string description
+        string url
+    }
+
+    VOLUME {
+        int id PK
+        int entry_id FK
+        string description
+        string url
+    }
+
+    IDX_ENTRY_KEYWORD {
+        int entry_id FK
+        int keyword_id FK
+    }
+
+    ENTRY ||--o{ VIEW : "contains"
+    ENTRY }o--o{ KEYWORD : "tagged_with"

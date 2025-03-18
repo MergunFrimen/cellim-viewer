@@ -2,9 +2,10 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), visualizer()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -14,7 +15,7 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': 'http://0.0.0.0:8000/api',
-    }
+      "/api": "http://0.0.0.0:8000/api",
+    },
   },
 });

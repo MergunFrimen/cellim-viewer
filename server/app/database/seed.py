@@ -1,8 +1,3 @@
-"""
-Database seeding script for CELLIM View.
-Run this script to populate the database with initial data.
-"""
-
 import json
 import os
 import sys
@@ -10,11 +5,8 @@ import sys
 # Add the project root to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import Base, SessionLocal, engine
-from app.models.entry import Entry, View
-
-# Ensure tables exist
-Base.metadata.create_all(bind=engine)
+from app.database.models import Base, Entry, View
+from app.database.session import SessionLocal, engine
 
 
 def import_from_json(json_file_path):
@@ -54,7 +46,10 @@ def import_from_json(json_file_path):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Seed the CELLIM View database")
+    # Ensure tables exist
+    Base.metadata.create_all(bind=engine)
+
+    parser = argparse.ArgumentParser(description="Seed the CELLIM Viewer database")
     parser.add_argument("--json", help="Path to JSON file to import")
 
     args = parser.parse_args()

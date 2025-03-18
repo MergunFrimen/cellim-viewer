@@ -2,11 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import entries, views
-from app.database import create_tables
+from app.database.models import Base
+from app.database.session import engine
 from app.shared.config import settings
 
 app = FastAPI(
-    title="CELLIM View API",
+    title="CELLIM Viewer API",
     description="API for visualizing and managing CELLIM data",
     version="0.0.0",
 )
@@ -24,18 +25,13 @@ app.add_middleware(
 app.include_router(entries.router, prefix="/api/entries", tags=["entries"])
 app.include_router(views.router, prefix="/api/views", tags=["views"])
 
-
-async def startup_event():
-    # Create database tables on startup if they don't exist
-    create_tables()
-
-
-app.add_event_handler("startup", startup_event)
+# Create database tables on startup if they don't exist
+app.add_event_handler("startup", lambda _: Base.metadata.create_all(bind=engine))
 
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to CELLIM View API"}
+    return {"message": "Welcome to CELLIM Viewer API"}
 
 
 if __name__ == "__main__":

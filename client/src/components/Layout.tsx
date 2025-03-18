@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 
 export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
   return (
@@ -12,18 +13,6 @@ export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
           </Link>
           <div className="flex items-center space-x-4">
             <nav className="space-x-2">
-              <Button variant="ghost" asChild>
-                <Link to="/entry/1">v1</Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/entry/v2/1">v2</Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/entry/v3/1">v3</Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/entry/v4/1">v4</Link>
-              </Button>
               <Button variant="ghost" asChild>
                 <Link to="/">Home</Link>
               </Button>
@@ -39,6 +28,8 @@ export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+
+      <Toaster />
 
       <footer className="border-t py-4 text-center">
         <p className="text-muted-foreground text-xs">

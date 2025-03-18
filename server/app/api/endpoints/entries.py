@@ -1,11 +1,9 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.entry import Entry
+from app.database.models import Entry
 from app.schemas.entry import SearchResults
 
 router = APIRouter()
@@ -13,7 +11,7 @@ router = APIRouter()
 
 @router.get("/", response_model=SearchResults)
 def list_entries(
-    search: Optional[str] = None,
+    search: str | None = None,
     public_only: bool = True,
     skip: int = 0,
     limit: int = 100,

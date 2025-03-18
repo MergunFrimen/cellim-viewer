@@ -4,8 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.models.entry import Entry, View
+from app.database.models.entry import Entry
+from app.database.models.view import View
+from app.database.session import get_db
 from app.schemas.entry import ViewRead
 
 router = APIRouter()
