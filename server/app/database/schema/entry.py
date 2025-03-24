@@ -1,11 +1,11 @@
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models import View
-from app.database.models.base import intpk, str255
-from app.database.session import Base
+from app.database.schema import View
+from app.database.schema.base import intpk, str255, Base
 
 
 class Entry(Base):
@@ -25,4 +25,4 @@ class Entry(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     # Relationship with views
-    views: Mapped[View] = relationship("View")
+    views: Mapped[List["View"]] = relationship(back_populates="entry")

@@ -1,30 +1,24 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.database.models import Entry
-from app.schemas.entry import SearchResults
+from app.database.schema import Entry
+from app.database.session import get_db
+from app.contracts.responses.entries import SearchResults
 
 router = APIRouter()
 
-
 @router.get("/", response_model=SearchResults)
-def list_entries(
+def search_entries(
     search: str | None = None,
-    public_only: bool = True,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-):
-    """List entries with optional keyword search"""
+) -> Any:
     query = db.query(Entry)
 
-    # Apply public filter
-    # if public_only:
-    #     query = query.filter(Entry.is_public == True)
-
-    # Apply search if provided
     if search:
         search_term = f"%{search}%"
         query = query.filter(
@@ -34,13 +28,10 @@ def list_entries(
             )
         )
 
-    # Count results
     total = query.count()
 
-    # Apply pagination
     entries = query.order_by(Entry.created_at.desc()).offset(skip).limit(limit).all()
 
-    # Calculate pagination info
     page = skip // limit + 1 if limit > 0 else 1
     total_pages = (total + limit - 1) // limit if limit > 0 else 1
 
@@ -51,3 +42,7 @@ def list_entries(
         "per_page": limit,
         "total_pages": total_pages,
     }
+
+@router.post("/", response_model=SearchResults)
+def create_entry(entry: Entry, db: Session = Depends(get_db)):
+    pass

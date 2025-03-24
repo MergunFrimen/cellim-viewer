@@ -1,11 +1,11 @@
 from datetime import datetime
 
+from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON, DateTime
 
-from app.database.models.base import intpk, str255
-from app.database.models.entry import Entry
-from app.database.session import Base
+from app.database.schema.base import intpk, str255, Base
+from app.database.schema.entry import Entry
 
 
 class View(Base):
@@ -20,4 +20,5 @@ class View(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     # Relationship with entry
-    entry: Mapped[Entry] = relationship("Entry")
+    entry_id: Mapped[intpk] = mapped_column(ForeignKey("entries.id"))
+    entry: Mapped["Entry"] = relationship(back_populates="views")

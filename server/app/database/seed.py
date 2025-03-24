@@ -5,7 +5,7 @@ import sys
 # Add the project root to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database.models import Base, Entry, View
+from app.database.schema import Base, Entry, View
 from app.database.session import SessionLocal, engine
 
 
