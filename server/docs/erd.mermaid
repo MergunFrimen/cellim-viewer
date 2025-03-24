@@ -1,58 +1,58 @@
 erDiagram
-    ENTRY {
+
+    ENTRIES {
         int id PK
+
         string name
         string description
         string author_email
-        string thumbnail_path
-        boolean is_public
-        string sharing_uuid
-        string edit_uuid
+        string thumbnail_url
+
         datetime created_at
         datetime updated_at
+        datetime deleted_at
     }
 
-    VIEW {
+    PUBLIC_ENTRIES {
+        int entry_id FK
+    }
+
+    VIEWS {
         int id PK
         int entry_id FK
+
         string title
         string description
         json mvsj
-        json associated_json
-        json camera_position
+
         datetime created_at
         datetime updated_at
+        datetime deleted_at
     }
 
-    ENTRY_VIEW {
-        int id PK
-        int entry_id FK
-        int view_id FK
-    }
-
-    KEYWORD {
-        int id PK
-        string word
-    }
-
-    SEGMENT {
+    SEGMENTATIONS {
         int id PK
         int volume_id FK
         string description
         string url
     }
 
-    VOLUME {
+    SEGMENTS {
+        int id PK
+        int segmentation_id FK
+        string description
+        string url
+    }
+
+    VOLUMES {
         int id PK
         int entry_id FK
         string description
         string url
     }
 
-    IDX_ENTRY_KEYWORD {
-        int entry_id FK
-        int keyword_id FK
-    }
-
-    ENTRY ||--o{ VIEW : "contains"
-    ENTRY }o--o{ KEYWORD : "tagged_with"
+    ENTRIES ||--o{ VIEWS : ""
+    ENTRIES }o--o| VOLUMES : ""
+    VOLUMES ||--o{ SEGMENTATIONS : ""
+    SEGMENTATIONS ||--o{ SEGMENTS : ""
+    PUBLIC_ENTRIES ||--o{ ENTRIES : ""

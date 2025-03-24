@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from app.models.base.base import EntryBase
+from app.contracts.base.base import EntryBase
 from pydantic import BaseModel
 
-from app.models.responses.views import ViewRead
+from app.contracts.responses.views import ViewRead
 
 
 class EntryRead(EntryBase):

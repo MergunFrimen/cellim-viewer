@@ -14,12 +14,13 @@ class Entry(Base):
     # Attributes
     id: Mapped[intpk]
     name: Mapped[str255]
+    is_public: Mapped[bool] = mapped_column(default=False)
     description: Mapped[str | None]
     author_email: Mapped[str | None]
     thumbnail_path: Mapped[str | None]
-    is_public: Mapped[bool]
-    sharing_uuid: Mapped[str]
-    edit_uuid: Mapped[str]
+    sharing_uuid: Mapped[str | None]
+    edit_uuid: Mapped[str | None]
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
     updated_at: Mapped[datetime | None] = mapped_column(DateTime)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
