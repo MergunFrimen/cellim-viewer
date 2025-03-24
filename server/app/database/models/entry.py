@@ -4,8 +4,8 @@ from typing import List
 from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.schema import View
-from app.database.schema.base import intpk, str255, Base
+from app.database.models import View
+from app.database.models.base import intpk, str255, Base
 
 
 class Entry(Base):

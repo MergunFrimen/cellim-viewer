@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.contracts.common.base import ViewBase
+from app.models.base.base import ViewBase
 
 
 class ViewRead(ViewBase):

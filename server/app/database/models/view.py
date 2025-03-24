@@ -4,8 +4,8 @@ from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON, DateTime
 
-from app.database.schema.base import intpk, str255, Base
-from app.database.schema.entry import Entry
+from app.database.models.base import intpk, str255, Base
+from app.database.models.entry import Entry
 
 
 class View(Base):

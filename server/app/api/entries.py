@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.database.schema import Entry
+from app.database.models import Entry
 from app.database.session import get_db
-from app.contracts.responses.entries import SearchResults
+from app.models.responses.entries import SearchResults
 
 router = APIRouter()
 
