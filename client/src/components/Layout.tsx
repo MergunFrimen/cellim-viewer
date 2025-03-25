@@ -14,13 +14,7 @@ export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
           <div className="flex items-center space-x-4">
             <nav className="space-x-2">
               <Button variant="ghost" asChild>
-                <Link to="/">Home</Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/search">Search</Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/admin">Admin</Link>
+                <Link to="/entries">Search</Link>
               </Button>
             </nav>
           </div>

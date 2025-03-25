@@ -18,13 +18,6 @@ export function EntryPreview({ entry }: { entry: Entry }) {
         <p className="text-muted-foreground text-sm mb-4">
           {entry.description}
         </p>
-        {/* <div className="flex flex-wrap gap-2 mb-4">
-          {entry.tags.map((tag) => (
-            <Badge key={tag} variant="secondary">
-              {tag}
-            </Badge>
-          ))}
-        </div> */}
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="default" size="sm" asChild>

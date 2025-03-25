@@ -25,8 +25,13 @@ app.add_middleware(
 app.include_router(entries.router, prefix="/api/entries", tags=["entries"])
 app.include_router(views.router, prefix="/api/views", tags=["views"])
 
+
+def on_startup_handler():
+    Base.metadata.create_all(bind=engine)
+
+
 # Create database tables on startup if they don't exist
-app.add_event_handler("startup", lambda _: Base.metadata.create_all(bind=engine))
+app.add_event_handler("startup", on_startup_handler)
 
 
 @app.get("/")

@@ -1,184 +1,252 @@
-// src/pages/EntryDetailsPage.tsx
-import { useEntryViews } from "@/hooks/useEntryViews";
-import { Badge } from "@/components/ui/badge";
+import { DeleteDialog } from "@/components/DeleteDialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Info, Share2 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { entriesApi, viewsApi } from "@/lib/api-client";
+import { format } from "date-fns";
+import {
+  ArrowLeft,
+  Calendar,
+  Edit,
+  Eye,
+  Mail,
+  Share2,
+  Trash2,
+} from "lucide-react";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { useParams } from "react-router-dom";
-import { ViewResponse } from "@/types";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
-export function EntryDetailsPage() {
+export function EntryDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: views, isLoading, error } = useEntryViews(id!);
-  const [activeView, setActiveView] = useState(views?.[0]);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const entryId = parseInt(id || "0");
+
+  // Query for entry and its views
+  const [entryQuery, viewsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["entry", entryId],
+        queryFn: () => entriesApi.getById(entryId),
+        enabled: !!entryId,
+      },
+      {
+        queryKey: ["views", entryId],
+        queryFn: () => viewsApi.listByEntry(entryId),
+        enabled: !!entryId,
+      },
+    ],
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: () => entriesApi.delete(entryId),
+    onSuccess: () => {
+      // Invalidate the entries list query
+      queryClient.invalidateQueries({ queryKey: ["entries"] });
+      // Navigate back to entries list
+      navigate("/entries");
+    },
+  });
+
+  const entry = entryQuery.data;
+  const views = viewsQuery.data || [];
+  const isLoading = entryQuery.isLoading || viewsQuery.isLoading;
+  const error = entryQuery.error || viewsQuery.error;
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center py-8">Loading entry data...</div>
+      </div>
+    );
+  }
+
+  if (error || !entry) {
+    return (
+      <div className="container py-8">
+        <div className="p-4 border border-red-200 bg-red-50 text-red-600 rounded-md">
+          Entry not found or cannot be loaded. Please try again.
+        </div>
+        <Button asChild variant="outline" className="mt-4">
+          <Link to="/entries">Back to Entries</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const handleDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    deleteMutation.mutate();
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Unknown";
+    return format(new Date(dateString), "PPP");
+  };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Entry Title</h1>
-          <p className="text-muted-foreground mt-2">Entry Description</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Share2 className="mr-2" size={16} /> Share
-          </Button>
-        </div>
+    <div className="container py-8">
+      <div className="mb-6">
+        <Button asChild variant="outline" size="sm">
+          <Link to="/entries">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Entries
+          </Link>
+        </Button>
       </div>
 
-      <div className="flex space-x-4">
-        {Array.from(["tag1", "tag2"]).map((tag) => (
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-      </div>
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold">{entry.name}</h1>
+              {entry.author_email && (
+                <div className="flex items-center text-muted-foreground mt-2">
+                  <Mail className="h-4 w-4 mr-2" />
+                  {entry.author_email}
+                </div>
+              )}
+            </div>
 
-      <Tabs defaultValue="description" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="description">
-            <Info className="mr-2" size={16} /> Description
-          </TabsTrigger>
-          <TabsTrigger value="views">
-            <Eye className="mr-2" size={16} /> Available Views
-          </TabsTrigger>
-          <TabsTrigger value="visualization">
-            <Eye className="mr-2" size={16} /> Visualization
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="description">
-          <Card>
-            <CardContent className="p-6">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  // Headers
-                  h1: ({ children }) => (
-                    <h1 className="scroll-m-20 text-xl font-semibold tracking-tight mb-3">
-                      {children}
-                    </h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 className="scroll-m-20 text-lg font-semibold tracking-tight mb-2">
-                      {children}
-                    </h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className="scroll-m-20 text-base font-semibold tracking-tight mb-2">
-                      {children}
-                    </h3>
-                  ),
-                  // Paragraphs and text
-                  p: ({ children }) => (
-                    <p className="text-xs leading-6 text-foreground/90 mb-3">
-                      {children}
-                    </p>
-                  ),
-                  // Links
-                  a: ({ href, children }) => (
-                    <a href={href || "#"} className="text-blue-500">
-                      {children}
-                    </a>
-                  ),
-                  // Blockquotes
-                  blockquote: ({ children }) => (
-                    <blockquote className="mt-4 border-l-2 border-primary pl-6 italic text-foreground/80">
-                      {children}
-                    </blockquote>
-                  ),
-                  // Lists
-                  ul: ({ children }) => (
-                    <ul className="my-4 ml-6 list-disc text-xs text-foreground/90 [&>li]:mt-1.5">
-                      {children}
-                    </ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className="my-4 ml-6 list-decimal text-xs text-foreground/90 [&>li]:mt-1.5">
-                      {children}
-                    </ol>
-                  ),
-                  // Tables
-                  table: ({ children }) => (
-                    <div className="my-4 w-full overflow-y-auto">
-                      <table className="w-full border-collapse text-xs">
-                        {children}
-                      </table>
-                    </div>
-                  ),
-                  thead: ({ children }) => (
-                    <thead className="border-b">{children}</thead>
-                  ),
-                  tr: ({ children }) => (
-                    <tr className="m-0 border-t p-0 even:bg-muted">
-                      {children}
-                    </tr>
-                  ),
-                  th: ({ children }) => (
-                    <th className="border px-3 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right">
-                      {children}
-                    </th>
-                  ),
-                  td: ({ children }) => (
-                    <td className="border px-3 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
-                      {children}
-                    </td>
-                  ),
-                  // Horizontal rule
-                  hr: () => <hr className="my-4 border-muted" />,
-                }}
+            {entry.is_public ? (
+              <Badge
+                variant="outline"
+                className="bg-green-50 text-green-700 border-green-300"
               >
-                MARKDOWN
-              </ReactMarkdown>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                Public
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="bg-yellow-50 text-yellow-700 border-yellow-300"
+              >
+                Private
+              </Badge>
+            )}
+          </div>
 
-        <TabsContent value="views">
-          <Card>
+          <div className="flex items-center text-sm text-muted-foreground mb-6">
+            <Calendar className="h-4 w-4 mr-2" />
+            Created on {formatDate(entry.created_at)}
+          </div>
+
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Available Visualization Views</CardTitle>
+              <CardTitle>Description</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {views?.map((view: ViewResponse) => (
-                  <div
-                    key={view.id}
-                    className={`
-                      border p-4 rounded-lg cursor-pointer 
-                      ${activeView?.id === view.id ? "bg-secondary" : "hover:bg-secondary/50"}
-                    `}
-                    onClick={() => setActiveView(view)}
-                  >
-                    <h3 className="font-semibold">{view.title}</h3>
-                    <p className="text-muted-foreground">{view.description}</p>
-                    <Badge variant="outline" className="mt-2">
-                      badge
-                    </Badge>
-                  </div>
-                ))}
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                {entry.description ? (
+                  <ReactMarkdown>{entry.description}</ReactMarkdown>
+                ) : (
+                  <p className="text-muted-foreground italic">
+                    No description provided
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="visualization">
           <Card>
-            <CardContent className="p-6 flex justify-center items-center min-h-[500px]">
-              <div className="text-center text-muted-foreground">
-                Visualization for "{activeView?.title}" will be rendered here
+            <CardHeader>
+              <CardTitle>Available Views</CardTitle>
+              <CardDescription>
+                {views.length} view{views.length !== 1 ? "s" : ""} available for
+                this entry
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {views.length === 0 ? (
+                <p className="text-muted-foreground italic">
+                  No views available for this entry
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {views.map((view) => (
+                    <div key={view.id} className="border rounded-md p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium">{view.title}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {view.description}
+                          </p>
+                        </div>
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Button asChild className="w-full justify-start">
+                  <Link to={`/entries/${entry.id}/edit`}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Entry
+                  </Link>
+                </Button>
+
+                {entry.is_public && entry.sharing_uuid && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Link to={`/share/${entry.sharing_uuid}`}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Entry
+                    </Link>
+                  </Button>
+                )}
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Entry
+                </Button>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
+
+      <DeleteDialog
+        title="Delete Entry"
+        description={`Are you sure you want to delete "${entry.name}"? This action cannot be undone.`}
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={confirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

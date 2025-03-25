@@ -2,14 +2,14 @@ services:
   db:
     container_name: cellim-viewer-db
     image: postgres:17.4-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=cellim_viewer
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data/
 
-volumes:
- postgres_data:
+# volumes:
+#  postgres_data:

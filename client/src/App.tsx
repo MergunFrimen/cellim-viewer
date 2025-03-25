@@ -1,12 +1,12 @@
 import { Navigate, Route, BrowserRouter, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
-import { AdminPage } from "./pages/AdminPage";
-import { SearchPage } from "./pages/SearchPage";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { LandingPage } from "./pages/LandingPage";
 import { ScrollToTop } from "./components/ScrollToTop";
-import { EntryDetailsPage } from "./pages/EntryDetailsPage";
-import { EntryEditPage } from "./pages/EntryEditPage";
+import { EntriesListPage } from "./pages/EntriesListPage";
+import { CreateEntryPage } from "./pages/CreateEntryPage";
+import { EditEntryPage } from "./pages/EditEntryPage";
+import { EntryDetailPage } from "./pages/EntryDetailsPage";
 
 export function App() {
   return (
@@ -16,10 +16,10 @@ export function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/entry/:id" element={<EntryDetailsPage />} />
-            <Route path="/entry/:id/edit" element={<EntryEditPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/entries" element={<EntriesListPage />} />
+            <Route path="/entries/new" element={<CreateEntryPage />} />
+            <Route path="/entries/:id" element={<EntryDetailPage />} />
+            <Route path="/entries/:id/edit" element={<EditEntryPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

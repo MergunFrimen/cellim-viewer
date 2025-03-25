@@ -1,16 +1,8 @@
-import { EntryPreview } from "@/components/EntryPreview";
 import { Button } from "@/components/ui/button";
-import { useEntries } from "@/hooks/useEntries";
-import { Entry } from "@/types";
 import { ArrowRight, Database, Globe, Lock, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function LandingPage() {
-  const { data, isLoading, error } = useEntries();
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
   return (
     <div className="space-y-24">
       {/* Hero Section */}
@@ -34,9 +26,7 @@ export function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {data?.results.slice(0, 3).map((entry: Entry) => (
-            <EntryPreview entry={entry} />
-          ))}
+          TODO
         </div>
       </section>
 
