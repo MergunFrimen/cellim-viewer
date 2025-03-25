@@ -20,6 +20,8 @@ export function App() {
             <Route path="/entries/new" element={<CreateEntryPage />} />
             <Route path="/entries/:id" element={<EntryDetailPage />} />
             <Route path="/entries/:id/edit" element={<EditEntryPage />} />
+            <Route path="/share/:uuid" element={<EntryDetailPage />} />
+            <Route path="/edit/:uuid" element={<EditEntryPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

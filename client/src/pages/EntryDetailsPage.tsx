@@ -17,6 +17,8 @@ import {
   Mail,
   Share2,
   Trash2,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -25,32 +27,60 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
 export function EntryDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id?: string; uuid?: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
-  const entryId = parseInt(id || "0");
+  const isUuidMode = !!params.uuid;
+  const entryId = params.id ? parseInt(params.id) : undefined;
+  const sharingUuid = params.uuid;
+
+  // Determine the appropriate query function based on the route
+  const fetchEntry = async () => {
+    if (isUuidMode) {
+      return entriesApi.getBySharing(sharingUuid!);
+    } else if (entryId) {
+      return entriesApi.getById(entryId);
+    }
+    throw new Error("Invalid route parameters");
+  };
 
   // Query for entry and its views
   const [entryQuery, viewsQuery] = useQueries({
     queries: [
       {
-        queryKey: ["entry", entryId],
-        queryFn: () => entriesApi.getById(entryId),
-        enabled: !!entryId,
+        queryKey: isUuidMode
+          ? ["entry", "share", sharingUuid]
+          : ["entry", entryId],
+        queryFn: fetchEntry,
+        enabled: !!(isUuidMode ? sharingUuid : entryId),
       },
       {
-        queryKey: ["views", entryId],
-        queryFn: () => viewsApi.listByEntry(entryId),
-        enabled: !!entryId,
+        queryKey: ["views", isUuidMode ? sharingUuid : entryId],
+        queryFn: () => {
+          if (isUuidMode && sharingUuid) {
+            // First get the entry to extract its ID
+            return entriesApi.getBySharing(sharingUuid).then((entry) => {
+              return viewsApi.listByEntry(entry.id);
+            });
+          } else if (entryId) {
+            return viewsApi.listByEntry(entryId);
+          }
+          throw new Error("Invalid route parameters");
+        },
+        enabled: !!(isUuidMode ? sharingUuid : entryId),
       },
     ],
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: () => entriesApi.delete(entryId),
+    mutationFn: () => {
+      if (!entryQuery.data) throw new Error("Entry not found");
+      return entriesApi.delete(entryQuery.data.id);
+    },
     onSuccess: () => {
       // Invalidate the entries list query
       queryClient.invalidateQueries({ queryKey: ["entries"] });
@@ -63,6 +93,22 @@ export function EntryDetailPage() {
   const views = viewsQuery.data || [];
   const isLoading = entryQuery.isLoading || viewsQuery.isLoading;
   const error = entryQuery.error || viewsQuery.error;
+
+  const copyShareLink = async () => {
+    if (!entry || !entry.sharing_uuid) return;
+
+    const baseUrl = window.location.origin;
+    const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
+    const shareUrl = `${baseUrl}${basePath}/share/${entry.sharing_uuid}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -213,16 +259,23 @@ export function EntryDetailPage() {
                 </Button>
 
                 {entry.is_public && entry.sharing_uuid && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full justify-start"
-                  >
-                    <Link to={`/share/${entry.sharing_uuid}`}>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share Entry
-                    </Link>
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      onClick={copyShareLink}
+                    >
+                      <div className="flex items-center">
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Copy Share Link
+                      </div>
+                      {linkCopied ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </>
                 )}
 
                 <Button

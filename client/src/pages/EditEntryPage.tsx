@@ -5,11 +5,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function EditEntryPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id?: string; uuid?: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const entryId = parseInt(id || "0");
+  const isUuidMode = !!params.uuid;
+  const entryId = params.id ? parseInt(params.id) : undefined;
+  const editUuid = params.uuid;
+
+  // Determine which API function to use based on route
+  const fetchEntry = async () => {
+    if (isUuidMode && editUuid) {
+      return entriesApi.getByEdit(editUuid);
+    } else if (entryId) {
+      return entriesApi.getById(entryId);
+    }
+    throw new Error("Invalid route parameters");
+  };
 
   // Query for entry data
   const {
@@ -17,19 +29,27 @@ export function EditEntryPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["entry", entryId],
-    queryFn: () => entriesApi.getById(entryId),
-    enabled: !!entryId,
+    queryKey: isUuidMode ? ["entry", "edit", editUuid] : ["entry", entryId],
+    queryFn: fetchEntry,
+    enabled: !!(isUuidMode ? editUuid : entryId),
   });
 
   // Update mutation
   const mutation = useMutation({
-    mutationFn: (data: EntryFormValues) => entriesApi.update(entryId, data),
+    mutationFn: (data: EntryFormValues) => {
+      if (!entry) throw new Error("Entry not found");
+      return entriesApi.update(entry.id, data);
+    },
     onSuccess: (updatedEntry) => {
       // Update the cache
-      queryClient.setQueryData(["entry", entryId], updatedEntry);
+      if (isUuidMode) {
+        queryClient.setQueryData(["entry", "edit", editUuid], updatedEntry);
+      } else {
+        queryClient.setQueryData(["entry", entryId], updatedEntry);
+      }
+
       // Navigate back to entry details
-      navigate(`/entries/${entryId}`);
+      navigate(`/entries/${updatedEntry.id}`);
     },
   });
 

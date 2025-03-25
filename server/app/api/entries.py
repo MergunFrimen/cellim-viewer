@@ -82,7 +82,7 @@ def list_entries(
     per_page: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Entry).filter(Entry.deleted_at.is_(None))
+    query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
     
     if search:
         search_term = f"%{search}%"
@@ -115,6 +115,33 @@ def get_entry(entry_id: int, db: Session = Depends(get_db)):
     return entry
 
 
+@router.get("/by-sharing-uuid/{uuid}", response_model=EntryResponse)
+def get_entry_by_sharing_uuid(uuid: str, db: Session = Depends(get_db)):
+    entry = db.query(Entry).filter(
+        Entry.sharing_uuid == uuid, 
+        Entry.is_public.is_(True),
+        Entry.deleted_at.is_(None)
+    ).first()
+    
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    return entry
+
+
+@router.get("/by-edit-uuid/{uuid}", response_model=EntryResponse)
+def get_entry_by_edit_uuid(uuid: str, db: Session = Depends(get_db)):
+    entry = db.query(Entry).filter(
+        Entry.edit_uuid == uuid,
+        Entry.deleted_at.is_(None)
+    ).first()
+    
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    return entry
+
+
 @router.put("/{entry_id}", response_model=EntryResponse)
 def update_entry(entry_id: int, entry_data: EntryUpdate, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
@@ -122,7 +149,6 @@ def update_entry(entry_id: int, entry_data: EntryUpdate, db: Session = Depends(g
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
     
-    # TODO: fix this
     # Update fields if they are provided
     if entry_data.name is not None:
         entry.name = entry_data.name
