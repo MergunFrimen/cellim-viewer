@@ -7,24 +7,34 @@ import { EntriesListPage } from "./pages/EntriesListPage";
 import { CreateEntryPage } from "./pages/CreateEntryPage";
 import { EditEntryPage } from "./pages/EditEntryPage";
 import { EntryDetailPage } from "./pages/EntryDetailsPage";
+import { ViewDemo } from "./pages/ViewDemo";
+import { MolstarProvider } from "./context/MolstarContext";
 
 export function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="theme">
       <BrowserRouter basename="cellim-viewer">
         <ScrollToTop />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
+        {/* <Layout> */}
+        <Routes>
+          {/* <Route path="/" element={<LandingPage />} />
             <Route path="/entries" element={<EntriesListPage />} />
             <Route path="/entries/new" element={<CreateEntryPage />} />
             <Route path="/entries/:id" element={<EntryDetailPage />} />
             <Route path="/entries/:id/edit" element={<EditEntryPage />} />
             <Route path="/share/:uuid" element={<EntryDetailPage />} />
-            <Route path="/edit/:uuid" element={<EditEntryPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Layout>
+            <Route path="/edit/:uuid" element={<EditEntryPage />} /> */}
+          <Route
+            path="/"
+            element={
+              <MolstarProvider>
+                <ViewDemo />
+              </MolstarProvider>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        {/* </Layout> */}
       </BrowserRouter>
     </ThemeProvider>
   );
