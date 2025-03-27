@@ -1,9 +1,9 @@
 import { ViewerLayout } from "./ViewerLayout";
-import { useMolstar } from "@/context/MolstarContext";
 import { useBehavior } from "@/hooks/useBehavior";
 import { useEffect } from "react";
+import { useMolstar } from "@/context/MolstarContext";
 
-import "molstar/lib/mol-plugin-ui/skin/light.scss";
+import "./viewer.scss";
 
 export function MolstarViewer() {
   const { viewer } = useMolstar();

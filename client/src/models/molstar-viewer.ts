@@ -1,6 +1,5 @@
 import { PluginUIContext } from "molstar/lib/commonjs/mol-plugin-ui/context";
-import { BaseReactiveModel } from "./base";
-import { Color } from "molstar/lib/commonjs/mol-util/color";
+import { BaseReactiveModel } from "./base-model";
 import { BehaviorSubject } from "rxjs";
 import {
   DefaultPluginUISpec,
@@ -28,11 +27,6 @@ export class MolstarViewer extends BaseReactiveModel {
         initial: {
           isExpanded: this.state.isExpanded.value,
           showControls: this.state.showControls.value,
-        },
-      },
-      canvas3d: {
-        renderer: {
-          backgroundColor: Color(0xffffff),
         },
       },
     };
