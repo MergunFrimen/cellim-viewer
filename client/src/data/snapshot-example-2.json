@@ -1,5 +1,5 @@
 {
-    "id": "yhdTnfE3-aRLpN2h98NHtw",
+    "id": "rYoF7ZkfRcZ81TvWZ7zfkQ",
     "data": {
         "tree": {
             "transforms": [
@@ -655,7 +655,7 @@
                         "structure-focus-target-sel"
                     ],
                     "ref": "n-g7Ie2tQXi3kl0T-7oldQ",
-                    "version": "v2vqOCV6mOyYl7z2OewCYA"
+                    "version": "UvGABLwSFC6gaua9lFAyTw"
                 },
                 {
                     "parent": "n-g7Ie2tQXi3kl0T-7oldQ",
@@ -880,7 +880,7 @@
                         "structure-focus-surr-sel"
                     ],
                     "ref": "aN5Ta_mMCtNP0hmkJHu1Vw",
-                    "version": "LS2pvwAMMmEcPdULhJ-0jw"
+                    "version": "c_0oWoCjfFCMTysu0jhrsg"
                 },
                 {
                     "parent": "aN5Ta_mMCtNP0hmkJHu1Vw",
@@ -1436,7 +1436,7 @@
                 "staticMoving": true,
                 "dynamicDampingFactor": 0.2,
                 "minDistance": 5,
-                "maxDistance": 399.0974199376461,
+                "maxDistance": 398.88020357269136,
                 "gestureScaleFactor": 1,
                 "maxWheelDelta": 0.02,
                 "bindings": {

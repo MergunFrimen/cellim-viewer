@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Camera } from "lucide-react";
+import { Trash2, Camera, Edit, MoreVertical } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type View = {
   id: string;
@@ -54,8 +60,10 @@ export function ViewDemo() {
   ]);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [newViewName, setNewViewName] = useState("");
   const [newViewDescription, setNewViewDescription] = useState("");
+  const [editingView, setEditingView] = useState<View | null>(null);
 
   // Save the current state as a new snapshot
   const handleSaveSnapshot = () => {
@@ -75,6 +83,34 @@ export function ViewDemo() {
     console.log(viewer.getState());
     setViews((prev) => [...prev, view]);
     setShowSaveDialog(false);
+  };
+
+  // Open edit dialog for a view
+  const handleEditView = (view: View) => {
+    setEditingView(view);
+    setNewViewName(view.name);
+    setNewViewDescription(view.description);
+    setShowEditDialog(true);
+  };
+
+  // Confirm editing a view
+  const confirmEditView = () => {
+    if (!editingView) return;
+
+    setViews((prev) =>
+      prev.map((view) =>
+        view.id === editingView.id
+          ? {
+              ...view,
+              name: newViewName || view.name,
+              description: newViewDescription || view.description,
+            }
+          : view,
+      ),
+    );
+
+    setShowEditDialog(false);
+    setEditingView(null);
   };
 
   // Load a snapshot
@@ -112,9 +148,33 @@ export function ViewDemo() {
                 key={view.id}
                 className={`transition-all hover:shadow-md m-2 ${currentViewId === view.id ? "ring-2 ring-primary" : ""}`}
               >
-                <CardHeader className="">
+                <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{view.name}</CardTitle>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <MoreVertical size={14} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditView(view)}>
+                          <Edit size={14} className="mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteSnapshot(view.id)}
+                          className="text-red-500 focus:text-red-500"
+                        >
+                          <Trash2 size={14} className="mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </CardHeader>
                 <CardContent className="">
@@ -122,22 +182,14 @@ export function ViewDemo() {
                     {view.description}
                   </p>
                 </CardContent>
-                <CardFooter className="justify-between">
+                <CardFooter className="justify-center pt-2">
                   <Button
                     onClick={() => loadSnapshot(view)}
                     variant={currentViewId === view.id ? "default" : "outline"}
                     size="sm"
-                    className="gap-1"
+                    className="w-full"
                   >
                     <span>Load</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteSnapshot(view.id)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
-                  >
-                    <Trash2 size={14} />
                   </Button>
                 </CardFooter>
               </Card>
@@ -193,6 +245,48 @@ export function ViewDemo() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmSaveSnapshot}>
               Save
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit View Dialog */}
+      <AlertDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit View</AlertDialogTitle>
+            <AlertDialogDescription>
+              Update the name and description for this view
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="View name"
+                value={newViewName}
+                onChange={(e) => setNewViewName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                placeholder="Description of this view"
+                value={newViewDescription}
+                onChange={(e) => setNewViewDescription(e.target.value)}
+                className="resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEditingView(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmEditView}>
+              Update
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

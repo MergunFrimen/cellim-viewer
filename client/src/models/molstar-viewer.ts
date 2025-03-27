@@ -54,14 +54,14 @@ export class MolstarViewer extends BaseReactiveModel {
   }
 
   getState(): PluginState.Snapshot {
-    return this.plugin.state.getSnapshot();
+    // const snapshot = await this.plugin.managers.snapshot.getStateSnapshot()
+    return this.plugin.state.getSnapshot({ image: true });
   }
 
   async setState(snapshot: PluginState.Snapshot) {
     if (this.state.isLoading.value) return;
 
     this.state.isLoading.next(true);
-    console.log("loading");
     await this.plugin.state.setSnapshot(snapshot);
     this.state.isLoading.next(false);
   }
