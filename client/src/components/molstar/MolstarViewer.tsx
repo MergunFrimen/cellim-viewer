@@ -9,7 +9,7 @@ export function MolstarViewer() {
   const { viewer } = useMolstar();
 
   const isInitialized = useBehavior(viewer.state.isInitialized);
-  const isLoading = useBehavior(viewer.state.isLoading);
+  // const isLoading = useBehavior(viewer.state.isLoading);
 
   useEffect(() => {
     if (!isInitialized) viewer.init();
@@ -17,7 +17,7 @@ export function MolstarViewer() {
 
   return (
     <div className="relative size-full">
-      {isLoading && (
+      {/* {isLoading && (
         <div className="absolute top-1/2 left-1/2 transform-[translate(-50%, -50%)] z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@ export function MolstarViewer() {
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
         </div>
-      )}
+      )} */}
       {isInitialized && <ViewerLayout viewer={viewer} />}
     </div>
   );

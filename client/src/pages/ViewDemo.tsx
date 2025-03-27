@@ -2,7 +2,8 @@ import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { useMolstar } from "@/context/MolstarContext";
 import { useState } from "react";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
-import snapshotExample from "./snapshot-example.json" assert { type: "json" };
+import snapshotExample1 from "./snapshot-example-1.json" assert { type: "json" };
+import snapshotExample2 from "./snapshot-example-2.json" assert { type: "json" };
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, FileUp, Camera } from "lucide-react";
+import { Trash2, Camera } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +27,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type View = {
@@ -34,25 +34,28 @@ type View = {
   name: string;
   description: string;
   snapshot: object;
-  createdAt: Date;
 };
 
 export function ViewDemo() {
   const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>([
     {
-      id: "example-snapshot",
-      name: "Example Snapshot",
-      description: "Default protein visualization with cartoon representation",
-      snapshot: snapshotExample.entries[0].snapshot,
-      createdAt: new Date(),
+      id: "example-snapshot-1",
+      name: "Zoom out",
+      description: "Default cartoon representation for structure 1TQN",
+      snapshot: snapshotExample1,
+    },
+    {
+      id: "example-snapshot-2",
+      name: "Zoom in",
+      description: "1TQN structure focused on A VAL 214",
+      snapshot: snapshotExample2,
     },
   ]);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [newViewName, setNewViewName] = useState("");
   const [newViewDescription, setNewViewDescription] = useState("");
-  const [deleteViewId, setDeleteViewId] = useState<string | null>(null);
 
   // Save the current state as a new snapshot
   const handleSaveSnapshot = () => {
@@ -68,8 +71,8 @@ export function ViewDemo() {
       name: newViewName || `Snapshot ${views.length + 1}`,
       description: newViewDescription || "No description provided",
       snapshot: viewer.getState(),
-      createdAt: new Date(),
     };
+    console.log(viewer.getState());
     setViews((prev) => [...prev, view]);
     setShowSaveDialog(false);
   };
@@ -82,23 +85,10 @@ export function ViewDemo() {
 
   // Delete a snapshot
   const handleDeleteSnapshot = (id: string) => {
-    setDeleteViewId(id);
-  };
-
-  // Confirm deleting the snapshot
-  const confirmDeleteSnapshot = () => {
-    if (deleteViewId) {
-      setViews((prev) => prev.filter((view) => view.id !== deleteViewId));
-      setDeleteViewId(null);
-      if (currentViewId === deleteViewId) {
-        setCurrentViewId(null);
-      }
+    setViews((prev) => prev.filter((view) => view.id !== id));
+    if (currentViewId === id) {
+      setCurrentViewId(null);
     }
-  };
-
-  // Format time for display
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
@@ -122,27 +112,24 @@ export function ViewDemo() {
                 key={view.id}
                 className={`transition-all hover:shadow-md m-2 ${currentViewId === view.id ? "ring-2 ring-primary" : ""}`}
               >
-                <CardHeader className="py-3 px-4">
+                <CardHeader className="">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{view.name}</CardTitle>
-                    <Badge variant="outline" className="text-xs">
-                      {formatTime(view.createdAt)}
-                    </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="py-2 px-4">
+                <CardContent className="">
                   <p className="text-xs text-muted-foreground line-clamp-2">
                     {view.description}
                   </p>
                 </CardContent>
-                <CardFooter className="pt-0 pb-3 px-4 flex justify-between">
+                <CardFooter className="justify-between">
                   <Button
                     onClick={() => loadSnapshot(view)}
                     variant={currentViewId === view.id ? "default" : "outline"}
                     size="sm"
                     className="gap-1"
                   >
-                    <span>{currentViewId === view.id ? "Loaded" : "Load"}</span>
+                    <span>Load</span>
                   </Button>
                   <Button
                     onClick={() => handleDeleteSnapshot(view.id)}
@@ -206,33 +193,6 @@ export function ViewDemo() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmSaveSnapshot}>
               Save
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete Snapshot Confirmation Dialog */}
-      <AlertDialog
-        open={!!deleteViewId}
-        onOpenChange={(open) => !open && setDeleteViewId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Snapshot</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this snapshot? This action cannot
-              be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                variant="destructive"
-                onClick={confirmDeleteSnapshot}
-              >
-                Delete
-              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
