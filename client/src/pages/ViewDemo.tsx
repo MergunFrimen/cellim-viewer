@@ -2,8 +2,8 @@ import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { useMolstar } from "@/context/MolstarContext";
 import { useState } from "react";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
-import snapshotExample1 from "./snapshot-example-1.json" assert { type: "json" };
-import snapshotExample2 from "./snapshot-example-2.json" assert { type: "json" };
+import snapshotExample1 from "../data/snapshot-example-1.json" assert { type: "json" };
+import snapshotExample2 from "../data/snapshot-example-2.json" assert { type: "json" };
 import { Button } from "@/components/ui/button";
 import {
   Card,
