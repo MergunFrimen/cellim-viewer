@@ -68,3 +68,12 @@ export interface SearchParams {
   page: number;
   per_page: number;
 }
+
+export interface ViewState {
+  id: string;
+  title: string;
+  description: string;
+  mvsj: any; // The MolStar view state JSON
+  created_at: string | null;
+  updated_at: string | null;
+}
