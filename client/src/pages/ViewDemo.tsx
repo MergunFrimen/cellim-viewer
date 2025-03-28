@@ -1,17 +1,19 @@
 // src/pages/ViewDemo.tsx
-import { useState } from "react";
-import { useMolstar } from "@/context/MolstarContext";
+import { Button } from "@/components/ui/button";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { ViewsSidebar } from "@/components/views/ViewsSidebar";
 import { SaveViewDialog } from "@/components/views/SaveViewDialog";
 import { EditViewDialog } from "@/components/views/EditViewDialog";
+import { DeleteDialog } from "@/components/DeleteDialog";
+import { useMolstar } from "@/context/MolstarContext";
 import { useViews } from "@/hooks/useViews";
-import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
-import { toast } from "sonner";
-
-// Import sample data
+import { View } from "@/types";
+import { useState, useEffect, useCallback } from "react";
+import { Expand, Loader, SidebarOpen, SidebarClose } from "lucide-react";
+import { useBehavior } from "@/hooks/useBehavior";
 import snapshotExample1 from "../data/snapshot-example-1.json" assert { type: "json" };
 import snapshotExample2 from "../data/snapshot-example-2.json" assert { type: "json" };
+import { toast } from "sonner";
 
 export function ViewDemo() {
   const { viewer } = useMolstar();
@@ -40,6 +42,7 @@ export function ViewDemo() {
   const {
     views,
     currentViewId,
+    screenshotUrls,
     createView,
     updateView,
     deleteView,
@@ -48,88 +51,131 @@ export function ViewDemo() {
     getViewById,
   } = useViews({ initialViews });
 
-  // Dialog state
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editingViewId, setEditingViewId] = useState<string | null>(null);
+  const [viewToEdit, setViewToEdit] = useState<View | null>(null);
+  const [viewToDelete, setViewToDelete] = useState<View | null>(null);
+  const [showSidebar, setShowSidebar] = useState(true);
 
-  // Handlers
-  const handleSaveView = (name: string, description: string) => {
-    const newView = createView(name, description, viewer.getState());
+  // Get viewer states
+  const isLoading = useBehavior(viewer.state.isLoading);
+  const isExpanded = useBehavior(viewer.state.isExpanded);
+  const showControls = useBehavior(viewer.state.showControls);
+
+  // Toggle viewer controls
+  const toggleControls = useCallback(() => {
+    viewer.state.showControls.next(!showControls);
+  }, [viewer, showControls]);
+
+  // Toggle fullscreen
+  const toggleExpand = useCallback(() => {
+    viewer.state.isExpanded.next(!isExpanded);
+  }, [viewer, isExpanded]);
+
+  // Handle saving a new view
+  const handleSaveView = () => {
+    setShowSaveDialog(true);
+  };
+
+  // Save view from dialog
+  const onSaveView = async (name: string, description: string) => {
+    const snapshot = viewer.getState();
+    await createView(name, description, snapshot);
     setShowSaveDialog(false);
-    toast.success("View saved successfully");
-    setCurrentView(newView.id);
   };
 
-  const handleEditView = (viewId: string) => {
-    setEditingViewId(viewId);
-    setShowEditDialog(true);
+  // Handle loading a view
+  const handleLoadView = async (view: View) => {
+    if (view.mvsj) {
+      setCurrentView(view.id);
+      await viewer.setState(view.mvsj);
+    }
   };
 
-  const handleUpdateView = (
+  // Handle editing a view
+  const handleEditView = (view: View) => {
+    setViewToEdit(view);
+  };
+
+  // Update view from edit dialog
+  const onUpdateView = async (
     viewId: string,
     name: string,
     description: string,
   ) => {
-    updateView(viewId, { title: name, description });
-    setShowEditDialog(false);
-    setEditingViewId(null);
+    await updateView(viewId, { title: name, description });
+    setViewToEdit(null);
     toast.success("View updated successfully");
   };
 
-  const handleLoadView = (viewId: string) => {
+  // Handle deleting a view
+  const handleDeleteView = (viewId: string) => {
     const view = getViewById(viewId);
     if (view) {
-      viewer.setState(view.mvsj as PluginState.Snapshot);
-      setCurrentView(viewId);
-      toast.success(`Loaded view: ${view.title}`);
+      setViewToDelete(view);
     }
   };
 
-  const handleReorderViews = (
-    sourceIndex: number,
-    destinationIndex: number,
-  ) => {
-    reorderViews(sourceIndex, destinationIndex);
-    toast.success("Views reordered");
+  // Confirm view deletion
+  const confirmDeleteView = () => {
+    if (viewToDelete) {
+      deleteView(viewToDelete.id);
+      setViewToDelete(null);
+    }
   };
 
-  // Get the current editing view
-  const editingView = editingViewId ? getViewById(editingViewId) : null;
-
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background p-4">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       {/* Left Sidebar with Views List */}
-      <ViewsSidebar
-        views={views}
-        currentViewId={currentViewId}
-        onSaveView={() => setShowSaveDialog(true)}
-        onEditView={(view) => handleEditView(view.id)}
-        onLoadView={(view) => handleLoadView(view.id)}
-        onDeleteView={deleteView}
-        onReorderViews={handleReorderViews}
-      />
+      <div className="flex flex-1 overflow-hidden">
+        {showSidebar && (
+          <aside className="p-4 border-r overflow-y-auto">
+            <ViewsSidebar
+              views={views}
+              currentViewId={currentViewId}
+              screenshotUrls={screenshotUrls}
+              onSaveView={handleSaveView}
+              onEditView={handleEditView}
+              onLoadView={handleLoadView}
+              onDeleteView={handleDeleteView}
+              onReorderViews={reorderViews}
+            />
+          </aside>
+        )}
 
-      {/* Right Side Viewer Container */}
-      <div className="flex-1 rounded-md border overflow-hidden bg-card">
-        <div className="h-full">
+        <main className="flex-1 relative">
+          {/* {isLoading && (
+            <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center">
+                <Loader className="h-8 w-8 animate-spin" />
+                <p className="mt-2">Loading view...</p>
+              </div>
+            </div>
+          )} */}
           <MolstarViewer />
-        </div>
+        </main>
       </div>
 
-      {/* Save View Dialog */}
+      {/* Dialogs */}
       <SaveViewDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
-        onSave={handleSaveView}
+        onSave={onSaveView}
       />
 
       {/* Edit View Dialog */}
       <EditViewDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        view={editingView}
-        onUpdate={handleUpdateView}
+        open={!!viewToEdit}
+        onOpenChange={(open) => !open && setViewToEdit(null)}
+        view={viewToEdit}
+        onUpdate={onUpdateView}
+      />
+
+      <DeleteDialog
+        title="Delete View"
+        description={`Are you sure you want to delete "${viewToDelete?.title}"? This action cannot be undone.`}
+        open={!!viewToDelete}
+        onOpenChange={(open) => !open && setViewToDelete(null)}
+        onConfirm={confirmDeleteView}
       />
     </div>
   );

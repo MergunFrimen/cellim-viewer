@@ -3,10 +3,12 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { ViewDemo } from "./pages/ViewDemo";
 import { MolstarProvider } from "./context/MolstarContext";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import { Toaster } from "./components/ui/sonner";
 
 export function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="theme">
+      <Toaster />
       <BrowserRouter basename="cellim-viewer">
         <ScrollToTop />
         {/* <Layout> */}

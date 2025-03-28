@@ -6,6 +6,7 @@ import {
   PluginUISpec,
 } from "molstar/lib/commonjs/mol-plugin-ui/spec";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
+import { PluginStateSnapshotManager } from "molstar/lib/commonjs/mol-plugin-state/manager/snapshots";
 
 export class MolstarViewer extends BaseReactiveModel {
   public plugin: PluginUIContext;
@@ -45,6 +46,18 @@ export class MolstarViewer extends BaseReactiveModel {
   async init() {
     await this.plugin.init();
     this.state.isInitialized.next(true);
+  }
+
+  async screenshot(): Promise<string> {
+    // generate new screenshot of render
+    const screenshot = await PluginStateSnapshotManager.getCanvasImageAsset(
+      this.plugin,
+      "screenshot.png",
+    );
+    if (!screenshot) throw new Error("no image");
+    const file = this.plugin.managers.asset.get(screenshot)?.file;
+    if (!file) throw new Error("no file");
+    return URL.createObjectURL(file);
   }
 
   getState(): PluginState.Snapshot {

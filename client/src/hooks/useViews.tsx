@@ -1,6 +1,7 @@
 // src/hooks/useViews.tsx
 import { useState } from "react";
 import { View } from "@/types";
+import { useMolstar } from "@/context/MolstarContext";
 
 // Optional initial views to load
 interface UseViewsOptions {
@@ -8,11 +9,21 @@ interface UseViewsOptions {
 }
 
 export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
+  const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>(initialViews);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
+  const [screenshotUrls, setScreenshotUrls] = useState<Record<string, string>>({});
 
   // Create a new view
-  const createView = (title: string, description: string, snapshot: any) => {
+  const createView = async (title: string, description: string, snapshot: any) => {
+    // Take a screenshot before creating the view
+    let screenshotUrl = "";
+    try {
+      screenshotUrl = await viewer.screenshot();
+    } catch (error) {
+      console.error("Failed to capture screenshot:", error);
+    }
+
     const newView: View = {
       id: `view-${Date.now()}`,
       title: title || `View ${views.length + 1}`,
@@ -23,6 +34,15 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     };
 
     setViews((prev) => [...prev, newView]);
+    
+    // Store the screenshot URL
+    if (screenshotUrl) {
+      setScreenshotUrls((prev) => ({
+        ...prev,
+        [newView.id]: screenshotUrl
+      }));
+    }
+
     return newView;
   };
 
@@ -44,6 +64,14 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   // Delete a view
   const deleteView = (viewId: string) => {
     setViews((prev) => prev.filter((view) => view.id !== viewId));
+    
+    // Also remove the screenshot
+    setScreenshotUrls((prev) => {
+      const newUrls = { ...prev };
+      delete newUrls[viewId];
+      return newUrls;
+    });
+    
     if (currentViewId === viewId) {
       setCurrentViewId(null);
     }
@@ -71,14 +99,43 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     return views.find((view) => view.id === viewId) || null;
   };
 
+  // Generate screenshots for all views without one
+  const generateMissingScreenshots = async () => {
+    // This is a utility function that could be called when all views are loaded
+    // It would ensure every view has a screenshot
+    for (const view of views) {
+      if (!screenshotUrls[view.id]) {
+        try {
+          // Load the view
+          if (view.mvsj) {
+            await viewer.setState(view.mvsj);
+            
+            // Take screenshot
+            const url = await viewer.screenshot();
+            
+            // Save the screenshot URL
+            setScreenshotUrls(prev => ({
+              ...prev,
+              [view.id]: url
+            }));
+          }
+        } catch (error) {
+          console.error(`Failed to generate screenshot for view ${view.id}:`, error);
+        }
+      }
+    }
+  };
+
   return {
     views,
     currentViewId,
+    screenshotUrls,
     createView,
     updateView,
     deleteView,
     reorderViews,
     setCurrentView,
     getViewById,
+    generateMissingScreenshots,
   };
 }

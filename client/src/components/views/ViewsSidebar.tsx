@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 interface ViewsSidebarProps {
   views: View[];
   currentViewId: string | null;
+  screenshotUrls: Record<string, string>;
   onSaveView: () => void;
   onEditView: (view: View) => void;
   onLoadView: (view: View) => void;
@@ -33,6 +34,7 @@ interface ViewsSidebarProps {
 export function ViewsSidebar({
   views,
   currentViewId,
+  screenshotUrls,
   onSaveView,
   onEditView,
   onLoadView,
@@ -55,6 +57,7 @@ export function ViewsSidebar({
         <DraggableViewList
           views={views}
           currentViewId={currentViewId}
+          screenshotUrls={screenshotUrls}
           onEditView={onEditView}
           onLoadView={onLoadView}
           onDeleteView={onDeleteView}
@@ -73,6 +76,7 @@ export function ViewsSidebar({
 interface DraggableViewListProps {
   views: View[];
   currentViewId: string | null;
+  screenshotUrls: Record<string, string>;
   onEditView: (view: View) => void;
   onLoadView: (view: View) => void;
   onDeleteView: (viewId: string) => void;
@@ -82,6 +86,7 @@ interface DraggableViewListProps {
 function DraggableViewList({
   views,
   currentViewId,
+  screenshotUrls,
   onEditView,
   onLoadView,
   onDeleteView,
@@ -123,12 +128,14 @@ function DraggableViewList({
           className={cn(
             "transition-transform",
             draggedItem === index && "opacity-50",
-            dragOverItem === index && "border-2 border-primary border-dashed rounded-xl",
+            dragOverItem === index &&
+              "border-2 border-primary border-dashed rounded-xl",
           )}
         >
           <ViewCard
             view={view}
             isActive={currentViewId === view.id}
+            screenshotUrl={screenshotUrls[view.id]}
             onEdit={() => onEditView(view)}
             onLoad={() => onLoadView(view)}
             onDelete={() => onDeleteView(view.id)}
@@ -142,12 +149,20 @@ function DraggableViewList({
 interface ViewCardProps {
   view: View;
   isActive: boolean;
+  screenshotUrl?: string;
   onEdit: () => void;
   onLoad: () => void;
   onDelete: () => void;
 }
 
-function ViewCard({ view, isActive, onEdit, onLoad, onDelete }: ViewCardProps) {
+function ViewCard({
+  view,
+  isActive,
+  screenshotUrl,
+  onEdit,
+  onLoad,
+  onDelete,
+}: ViewCardProps) {
   return (
     <Card
       className={`transition-all hover:shadow-md m-2 ${isActive ? "ring-2 ring-primary" : ""}`}
@@ -183,6 +198,22 @@ function ViewCard({ view, isActive, onEdit, onLoad, onDelete }: ViewCardProps) {
           </DropdownMenu>
         </div>
       </CardHeader>
+
+      {/* Screenshot Preview */}
+      <div className="px-6 pb-2">
+        <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
+          {screenshotUrl ? (
+            <img
+              src={screenshotUrl}
+              alt={`Preview of ${view.title}`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Camera className="h-8 w-8 text-muted-foreground" />
+          )}
+        </div>
+      </div>
+
       <CardContent>
         <p className="text-xs text-muted-foreground line-clamp-2">
           {view.description}
