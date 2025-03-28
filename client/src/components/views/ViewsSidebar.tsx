@@ -42,8 +42,8 @@ export function ViewsSidebar({
   onReorderViews,
 }: ViewsSidebarProps) {
   return (
-    <div className="flex w-80 flex-col mr-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="flex flex-col h-full w-96">
+      <div className="flex items-center justify-between mb-4 px-2">
         <h2 className="text-xl font-bold">Saved Views</h2>
         <Button onClick={onSaveView} size="sm" className="gap-1">
           <Camera size={16} />
@@ -51,23 +51,24 @@ export function ViewsSidebar({
         </Button>
       </div>
 
-      <Separator className="mb-4" />
-
-      <ScrollArea className="flex-grow pr-3">
-        <DraggableViewList
-          views={views}
-          currentViewId={currentViewId}
-          screenshotUrls={screenshotUrls}
-          onEditView={onEditView}
-          onLoadView={onLoadView}
-          onDeleteView={onDeleteView}
-          onReorderViews={onReorderViews}
-        />
-        {views.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No views saved yet</p>
-          </div>
-        )}
+      {/* Fixed ScrollArea - Set explicit height and make it fill available space */}
+      <ScrollArea className="flex-1 min-h-0 pr-3">
+        <div className="pb-4 px-2">
+          <DraggableViewList
+            views={views}
+            currentViewId={currentViewId}
+            screenshotUrls={screenshotUrls}
+            onEditView={onEditView}
+            onLoadView={onLoadView}
+            onDeleteView={onDeleteView}
+            onReorderViews={onReorderViews}
+          />
+          {views.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No views saved yet</p>
+            </div>
+          )}
+        </div>
       </ScrollArea>
     </div>
   );

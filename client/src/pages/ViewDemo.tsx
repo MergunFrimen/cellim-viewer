@@ -11,8 +11,8 @@ import { View } from "@/types";
 import { useState, useEffect, useCallback } from "react";
 import { Expand, Loader, SidebarOpen, SidebarClose } from "lucide-react";
 import { useBehavior } from "@/hooks/useBehavior";
-import snapshotExample1 from "../data/snapshot-example-1.json" assert { type: "json" };
-import snapshotExample2 from "../data/snapshot-example-2.json" assert { type: "json" };
+import snapshotExample1 from "../data/snapshot-example-1.json";
+import snapshotExample2 from "../data/snapshot-example-2.json";
 import { toast } from "sonner";
 
 export function ViewDemo() {
@@ -125,10 +125,11 @@ export function ViewDemo() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      {/* Left Sidebar with Views List */}
+      {/* Main Content Area - Using flex and making sure both sidebar and content can scroll independently */}
       <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar with proper height constraints */}
         {showSidebar && (
-          <aside className="p-4 border-r overflow-y-auto">
+          <aside className="p-4 border-r h-full overflow-hidden flex flex-col">
             <ViewsSidebar
               views={views}
               currentViewId={currentViewId}
@@ -142,15 +143,16 @@ export function ViewDemo() {
           </aside>
         )}
 
+        {/* Viewer area */}
         <main className="flex-1 relative">
-          {/* {isLoading && (
+          {isLoading && (
             <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
               <div className="flex flex-col items-center">
                 <Loader className="h-8 w-8 animate-spin" />
                 <p className="mt-2">Loading view...</p>
               </div>
             </div>
-          )} */}
+          )}
           <MolstarViewer />
         </main>
       </div>
