@@ -16,7 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { View } from "@/types";
-import { Camera, Edit, MoreVertical, Trash2 } from "lucide-react";
+import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ViewsSidebarProps {
   views: View[];
@@ -25,6 +27,7 @@ interface ViewsSidebarProps {
   onEditView: (view: View) => void;
   onLoadView: (view: View) => void;
   onDeleteView: (viewId: string) => void;
+  onReorderViews: (sourceIndex: number, destinationIndex: number) => void;
 }
 
 export function ViewsSidebar({
@@ -34,6 +37,7 @@ export function ViewsSidebar({
   onEditView,
   onLoadView,
   onDeleteView,
+  onReorderViews,
 }: ViewsSidebarProps) {
   return (
     <div className="flex w-80 flex-col mr-4">
@@ -48,24 +52,89 @@ export function ViewsSidebar({
       <Separator className="mb-4" />
 
       <ScrollArea className="flex-grow pr-3">
-        <div className="space-y-3">
-          {views.map((view) => (
-            <ViewCard
-              key={view.id}
-              view={view}
-              isActive={currentViewId === view.id}
-              onEdit={() => onEditView(view)}
-              onLoad={() => onLoadView(view)}
-              onDelete={() => onDeleteView(view.id)}
-            />
-          ))}
-          {views.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No views saved yet</p>
-            </div>
-          )}
-        </div>
+        <DraggableViewList
+          views={views}
+          currentViewId={currentViewId}
+          onEditView={onEditView}
+          onLoadView={onLoadView}
+          onDeleteView={onDeleteView}
+          onReorderViews={onReorderViews}
+        />
+        {views.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No views saved yet</p>
+          </div>
+        )}
       </ScrollArea>
+    </div>
+  );
+}
+
+interface DraggableViewListProps {
+  views: View[];
+  currentViewId: string | null;
+  onEditView: (view: View) => void;
+  onLoadView: (view: View) => void;
+  onDeleteView: (viewId: string) => void;
+  onReorderViews: (sourceIndex: number, destinationIndex: number) => void;
+}
+
+function DraggableViewList({
+  views,
+  currentViewId,
+  onEditView,
+  onLoadView,
+  onDeleteView,
+  onReorderViews,
+}: DraggableViewListProps) {
+  const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    setDraggedItem(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverItem(index);
+  };
+
+  const handleDragEnd = () => {
+    if (
+      draggedItem !== null &&
+      dragOverItem !== null &&
+      draggedItem !== dragOverItem
+    ) {
+      onReorderViews(draggedItem, dragOverItem);
+    }
+    setDraggedItem(null);
+    setDragOverItem(null);
+  };
+
+  return (
+    <div className="space-y-3">
+      {views.map((view, index) => (
+        <div
+          key={view.id}
+          draggable
+          onDragStart={() => handleDragStart(index)}
+          onDragOver={(e) => handleDragOver(e, index)}
+          onDragEnd={handleDragEnd}
+          className={cn(
+            "transition-transform",
+            draggedItem === index && "opacity-50",
+            dragOverItem === index && "border-2 border-primary border-dashed rounded-xl",
+          )}
+        >
+          <ViewCard
+            view={view}
+            isActive={currentViewId === view.id}
+            onEdit={() => onEditView(view)}
+            onLoad={() => onLoadView(view)}
+            onDelete={() => onDeleteView(view.id)}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -85,7 +154,13 @@ function ViewCard({ view, isActive, onEdit, onLoad, onDelete }: ViewCardProps) {
     >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-base">{view.title}</CardTitle>
+          <div className="flex items-center gap-2">
+            <GripVertical
+              size={16}
+              className="text-muted-foreground cursor-grab"
+            />
+            <CardTitle className="text-base">{view.title}</CardTitle>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

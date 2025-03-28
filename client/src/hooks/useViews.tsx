@@ -49,6 +49,18 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     }
   };
 
+  // Reorder views
+  const reorderViews = (sourceIndex: number, destinationIndex: number) => {
+    if (sourceIndex === destinationIndex) return;
+    
+    setViews((prevViews) => {
+      const result = Array.from(prevViews);
+      const [removed] = result.splice(sourceIndex, 1);
+      result.splice(destinationIndex, 0, removed);
+      return result;
+    });
+  };
+
   // Set the current active view
   const setCurrentView = (viewId: string | null) => {
     setCurrentViewId(viewId);
@@ -65,6 +77,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     createView,
     updateView,
     deleteView,
+    reorderViews,
     setCurrentView,
     getViewById,
   };

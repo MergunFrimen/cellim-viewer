@@ -7,6 +7,7 @@ import { SaveViewDialog } from "@/components/views/SaveViewDialog";
 import { EditViewDialog } from "@/components/views/EditViewDialog";
 import { useViews } from "@/hooks/useViews";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
+import { toast } from "sonner";
 
 // Import sample data
 import snapshotExample1 from "../data/snapshot-example-1.json" assert { type: "json" };
@@ -42,6 +43,7 @@ export function ViewDemo() {
     createView,
     updateView,
     deleteView,
+    reorderViews,
     setCurrentView,
     getViewById,
   } = useViews({ initialViews });
@@ -53,8 +55,10 @@ export function ViewDemo() {
 
   // Handlers
   const handleSaveView = (name: string, description: string) => {
-    createView(name, description, viewer.getState());
+    const newView = createView(name, description, viewer.getState());
     setShowSaveDialog(false);
+    toast.success("View saved successfully");
+    setCurrentView(newView.id);
   };
 
   const handleEditView = (viewId: string) => {
@@ -70,6 +74,7 @@ export function ViewDemo() {
     updateView(viewId, { title: name, description });
     setShowEditDialog(false);
     setEditingViewId(null);
+    toast.success("View updated successfully");
   };
 
   const handleLoadView = (viewId: string) => {
@@ -77,7 +82,16 @@ export function ViewDemo() {
     if (view) {
       viewer.setState(view.mvsj as PluginState.Snapshot);
       setCurrentView(viewId);
+      toast.success(`Loaded view: ${view.title}`);
     }
+  };
+
+  const handleReorderViews = (
+    sourceIndex: number,
+    destinationIndex: number,
+  ) => {
+    reorderViews(sourceIndex, destinationIndex);
+    toast.success("Views reordered");
   };
 
   // Get the current editing view
@@ -93,6 +107,7 @@ export function ViewDemo() {
         onEditView={(view) => handleEditView(view.id)}
         onLoadView={(view) => handleLoadView(view.id)}
         onDeleteView={deleteView}
+        onReorderViews={handleReorderViews}
       />
 
       {/* Right Side Viewer Container */}
