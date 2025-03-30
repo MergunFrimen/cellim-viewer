@@ -7,18 +7,8 @@ export const entryFormSchema = z.object({
     .min(1, { message: "Name is required" })
     .max(50, { message: "Name must be 50 characters or less" }),
   description: z.string().optional().nullable(),
-  author_email: z.union([
-    z.literal(""),
-    z
-      .string()
-      .email({ message: "Invalid email address" })
-      .optional()
-      .nullable(),
-  ]),
-  thumbnail_path: z.string().optional().nullable(),
   is_public: z.boolean().default(true),
 });
-
 export type EntryFormValues = z.infer<typeof entryFormSchema>;
 
 // View form schema
@@ -30,5 +20,4 @@ export const viewFormSchema = z.object({
   description: z.string().min(1, { message: "Description is required" }),
   mvsj: z.record(z.any()).optional().nullable(),
 });
-
 export type ViewFormValues = z.infer<typeof viewFormSchema>;

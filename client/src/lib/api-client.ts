@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/lib/api-schema";
 import {
   Entry,
   EntryCreateRequest,
@@ -22,7 +23,7 @@ function handleResponse<T>(response: Response): Promise<T> {
 
 // Entries API
 export const entriesApi = {
-  // List entries with optional search and pagination
+  // Search entries with pagination
   list: async ({
     search,
     page = 1,
@@ -34,24 +35,7 @@ export const entriesApi = {
     params.append("per_page", per_page.toString());
 
     const response = await fetch(
-      `${API_BASE_URL}/entries?${params.toString()}`,
-    );
-    return handleResponse<EntryListResponse>(response);
-  },
-
-  // List only public entries
-  listPublic: async ({
-    search,
-    page = 1,
-    per_page = 10,
-  }: SearchParams): Promise<EntryListResponse> => {
-    const params = new URLSearchParams();
-    if (search) params.append("search", search);
-    params.append("page", page.toString());
-    params.append("per_page", per_page.toString());
-
-    const response = await fetch(
-      `${API_BASE_URL}/entries/public?${params.toString()}`,
+      `${API_ENDPOINTS.ENTRIES.LIST}?${params.toString()}`,
     );
     return handleResponse<EntryListResponse>(response);
   },
