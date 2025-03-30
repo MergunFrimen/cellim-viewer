@@ -1,4 +1,4 @@
-import { DeleteDialog } from "@/components/DeleteDialog";
+import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,

@@ -4,7 +4,7 @@ import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { ViewsSidebar } from "@/components/views/ViewsSidebar";
 import { SaveViewDialog } from "@/components/views/SaveViewDialog";
 import { EditViewDialog } from "@/components/views/EditViewDialog";
-import { DeleteDialog } from "@/components/DeleteDialog";
+import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
 import { useMolstar } from "@/context/MolstarContext";
 import { useViews } from "@/hooks/useViews";
 import { View } from "@/types";

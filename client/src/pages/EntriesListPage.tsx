@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DeleteDialog } from "@/components/DeleteDialog";
+import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
 import { EntryCard } from "@/components/EntryCard";
 import { Pagination } from "@/components/Pagination";
 import { SearchBar } from "@/components/SearchBar";
@@ -69,14 +69,14 @@ export function EntriesListPage() {
   };
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Entries</h1>
-          <p className="text-muted-foreground">
-            Browse, search, and manage your CELLIM entries
+    <div className="py-8">
+      <div className="flex flex-col justify-between items-start md:items-center mb-8 gap-4">
+        <section className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold">CELLIM View</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Browse, search, and manage your CELLIM entries.
           </p>
-        </div>
+        </section>
 
         <Button asChild>
           <Link to="/entries/new">
