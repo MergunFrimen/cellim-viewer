@@ -7,11 +7,14 @@ export const entryFormSchema = z.object({
     .min(1, { message: "Name is required" })
     .max(50, { message: "Name must be 50 characters or less" }),
   description: z.string().optional().nullable(),
-  author_email: z
-    .string()
-    .email({ message: "Invalid email address" })
-    .optional()
-    .nullable(),
+  author_email: z.union([
+    z.literal(""),
+    z
+      .string()
+      .email({ message: "Invalid email address" })
+      .optional()
+      .nullable(),
+  ]),
   thumbnail_path: z.string().optional().nullable(),
   is_public: z.boolean().default(true),
 });
