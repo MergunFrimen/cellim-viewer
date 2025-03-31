@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
@@ -36,6 +37,8 @@ export function EntryCreateDialog({
   open,
   onOpenChange,
 }: EntryCreateDialogProps) {
+  const navigate = useNavigate();
+
   const form = useForm<EntryFormValues>({
     resolver: zodResolver(entryFormSchema),
     defaultValues: {
@@ -49,6 +52,9 @@ export function EntryCreateDialog({
     mutationFn: (data: EntryFormValues) => entriesApi.create(data),
     onSuccess: (entry) => {
       toast.success(`Entry "${entry.name}" created successfully`);
+      onOpenChange(false);
+      // Redirect to the newly created entry's details page
+      navigate(`/entries/${entry.id}`);
     },
     onError: (error) => {
       toast.error(

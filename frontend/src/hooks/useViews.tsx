@@ -2,14 +2,18 @@
 import { useMolstar } from "@/context/MolstarContext";
 import { View } from "@/types";
 import { UUID } from "molstar/lib/commonjs/mol-util";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// Optional initial views to load
+// Optional initial views to load and callback when views change
 interface UseViewsOptions {
   initialViews?: View[];
+  onViewsChange?: () => void;
 }
 
-export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
+export function useViews({
+  initialViews = [],
+  onViewsChange,
+}: UseViewsOptions = {}) {
   const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>(initialViews);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
@@ -17,8 +21,23 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     {},
   );
 
+  // Update views when initialViews changes (e.g., from API)
+  useEffect(() => {
+    if (initialViews.length > 0) {
+      setViews(initialViews);
+    }
+  }, [initialViews]);
+
+  // Call onViewsChange whenever views are updated
+  useEffect(() => {
+    if (onViewsChange) {
+      onViewsChange();
+    }
+  }, [views, onViewsChange]);
+
   // Create a new view
   const createView = async (
+    id: string,
     name: string,
     description: string,
     snapshot: any,
@@ -32,7 +51,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     }
 
     const newView: View = {
-      id: UUID.createv4(),
+      id: id || UUID.createv4(),
       name: name || `View ${views.length + 1}`,
       description: description || "No description provided",
       mvsj: snapshot,
@@ -56,6 +75,15 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
 
   // Update an existing view
   const updateView = (viewId: string, updates: Partial<View>) => {
+    // If the update includes a screenshot, store it
+    if (updates.screenshot) {
+      setScreenshotUrls((prev) => ({
+        ...prev,
+        [viewId]: updates.screenshot as string,
+      }));
+      delete updates.screenshot; // Remove screenshot from updates as it's not part of the View type
+    }
+
     setViews((prev) =>
       prev.map((view) =>
         view.id === viewId

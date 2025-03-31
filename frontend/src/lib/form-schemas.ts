@@ -13,7 +13,7 @@ export type EntryFormValues = z.infer<typeof entryFormSchema>;
 
 // View form schema
 export const viewFormSchema = z.object({
-  title: z
+  name: z
     .string()
     .min(1, { message: "Title is required" })
     .max(50, { message: "Title must be 50 characters or less" }),

@@ -19,27 +19,6 @@ import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
 import { EditViewDialog } from "@/components/views/ViewEditDialog";
 import { toast } from "sonner";
-import snapshotExample1 from "../data/snapshot-example-1.json";
-import snapshotExample2 from "../data/snapshot-example-2.json";
-
-const initialViews = [
-  {
-    id: "example-snapshot-1",
-    name: "Zoom out",
-    description: "Default cartoon representation for structure 1TQN",
-    mvsj: snapshotExample1,
-    created_at: null,
-    updated_at: null,
-  },
-  {
-    id: "example-snapshot-2",
-    name: "Zoom in",
-    description: "1TQN structure focused on A VAL 214",
-    mvsj: snapshotExample2,
-    created_at: null,
-    updated_at: null,
-  },
-];
 
 export function EntryDetailPage() {
   const { viewer } = useMolstar();
@@ -48,22 +27,9 @@ export function EntryDetailPage() {
   const queryClient = useQueryClient();
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [viewToEdit, setViewToEdit] = useState<View | null>(null);
   const [viewToDelete, setViewToDelete] = useState<View | null>(null);
-
-  const {
-    views,
-    currentViewId,
-    screenshotUrls,
-    createView,
-    updateView,
-    deleteView,
-    reorderViews,
-    setCurrentView,
-    getViewById,
-  } = useViews({ initialViews });
 
   const entryId = params.id;
 
@@ -102,8 +68,47 @@ export function EntryDetailPage() {
     ],
   });
 
-  // Delete mutation
-  const deleteMutation = useMutation({
+  const {
+    views,
+    currentViewId,
+    screenshotUrls,
+    createView,
+    updateView,
+    deleteView,
+    reorderViews,
+    setCurrentView,
+    getViewById,
+  } = useViews({
+    initialViews: viewsQuery.data || [],
+    onViewsChange: () => {
+      // This will be called whenever the local views state changes
+      queryClient.invalidateQueries({ queryKey: ["views", entryId] });
+    },
+  });
+
+  // Update local views when backend data changes
+  useEffect(() => {
+    if (viewsQuery.data) {
+      // Generate screenshot URLs for views that don't have them yet
+      viewsQuery.data.forEach(async (view) => {
+        if (view.mvsj && !screenshotUrls[view.id]) {
+          try {
+            await viewer.setState(view.mvsj);
+            const url = await viewer.screenshot();
+            updateView(view.id, { screenshot: url });
+          } catch (error) {
+            console.error(
+              `Failed to generate screenshot for view ${view.id}:`,
+              error,
+            );
+          }
+        }
+      });
+    }
+  }, [viewsQuery.data]);
+
+  // Delete entry mutation
+  const deleteEntryMutation = useMutation({
     mutationFn: () => {
       if (!entryQuery.data) throw new Error("Entry not found");
       return entriesApi.delete(entryQuery.data.id);
@@ -116,9 +121,108 @@ export function EntryDetailPage() {
     },
   });
 
+  // Create view mutation
+  const createViewMutation = useMutation({
+    mutationFn: async (data: {
+      name: string;
+      description: string;
+      mvsj: any;
+    }) => {
+      if (!entryId) throw new Error("No entry ID provided");
+
+      return viewsApi.create({
+        name: data.name,
+        description: data.description,
+        mvsj: data.mvsj,
+        entry_id: entryId,
+      });
+    },
+    onSuccess: (newView) => {
+      // Create view locally and add screenshot
+      createView(newView.id, newView.name, newView.description, newView.mvsj);
+
+      // Add toast notification
+      toast.success(`View "${newView.name}" created successfully`);
+
+      // Refresh views list from backend
+      queryClient.invalidateQueries({ queryKey: ["views", entryId] });
+    },
+    onError: (error) => {
+      toast.error(
+        "Failed to save view: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    },
+  });
+
+  // Update view mutation
+  const updateViewMutation = useMutation({
+    mutationFn: async (data: {
+      viewId: string;
+      name: string;
+      description: string;
+    }) => {
+      return viewsApi.update(data.viewId, {
+        name: data.name,
+        description: data.description,
+      });
+    },
+    onSuccess: (updatedView) => {
+      // Update local view state
+      updateView(updatedView.id, {
+        name: updatedView.name,
+        description: updatedView.description,
+      });
+
+      // Show success notification
+      toast.success(`View "${updatedView.name}" updated successfully`);
+
+      // Refresh views from backend
+      queryClient.invalidateQueries({ queryKey: ["views", entryId] });
+    },
+    onError: (error) => {
+      toast.error(
+        "Failed to update view: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    },
+  });
+
+  // Delete view mutation
+  const deleteViewMutation = useMutation({
+    mutationFn: (viewId: string) => {
+      return viewsApi.delete(viewId);
+    },
+    onSuccess: (_, viewId) => {
+      // Delete from local state
+      deleteView(viewId);
+
+      // Show success notification
+      toast.success("View deleted successfully");
+
+      // Refresh views from backend
+      queryClient.invalidateQueries({ queryKey: ["views", entryId] });
+    },
+    onError: (error) => {
+      toast.error(
+        "Failed to delete view: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    },
+  });
+
   const onSaveView = async (name: string, description: string) => {
+    // Get the molstar state snapshot
     const snapshot = viewer.getState();
-    await createView(name, description, snapshot);
+
+    // Call the mutation to create the view
+    createViewMutation.mutate({
+      name,
+      description,
+      mvsj: snapshot,
+    });
+
+    // Close the dialog
     setShowSaveDialog(false);
   };
 
@@ -168,9 +272,12 @@ export function EntryDetailPage() {
     name: string,
     description: string,
   ) => {
-    await updateView(viewId, { name: name, description });
+    updateViewMutation.mutate({
+      viewId,
+      name,
+      description,
+    });
     setViewToEdit(null);
-    toast.success("View updated successfully");
   };
 
   // Handle deleting a view
@@ -184,7 +291,7 @@ export function EntryDetailPage() {
   // Confirm view deletion
   const confirmDeleteView = () => {
     if (viewToDelete) {
-      deleteView(viewToDelete.id);
+      deleteViewMutation.mutate(viewToDelete.id);
       setViewToDelete(null);
     }
   };
@@ -194,7 +301,7 @@ export function EntryDetailPage() {
   };
 
   const confirmDelete = () => {
-    deleteMutation.mutate();
+    deleteEntryMutation.mutate();
   };
 
   const formatDate = (dateString: string | null) => {
@@ -285,7 +392,7 @@ export function EntryDetailPage() {
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         onConfirm={confirmDelete}
-        isLoading={deleteMutation.isPending}
+        isLoading={deleteEntryMutation.isPending}
       />
     </div>
   );
