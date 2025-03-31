@@ -4,11 +4,11 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from server.app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
-from server.app.api.contracts.responses.common import PaginatedResponse
 from sqlalchemy.orm import Session
 
-from app.api.contracts.responses.views import EntryResponse
+from app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
+from app.api.contracts.responses.common import PaginatedResponse
+from app.api.contracts.responses.entries import EntryResponse
 from app.database.models import Entry
 from app.database.session import get_db
 
@@ -35,7 +35,7 @@ def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db)):
     return new_entry
 
 
-@router.get("", response_model=PaginatedResponse[Entry])
+@router.get("", response_model=PaginatedResponse[EntryResponse])
 def list_entries(
     search: Optional[str] = None,
     page: int = Query(1, ge=1),

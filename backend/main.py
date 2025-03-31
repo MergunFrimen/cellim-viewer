@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import entries, views
+from app.api.endpoints import entries, views
 from app.database.models import Base
 from app.database.session import engine
 from app.shared.config import settings

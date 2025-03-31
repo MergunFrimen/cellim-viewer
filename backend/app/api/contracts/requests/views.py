@@ -1,7 +1,8 @@
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
-from server.app.api.contracts.base import ViewBase
+
+from app.api.contracts.base import ViewBase
 
 
 class ViewCreateRequest(ViewBase):

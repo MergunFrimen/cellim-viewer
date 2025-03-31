@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
-from server.app.api.contracts.requests.views import ViewCreateRequest, ViewUpdateRequest
-from server.app.api.contracts.responses.views import ViewResponse
 from sqlalchemy.orm import Session
 
+from app.api.contracts.requests.views import ViewCreateRequest, ViewUpdateRequest
+from app.api.contracts.responses.views import ViewResponse
 from app.database.models import Entry, View
 from app.database.session import get_db
 

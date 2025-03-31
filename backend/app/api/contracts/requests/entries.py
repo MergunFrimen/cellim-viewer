@@ -1,7 +1,8 @@
 from typing import Optional
 
 from pydantic import Field
-from server.app.api.contracts.base import EntryBase
+
+from app.api.contracts.base import EntryBase
 
 
 class EntryCreateRequest(EntryBase):

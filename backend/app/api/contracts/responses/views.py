@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from server.app.api.contracts.base import ViewBase
+from app.api.contracts.base import ViewBase
 
 
 class ViewResponse(ViewBase):
-    id: int
+    id: UUID
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
