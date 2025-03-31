@@ -1,14 +1,14 @@
 // src/pages/LandingPage.tsx
-import { EntryCard } from "@/components/entries/EntryCard";
-import { Pagination } from "@/components/Pagination";
+import { entriesApi } from "@/api/clients/entry-client";
+import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
+import { EntryPreview } from "@/components/entries/EntryPreview";
+import { PaginationControls } from "@/components/Pagination";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
-import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { useState } from "react";
-import { entriesApi } from "@/api/clients/entry-client";
+import { useSearchParams } from "react-router-dom";
 
 export function LandingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -113,12 +113,12 @@ export function LandingPage() {
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {data?.items.map((entry) => (
-                <EntryCard key={entry.id} entry={entry} />
+                <EntryPreview key={entry.id} entry={entry} />
               ))}
             </div>
 
             {data && (
-              <Pagination
+              <PaginationControls
                 currentPage={data.page}
                 totalPages={data.total_pages}
                 totalItems={data.total}

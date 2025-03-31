@@ -1,18 +1,20 @@
+import { API_BASE_URL } from "@/config/dev-config";
+
 export const API_ENDPOINTS = {
   ENTRIES: {
-    BASE: "/api/entries",
-    LIST: "/api/entries",
-    CREATE: "/api/entries",
-    GET_BY_ID: (id: number) => `/api/entries/${id}`,
-    UPDATE: (id: number) => `/api/entries/${id}`,
-    DELETE: (id: number) => `/api/entries/${id}`,
+    BASE: `${API_BASE_URL}/entries`,
+    LIST: `${API_BASE_URL}/entries`,
+    CREATE: `${API_BASE_URL}/entries`,
+    GET_BY_ID: (id: number) => `${API_BASE_URL}/entries/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/entries/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/entries/${id}`,
   },
   VIEWS: {
-    BASE: "/api/views",
-    GET_BY_ENTRY: (entryId: number) => `/api/entry/${entryId}/views`,
-    CREATE: "/api/views",
-    GET_BY_ID: (id: number) => `/api/views/${id}`,
-    UPDATE: (id: number) => `/api/views/${id}`,
-    DELETE: (id: number) => `/api/views/${id}`,
+    BASE: "${API_BASE_URL}/views",
+    GET_BY_ENTRY: (entryId: number) => `${API_BASE_URL}/entry/${entryId}/views`,
+    CREATE: "${API_BASE_URL}/views",
+    GET_BY_ID: (id: number) => `${API_BASE_URL}/views/${id}`,
+    UPDATE: (id: number) => `${API_BASE_URL}/views/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/views/${id}`,
   },
 };
