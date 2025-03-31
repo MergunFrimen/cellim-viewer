@@ -1,6 +1,7 @@
 import { entriesApi } from "@/api/clients/entry-client";
 import { viewsApi } from "@/api/clients/views-client";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
+import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,8 @@ import {
   AlertCircle,
   ArrowLeft,
   Calendar,
-  Edit,
   Eye,
+  Plus,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -30,6 +31,7 @@ export function EntryDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const entryId = params.id;
 
@@ -213,12 +215,11 @@ export function EntryDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <Button asChild className="w-full justify-start">
-                  <Link to={`/entries/${entry.id}/edit`}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Entry
-                  </Link>
+                <Button onClick={() => setIsOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Edit Entry
                 </Button>
+                <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
 
                 <Button
                   variant="outline"

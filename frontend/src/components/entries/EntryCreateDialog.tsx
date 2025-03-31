@@ -1,13 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { entriesApi } from "@/api/clients/entry-client";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,13 +19,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { entryFormSchema, EntryFormValues } from "@/lib/form-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { entriesApi } from "@/api/clients/entry-client";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { useMutation } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 interface EntryCreateDialogProps {
   open: boolean;
@@ -60,11 +60,6 @@ export function EntryCreateDialog({
 
   const handleSubmit = (data: EntryFormValues) => {
     mutation.mutate(data);
-  };
-
-  const handleDialogClose = () => {
-    form.reset(); // Reset form on close
-    onOpenChange(false);
   };
 
   return (
@@ -137,25 +132,18 @@ export function EntryCreateDialog({
               />
 
               {mutation.error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>
-                      {mutation.error instanceof Error
-                        ? mutation.error.message
-                        : "An error occurred while creating the entry. Please try again."}
-                    </AlertDescription>
-                  </Alert>
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {mutation.error instanceof Error
+                      ? mutation.error.message
+                      : "An error occurred while creating the entry. Please try again."}
+                  </AlertDescription>
+                </Alert>
               )}
 
               <DialogFooter className="gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleDialogClose}
-                >
-                  Cancel
-                </Button>
                 <Button type="submit" disabled={mutation.isPending}>
                   {mutation.isPending ? "Creating..." : "Create Entry"}
                 </Button>

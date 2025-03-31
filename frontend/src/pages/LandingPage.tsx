@@ -73,20 +73,11 @@ export function LandingPage() {
               ? `Search Results for "${search}"`
               : "Featured Visualizations"}
           </h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleSearch("")}
-              className={!search ? "hidden" : ""}
-            >
-              Clear Search
-            </Button>
-            <Button onClick={() => setIsOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Entry
-            </Button>
-            <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
-          </div>
+          <Button onClick={() => setIsOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Entry
+          </Button>
+          <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
         </div>
 
         {isLoading && (
