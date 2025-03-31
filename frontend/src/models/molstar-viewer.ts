@@ -1,18 +1,20 @@
+import { PluginStateSnapshotManager } from "molstar/lib/commonjs/mol-plugin-state/manager/snapshots";
 import { PluginUIContext } from "molstar/lib/commonjs/mol-plugin-ui/context";
-import { BaseReactiveModel } from "./base-model";
-import { BehaviorSubject } from "rxjs";
 import {
   DefaultPluginUISpec,
   PluginUISpec,
 } from "molstar/lib/commonjs/mol-plugin-ui/spec";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
-import { PluginStateSnapshotManager } from "molstar/lib/commonjs/mol-plugin-state/manager/snapshots";
+import { BehaviorSubject } from "rxjs";
+import { BaseReactiveModel } from "./base-model";
+
+type InitializationState = "pending" | "initializing" | "success" | "error";
 
 export class MolstarViewer extends BaseReactiveModel {
   public plugin: PluginUIContext;
 
   public state = {
-    isInitialized: new BehaviorSubject<boolean>(false),
+    isInitialized: new BehaviorSubject<InitializationState>("pending"),
     isLoading: new BehaviorSubject<boolean>(false),
     showControls: new BehaviorSubject<boolean>(false),
     isExpanded: new BehaviorSubject<boolean>(false),
@@ -20,6 +22,8 @@ export class MolstarViewer extends BaseReactiveModel {
 
   constructor() {
     super();
+
+    console.log("constructed");
 
     const defaultSpec = DefaultPluginUISpec();
     const spec: PluginUISpec = {
@@ -44,8 +48,21 @@ export class MolstarViewer extends BaseReactiveModel {
   }
 
   async init() {
-    await this.plugin.init();
-    this.state.isInitialized.next(true);
+    if (this.state.isInitialized.value !== "pending") return;
+
+    console.log("initializing");
+    this.state.isInitialized.next("initializing");
+    try {
+      await this.plugin.init();
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+      this.state.isInitialized.next("error");
+    }
+    this.state.isInitialized.next("success");
+  }
+
+  async clear(): Promise<void> {
+    await this.plugin.clear();
   }
 
   async screenshot(): Promise<string> {

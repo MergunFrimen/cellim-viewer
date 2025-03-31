@@ -7,17 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { View } from "@/types";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface ViewsSidebarProps {
   views: View[];
@@ -42,8 +42,8 @@ export function ViewsSidebar({
 }: ViewsSidebarProps) {
   return (
     <div className="flex flex-col h-full w-96">
-      <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="text-xl font-bold">Saved Views</h2>
+      <div className="flex items-center justify-between mb-4 px-4">
+        <h2 className="text-xl font-bold px-2">Saved Views</h2>
         <Button onClick={onSaveView} size="sm" className="gap-1">
           <Camera size={16} />
           <span>Save View</span>
@@ -51,7 +51,7 @@ export function ViewsSidebar({
       </div>
 
       {/* Fixed ScrollArea - Set explicit height and make it fill available space */}
-      <ScrollArea className="flex-1 min-h-0 pr-3">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="pb-4 px-2">
           <DraggableViewList
             views={views}

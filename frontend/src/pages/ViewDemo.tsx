@@ -9,7 +9,7 @@ import { useBehavior } from "@/hooks/useBehavior";
 import { useViews } from "@/hooks/useViews";
 import { View } from "@/types";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import snapshotExample1 from "../data/snapshot-example-1.json";
 import snapshotExample2 from "../data/snapshot-example-2.json";
@@ -21,7 +21,7 @@ export function ViewDemo() {
   const initialViews = [
     {
       id: "example-snapshot-1",
-      title: "Zoom out",
+      name: "Zoom out",
       description: "Default cartoon representation for structure 1TQN",
       mvsj: snapshotExample1,
       created_at: null,
@@ -29,7 +29,7 @@ export function ViewDemo() {
     },
     {
       id: "example-snapshot-2",
-      title: "Zoom in",
+      name: "Zoom in",
       description: "1TQN structure focused on A VAL 214",
       mvsj: snapshotExample2,
       created_at: null,
@@ -56,6 +56,10 @@ export function ViewDemo() {
 
   // Get viewer states
   const isLoading = useBehavior(viewer.state.isLoading);
+
+  useEffect(() => {
+    viewer.clear();
+  }, [viewer]);
 
   // Handle saving a new view
   const handleSaveView = () => {
@@ -114,7 +118,7 @@ export function ViewDemo() {
       {/* Main Content Area - Using flex and making sure both sidebar and content can scroll independently */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar with proper height constraints */}
-        <aside className="p-4 border-r h-full overflow-hidden flex flex-col">
+        <aside className="border-r h-full overflow-hidden flex flex-col">
           <ViewsSidebar
             views={views}
             currentViewId={currentViewId}

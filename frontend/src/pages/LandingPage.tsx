@@ -50,7 +50,7 @@ export function LandingPage() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="text-center space-y-6">
+      <section className="text-center space-y-6 mt-16">
         <h1 className="text-4xl md:text-5xl font-bold">CELLIM Viewer</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Advanced visualization platform for cellular and molecular data from

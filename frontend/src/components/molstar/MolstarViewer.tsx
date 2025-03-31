@@ -1,7 +1,7 @@
-import { ViewerLayout } from "./ViewerLayout";
+import { useMolstar } from "@/context/MolstarContext";
 import { useBehavior } from "@/hooks/useBehavior";
 import { useEffect } from "react";
-import { useMolstar } from "@/context/MolstarContext";
+import { ViewerLayout } from "./ViewerLayout";
 
 import "./viewer.scss";
 
@@ -9,11 +9,10 @@ export function MolstarViewer() {
   const { viewer } = useMolstar();
 
   const isInitialized = useBehavior(viewer.state.isInitialized);
-  // const isLoading = useBehavior(viewer.state.isLoading);
 
   useEffect(() => {
-    if (!isInitialized) viewer.init();
-  }, [isInitialized, viewer]);
+    viewer.init();
+  }, [viewer]);
 
   return (
     <div className="relative size-full">

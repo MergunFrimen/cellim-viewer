@@ -1,8 +1,8 @@
 // src/hooks/useViews.tsx
-import { useState } from "react";
-import { View } from "@/types";
 import { useMolstar } from "@/context/MolstarContext";
+import { View } from "@/types";
 import { UUID } from "molstar/lib/commonjs/mol-util";
+import { useState } from "react";
 
 // Optional initial views to load
 interface UseViewsOptions {
@@ -12,14 +12,14 @@ interface UseViewsOptions {
 export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>(initialViews);
-  const [currentViewId, setCurrentViewId] = useState<number | null>(null);
+  const [currentViewId, setCurrentViewId] = useState<string | null>(null);
   const [screenshotUrls, setScreenshotUrls] = useState<Record<string, string>>(
     {},
   );
 
   // Create a new view
   const createView = async (
-    title: string,
+    name: string,
     description: string,
     snapshot: any,
   ) => {
@@ -32,12 +32,13 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     }
 
     const newView: View = {
-      id: UUID.createv4,
-      name: title || `View ${views.length + 1}`,
+      id: UUID.createv4(),
+      name: name || `View ${views.length + 1}`,
       description: description || "No description provided",
       mvsj: snapshot,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      deleted_at: null,
     };
 
     setViews((prev) => [...prev, newView]);

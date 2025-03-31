@@ -1,6 +1,6 @@
+import { Toaster } from "@/components/ui/sonner";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Toaster } from "@/components/ui/sonner";
 import { Button } from "./ui/button";
 
 export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
@@ -11,6 +11,9 @@ export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
           <nav className="space-x-2">
             <Button variant="ghost" asChild>
               <Link to="/">Home</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link to="/demo">Demo</Link>
             </Button>
             <Button variant="ghost" asChild>
               <Link to="/about">About</Link>
