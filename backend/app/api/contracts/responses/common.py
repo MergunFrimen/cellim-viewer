@@ -1,11 +1,9 @@
-from typing import Generic, List, TypeVar
+from typing import List
 
 from pydantic import BaseModel
 
-T = TypeVar("T")
 
-
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     items: List[T]
     total: int
     page: int

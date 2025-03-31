@@ -7,7 +7,7 @@ from app.database.session import engine
 from app.shared.config import settings
 
 app = FastAPI(
-    title="CELLIM Viewer API",
+    title=settings.APP_NAME,
     description="API for visualizing and managing CELLIM data",
     version="0.0.0",
 )
