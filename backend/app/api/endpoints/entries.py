@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from uuid import uuid4
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -66,7 +66,7 @@ def list_entries(
 
 
 @router.get("/{entry_id}", response_model=EntryResponse)
-def get_entry(entry_id: int, db: Session = Depends(get_db)):
+def get_entry(entry_id: UUID, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -76,7 +76,7 @@ def get_entry(entry_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{entry_id}", response_model=EntryResponse)
-def update_entry(entry_id: int, entry_data: EntryUpdateRequest, db: Session = Depends(get_db)):
+def update_entry(entry_id: UUID, entry_data: EntryUpdateRequest, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -87,20 +87,10 @@ def update_entry(entry_id: int, entry_data: EntryUpdateRequest, db: Session = De
         entry.name = entry_data.name
     if entry_data.description is not None:
         entry.description = entry_data.description
-    if entry_data.author_email is not None:
-        entry.author_email = entry_data.author_email
-    if entry_data.thumbnail_path is not None:
-        entry.thumbnail_path = entry_data.thumbnail_path
     if entry_data.is_public is not None:
         entry.is_public = entry_data.is_public
-        # If changing to public, create a sharing UUID if it doesn't exist
-        if entry_data.is_public and not entry.sharing_uuid:
-            entry.sharing_uuid = str(uuid4())
-        # If changing to private, remove the sharing UUID
-        elif not entry_data.is_public:
-            entry.sharing_uuid = None
 
-    entry.updated_at = datetime.utcnow()
+    entry.updated_at = datetime.now()
 
     db.commit()
     db.refresh(entry)
@@ -109,14 +99,14 @@ def update_entry(entry_id: int, entry_data: EntryUpdateRequest, db: Session = De
 
 
 @router.delete("/{entry_id}", status_code=204)
-def delete_entry(entry_id: int, db: Session = Depends(get_db)):
+def delete_entry(entry_id: UUID, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
 
     # Soft delete
-    entry.deleted_at = datetime.utcnow()
+    entry.deleted_at = datetime.now()
 
     db.commit()
 
