@@ -1,44 +1,87 @@
 import { entriesApi } from "@/api/clients/entry-client";
 import { viewsApi } from "@/api/clients/views-client";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
-import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ViewsSidebar } from "@/components/views/ViewSidebar";
+import { useMolstar } from "@/context/MolstarContext";
+import { useViews } from "@/hooks/useViews";
+import { View } from "@/types";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Calendar,
-  Eye,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { MolstarViewer } from "@/components/molstar/MolstarViewer";
+import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
+import { EditViewDialog } from "@/components/views/ViewEditDialog";
+import { toast } from "sonner";
+import snapshotExample1 from "../data/snapshot-example-1.json";
+import snapshotExample2 from "../data/snapshot-example-2.json";
+
+const initialViews = [
+  {
+    id: "example-snapshot-1",
+    name: "Zoom out",
+    description: "Default cartoon representation for structure 1TQN",
+    mvsj: snapshotExample1,
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: "example-snapshot-2",
+    name: "Zoom in",
+    description: "1TQN structure focused on A VAL 214",
+    mvsj: snapshotExample2,
+    created_at: null,
+    updated_at: null,
+  },
+];
 
 export function EntryDetailPage() {
+  const { viewer } = useMolstar();
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [viewToEdit, setViewToEdit] = useState<View | null>(null);
+  const [viewToDelete, setViewToDelete] = useState<View | null>(null);
+
+  const {
+    views,
+    currentViewId,
+    screenshotUrls,
+    createView,
+    updateView,
+    deleteView,
+    reorderViews,
+    setCurrentView,
+    getViewById,
+  } = useViews({ initialViews });
 
   const entryId = params.id;
+
+  useEffect(() => {
+    viewer.clear();
+  }, [viewer]);
 
   // Determine the appropriate query function based on the route
   const fetchEntry = async () => {
     if (entryId) {
       return entriesApi.getById(entryId);
+    }
+    throw new Error("Invalid route parameters");
+  };
+
+  const fetchViews = async () => {
+    if (entryId) {
+      return viewsApi.listByEntry(entryId);
     }
     throw new Error("Invalid route parameters");
   };
@@ -53,12 +96,7 @@ export function EntryDetailPage() {
       },
       {
         queryKey: ["views", entryId],
-        queryFn: () => {
-          if (entryId) {
-            return viewsApi.listByEntry(entryId);
-          }
-          throw new Error("Invalid route parameters");
-        },
+        queryFn: fetchViews,
         enabled: !!entryId,
       },
     ],
@@ -78,8 +116,13 @@ export function EntryDetailPage() {
     },
   });
 
+  const onSaveView = async (name: string, description: string) => {
+    const snapshot = viewer.getState();
+    await createView(name, description, snapshot);
+    setShowSaveDialog(false);
+  };
+
   const entry = entryQuery.data;
-  const views = viewsQuery.data || [];
   const isLoading = entryQuery.isLoading || viewsQuery.isLoading;
   const error = entryQuery.error || viewsQuery.error;
 
@@ -103,6 +146,49 @@ export function EntryDetailPage() {
     );
   }
 
+  const handleLoadView = async (view: View) => {
+    if (view.mvsj) {
+      setCurrentView(view.id);
+      await viewer.setState(view.mvsj);
+    }
+  };
+
+  const handleSaveView = () => {
+    setShowSaveDialog(true);
+  };
+
+  // Handle editing a view
+  const handleEditView = (view: View) => {
+    setViewToEdit(view);
+  };
+
+  // Update view from edit dialog
+  const onUpdateView = async (
+    viewId: string,
+    name: string,
+    description: string,
+  ) => {
+    await updateView(viewId, { name: name, description });
+    setViewToEdit(null);
+    toast.success("View updated successfully");
+  };
+
+  // Handle deleting a view
+  const handleDeleteView = (viewId: string) => {
+    const view = getViewById(viewId);
+    if (view) {
+      setViewToDelete(view);
+    }
+  };
+
+  // Confirm view deletion
+  const confirmDeleteView = () => {
+    if (viewToDelete) {
+      deleteView(viewToDelete.id);
+      setViewToDelete(null);
+    }
+  };
+
   const handleDelete = () => {
     setShowDeleteDialog(true);
   };
@@ -118,34 +204,15 @@ export function EntryDetailPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <Button asChild variant="outline" size="sm">
-          <Link to="/entries">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Entries
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-2 gap-8">
         <div className="md:col-span-2">
           <div className="flex justify-between items-start mb-4">
             <h1 className="text-3xl font-bold">{entry.name}</h1>
 
             {entry.is_public ? (
-              <Badge
-                variant="outline"
-                className="bg-green-50 text-green-700 border-green-300"
-              >
-                Public
-              </Badge>
+              <Badge variant="outline">Public</Badge>
             ) : (
-              <Badge
-                variant="outline"
-                className="bg-yellow-50 text-yellow-700 border-yellow-300"
-              >
-                Private
-              </Badge>
+              <Badge variant="outline">Private</Badge>
             )}
           </div>
 
@@ -170,71 +237,48 @@ export function EntryDetailPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Available Views</CardTitle>
-              <CardDescription>
-                {views.length} view{views.length !== 1 ? "s" : ""} available for
-                this entry
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {views.length === 0 ? (
-                <p className="text-muted-foreground italic">
-                  No views available for this entry
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {views.map((view) => (
-                    <div key={view.id} className="border rounded-md p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">{view.name}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {view.description}
-                          </p>
-                        </div>
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Button onClick={() => setIsOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Edit Entry
-                </Button>
-                <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Entry
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
+      <div className="flex flex-1 overflow-hidden gap-x-3">
+        {/* Sidebar with proper height constraints */}
+        <aside className="overflow-hidden flex flex-col h-[80vh]">
+          <ViewsSidebar
+            views={views}
+            currentViewId={currentViewId}
+            screenshotUrls={screenshotUrls}
+            onSaveView={handleSaveView}
+            onEditView={handleEditView}
+            onLoadView={handleLoadView}
+            onDeleteView={handleDeleteView}
+            onReorderViews={reorderViews}
+          />
+        </aside>
+
+        {/* Viewer area */}
+        <main className="flex-1 relative">
+          <MolstarViewer />
+        </main>
+      </div>
+
+      <SaveViewDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        onSave={onSaveView}
+      />
+      <EditViewDialog
+        open={!!viewToEdit}
+        onOpenChange={(open) => !open && setViewToEdit(null)}
+        view={viewToEdit}
+        onUpdate={onUpdateView}
+      />
+      <DeleteDialog
+        title="Delete View"
+        description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
+        open={!!viewToDelete}
+        onOpenChange={(open) => !open && setViewToDelete(null)}
+        onConfirm={confirmDeleteView}
+      />
       <DeleteDialog
         title="Delete Entry"
         description={`Are you sure you want to delete "${entry.name}"? This action cannot be undone.`}

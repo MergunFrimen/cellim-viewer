@@ -10,7 +10,7 @@ import { BaseReactiveModel } from "./base-model";
 
 type InitializationState = "pending" | "initializing" | "success" | "error";
 
-export class MolstarViewer extends BaseReactiveModel {
+export class MolstarViewerModel extends BaseReactiveModel {
   public plugin: PluginUIContext;
 
   public state = {

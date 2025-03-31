@@ -18,7 +18,7 @@ export function EntryPreview({ entry }: { entry: Entry }) {
         <p className="text-muted-foreground text-sm">{entry.description}</p>
       </CardContent>
       <CardFooter className="justify-between">
-        <Button variant="default" size="sm" asChild>
+        <Button variant="secondary" size="sm" asChild>
           <Link to={`/entries/${entry.id}`}>View Details</Link>
         </Button>
       </CardFooter>

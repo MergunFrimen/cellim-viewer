@@ -42,8 +42,8 @@ export function ViewsSidebar({
 }: ViewsSidebarProps) {
   return (
     <div className="flex flex-col h-full w-96">
-      <div className="flex items-center justify-between mb-4 px-4">
-        <h2 className="text-xl font-bold px-2">Saved Views</h2>
+      <div className="flex items-center justify-between mb-2 px-4">
+        <h2 className="text-xl font-bold">Saved Views</h2>
         <Button onClick={onSaveView} size="sm" className="gap-1">
           <Camera size={16} />
           <span>Save View</span>
@@ -51,8 +51,8 @@ export function ViewsSidebar({
       </div>
 
       {/* Fixed ScrollArea - Set explicit height and make it fill available space */}
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="pb-4 px-2">
+      <ScrollArea className="flex-1 min-h-0 p-2">
+        <div className="pb-4">
           <DraggableViewList
             views={views}
             currentViewId={currentViewId}

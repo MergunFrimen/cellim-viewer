@@ -17,7 +17,7 @@ export function LandingPage() {
   // Get search parameters
   const search = searchParams.get("search") || "";
   const page = parseInt(searchParams.get("page") || "1");
-  const perPage = parseInt(searchParams.get("per_page") || "6"); // Show fewer items on homepage
+  const perPage = parseInt(searchParams.get("per_page") || "10"); // Show fewer items on homepage
 
   // Query for entries
   const { data, isLoading, error } = useQuery({
@@ -73,9 +73,9 @@ export function LandingPage() {
               ? `Search Results for "${search}"`
               : "Featured Visualizations"}
           </h2>
-          <Button onClick={() => setIsOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Entry
+          <Button variant="secondary" onClick={() => setIsOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Create Entry
           </Button>
           <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
         </div>
@@ -102,7 +102,7 @@ export function LandingPage() {
         )}
         {data?.items.length !== 0 && (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {data?.items.map((entry) => (
                 <EntryPreview key={entry.id} entry={entry} />
               ))}

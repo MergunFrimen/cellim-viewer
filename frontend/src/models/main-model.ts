@@ -1,15 +1,15 @@
 import { BaseReactiveModel } from "./base-model";
-import { MolstarViewer } from "./molstar-viewer";
+import { MolstarViewerModel } from "./molstar-viewer";
 import { ThemeManager } from "./theme-manager";
 
 export class MainModel extends BaseReactiveModel {
-  public molstarViewer: MolstarViewer;
+  public molstarViewer: MolstarViewerModel;
   public themeManager: ThemeManager;
 
   constructor() {
     super();
 
-    this.molstarViewer = new MolstarViewer();
+    this.molstarViewer = new MolstarViewerModel();
     this.themeManager = new ThemeManager();
   }
 

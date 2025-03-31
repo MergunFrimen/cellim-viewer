@@ -112,14 +112,14 @@ export function EntryCreateDialog({
                 control={form.control}
                 name="is_public"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start gap-x-3">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <div className="space-y-1">
                       <FormLabel>Make entry public</FormLabel>
                       <FormDescription>
                         When enabled, this entry will be visible to everyone.

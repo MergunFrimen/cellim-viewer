@@ -1,15 +1,16 @@
-import { LeftPanelControls } from 'molstar/lib/commonjs/mol-plugin-ui/left-panel';
+import { useBehavior } from "@/hooks/useBehavior";
+import { cn } from "@/lib/utils";
+import { MolstarViewerModel } from "@/models/molstar-viewer";
+import { LeftPanelControls } from "molstar/lib/commonjs/mol-plugin-ui/left-panel";
 import {
   ControlsWrapper,
   DefaultViewport,
   PluginContextContainer,
-} from 'molstar/lib/commonjs/mol-plugin-ui/plugin';
-import { SequenceView } from 'molstar/lib/commonjs/mol-plugin-ui/sequence';
-import { useBehavior } from '@/hooks/useBehavior';
-import { MolstarViewer } from '@/models/molstar-viewer';
-import { useEffect } from 'react';
+} from "molstar/lib/commonjs/mol-plugin-ui/plugin";
+import { SequenceView } from "molstar/lib/commonjs/mol-plugin-ui/sequence";
+import { useEffect } from "react";
 
-export function ViewerLayout({viewer}: {viewer: MolstarViewer}) {
+export function ViewerLayout({ viewer }: { viewer: MolstarViewerModel }) {
   const showControls = useBehavior(viewer.state.showControls);
   const isExpanded = useBehavior(viewer.state.isExpanded);
 
@@ -20,63 +21,34 @@ export function ViewerLayout({viewer}: {viewer: MolstarViewer}) {
 
   return (
     <div
-      style={{
-        position: isExpanded ? 'fixed' : 'relative',
-        inset: isExpanded ? 0 : 'auto',
-        width: '100%',
-        height: '100%',
-        zIndex: isExpanded ? 9999 : 'auto',
-      }}
+      className={cn(
+        "size-full",
+        isExpanded ? "fixed inset-0 z-10" : "relative inset-auto z-auto",
+      )}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          height: '100%',
-          width: '100%',
-        }}
-      >
+      <div className="flex flex-row size-full">
         {showControls && (
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '330px',
-              height: '100%',
-              flex: 1,
-            }}
-          >
+          <div className="grow relative max-w-[330px] h-full">
             <MolstarLeftPanelControlsView viewer={viewer} />
           </div>
         )}
 
-        <div
-          style={{
-            display: 'flex',
-            flex: 1,
-            flexDirection: 'column',
-            height: '100%',
-            width: '100%',
-          }}
-        >
+        <div className="flex flex-col grow size-full">
           <div
-            style={{ position: 'relative', height: isExpanded ? '100px' : '80px', width: '100%' }}
+            className={cn(
+              "relative w-full",
+              isExpanded ? "h-[100px]" : "h-[80px]",
+            )}
           >
             <MolstarSequence viewer={viewer} />
           </div>
-          <div style={{ position: 'relative', flex: 1 }}>
+          <div className="relative grow">
             <MolstarViewport viewer={viewer} />
           </div>
         </div>
 
         {showControls && (
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '300px',
-              height: '100%',
-              flex: 1,
-            }}
-          >
+          <div className="relative max-w-[300px] h-full grow">
             <MolstarControlsView viewer={viewer} />
           </div>
         )}
@@ -85,8 +57,9 @@ export function ViewerLayout({viewer}: {viewer: MolstarViewer}) {
   );
 }
 
-export function MolstarViewport({ viewer }: { viewer: MolstarViewer }) {
-  const ViewportViewer = viewer.plugin.spec.components?.viewport?.view || DefaultViewport;
+export function MolstarViewport({ viewer }: { viewer: MolstarViewerModel }) {
+  const ViewportViewer =
+    viewer.plugin.spec.components?.viewport?.view || DefaultViewport;
 
   return (
     <PluginContextContainer plugin={viewer.plugin}>
@@ -95,8 +68,9 @@ export function MolstarViewport({ viewer }: { viewer: MolstarViewer }) {
   );
 }
 
-export function MolstarSequence({ viewer }: { viewer: MolstarViewer }) {
-  const SequenceViewer = viewer.plugin.spec.components?.sequenceViewer?.view || SequenceView;
+export function MolstarSequence({ viewer }: { viewer: MolstarViewerModel }) {
+  const SequenceViewer =
+    viewer.plugin.spec.components?.sequenceViewer?.view || SequenceView;
 
   return (
     <PluginContextContainer plugin={viewer.plugin}>
@@ -105,7 +79,11 @@ export function MolstarSequence({ viewer }: { viewer: MolstarViewer }) {
   );
 }
 
-export function MolstarLeftPanelControlsView({ viewer }: { viewer: MolstarViewer }) {
+export function MolstarLeftPanelControlsView({
+  viewer,
+}: {
+  viewer: MolstarViewerModel;
+}) {
   return (
     <PluginContextContainer plugin={viewer.plugin}>
       <LeftPanelControls />
@@ -113,7 +91,11 @@ export function MolstarLeftPanelControlsView({ viewer }: { viewer: MolstarViewer
   );
 }
 
-export function MolstarControlsView({ viewer }: { viewer: MolstarViewer }) {
+export function MolstarControlsView({
+  viewer,
+}: {
+  viewer: MolstarViewerModel;
+}) {
   return (
     <PluginContextContainer plugin={viewer.plugin}>
       <ControlsWrapper />
