@@ -1,14 +1,14 @@
 // src/pages/LandingPage.tsx
-import { EntryCard } from "@/components/EntryCard";
+import { EntryCard } from "@/components/entries/EntryCard";
 import { Pagination } from "@/components/Pagination";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { entriesApi } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { EntryCreateDialog } from "@/components/dialogs/CreateEntryDialog";
+import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { useState } from "react";
+import { entriesApi } from "@/api/clients/entry-client";
 
 export function LandingPage() {
   const [searchParams, setSearchParams] = useSearchParams();

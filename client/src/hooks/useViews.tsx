@@ -12,10 +12,16 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>(initialViews);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
-  const [screenshotUrls, setScreenshotUrls] = useState<Record<string, string>>({});
+  const [screenshotUrls, setScreenshotUrls] = useState<Record<string, string>>(
+    {},
+  );
 
   // Create a new view
-  const createView = async (title: string, description: string, snapshot: any) => {
+  const createView = async (
+    title: string,
+    description: string,
+    snapshot: any,
+  ) => {
     // Take a screenshot before creating the view
     let screenshotUrl = "";
     try {
@@ -26,7 +32,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
 
     const newView: View = {
       id: `view-${Date.now()}`,
-      title: title || `View ${views.length + 1}`,
+      name: title || `View ${views.length + 1}`,
       description: description || "No description provided",
       mvsj: snapshot,
       created_at: new Date().toISOString(),
@@ -34,12 +40,12 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     };
 
     setViews((prev) => [...prev, newView]);
-    
+
     // Store the screenshot URL
     if (screenshotUrl) {
       setScreenshotUrls((prev) => ({
         ...prev,
-        [newView.id]: screenshotUrl
+        [newView.id]: screenshotUrl,
       }));
     }
 
@@ -64,14 +70,14 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   // Delete a view
   const deleteView = (viewId: string) => {
     setViews((prev) => prev.filter((view) => view.id !== viewId));
-    
+
     // Also remove the screenshot
     setScreenshotUrls((prev) => {
       const newUrls = { ...prev };
       delete newUrls[viewId];
       return newUrls;
     });
-    
+
     if (currentViewId === viewId) {
       setCurrentViewId(null);
     }
@@ -80,7 +86,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   // Reorder views
   const reorderViews = (sourceIndex: number, destinationIndex: number) => {
     if (sourceIndex === destinationIndex) return;
-    
+
     setViews((prevViews) => {
       const result = Array.from(prevViews);
       const [removed] = result.splice(sourceIndex, 1);
@@ -109,18 +115,21 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
           // Load the view
           if (view.mvsj) {
             await viewer.setState(view.mvsj);
-            
+
             // Take screenshot
             const url = await viewer.screenshot();
-            
+
             // Save the screenshot URL
-            setScreenshotUrls(prev => ({
+            setScreenshotUrls((prev) => ({
               ...prev,
-              [view.id]: url
+              [view.id]: url,
             }));
           }
         } catch (error) {
-          console.error(`Failed to generate screenshot for view ${view.id}:`, error);
+          console.error(
+            `Failed to generate screenshot for view ${view.id}:`,
+            error,
+          );
         }
       }
     }

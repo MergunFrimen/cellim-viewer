@@ -6,7 +6,7 @@ export const entryFormSchema = z.object({
     .string()
     .min(1, { message: "Name is required" })
     .max(50, { message: "Name must be 50 characters or less" }),
-  description: z.string().optional().nullable(),
+  description: z.string().optional(),
   is_public: z.boolean().default(true),
 });
 export type EntryFormValues = z.infer<typeof entryFormSchema>;

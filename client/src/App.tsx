@@ -3,20 +3,20 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { ViewDemo } from "./pages/ViewDemo";
 import { MolstarProvider } from "./context/MolstarContext";
 import { ThemeProvider } from "./context/ThemeProvider";
-import { Toaster } from "./components/ui/sonner";
 import { LandingPage } from "./pages/LandingPage";
 import { Layout } from "./components/Layout";
 import { AboutPage } from "./pages/AboutPage";
 import { DocsPage } from "./pages/DocsPage";
-import { EntryCreateProvider } from "./context/EntryCreateContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="theme">
-      <Toaster />
-      <BrowserRouter basename="cellim-viewer">
-        <ScrollToTop />
-        <EntryCreateProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="theme">
+        <BrowserRouter basename="cellim-viewer">
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -33,8 +33,8 @@ export function App() {
               />
             </Routes>
           </Layout>
-        </EntryCreateProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

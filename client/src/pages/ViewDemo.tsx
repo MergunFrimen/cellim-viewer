@@ -102,7 +102,7 @@ export function ViewDemo() {
     name: string,
     description: string,
   ) => {
-    await updateView(viewId, { title: name, description });
+    await updateView(viewId, { name: name, description });
     setViewToEdit(null);
     toast.success("View updated successfully");
   };
@@ -174,7 +174,7 @@ export function ViewDemo() {
 
       <DeleteDialog
         title="Delete View"
-        description={`Are you sure you want to delete "${viewToDelete?.title}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
         open={!!viewToDelete}
         onOpenChange={(open) => !open && setViewToDelete(null)}
         onConfirm={confirmDeleteView}

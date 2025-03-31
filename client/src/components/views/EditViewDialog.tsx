@@ -34,7 +34,7 @@ export function EditViewDialog({
   // Update form when view changes
   useEffect(() => {
     if (view) {
-      setViewName(view.title);
+      setViewName(view.name);
       setViewDescription(view.description);
     }
   }, [view]);

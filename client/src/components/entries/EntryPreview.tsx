@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Entry } from "@/types";
 import { ImageIcon, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export function EntryPreview({ entry }: { entry: Entry }) {
   return (

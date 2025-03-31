@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
-import { EntryCard } from "@/components/EntryCard";
+import { EntryCard } from "@/components/entries/EntryCard";
 import { Pagination } from "@/components/Pagination";
 import { SearchBar } from "@/components/SearchBar";
-import { entriesApi } from "@/lib/api-client";
+import { entriesApi } from "@/api/api-client";
 import { Entry } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";

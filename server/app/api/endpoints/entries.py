@@ -1,6 +1,6 @@
-from datetime import datetime
 import random
-from typing import Annotated, List, Optional, Dict, Any
+from datetime import datetime
+from typing import Annotated, Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -54,7 +54,7 @@ class EntryListResponse(BaseModel):
 @router.post("", response_model=EntryResponse, status_code=201)
 def create_entry(entry: EntryCreate, db: Session = Depends(get_db)):
     new_entry = Entry(
-        id=random.randint(100,1000), # TODO: replace with UUID
+        id=random.randint(100, 1000),  # TODO: replace with UUID
         name=entry.name,
         description=entry.description,
         author_email=entry.author_email,
@@ -65,13 +65,13 @@ def create_entry(entry: EntryCreate, db: Session = Depends(get_db)):
         created_at=datetime.now(),
         updated_at=datetime.now(),
         deleted_at=None,
-        views=[]
+        views=[],
     )
-    
+
     db.add(new_entry)
     db.commit()
     db.refresh(new_entry)
-    
+
     return new_entry
 
 
@@ -83,19 +83,19 @@ def list_entries(
     db: Session = Depends(get_db),
 ):
     query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
-    
+
     if search:
         search_term = f"%{search}%"
         query = query.filter(
             (Entry.name.ilike(search_term)) | (Entry.description.ilike(search_term))
         )
-    
+
     total = query.count()
     query = query.order_by(Entry.created_at.desc())
     query = query.offset((page - 1) * per_page).limit(per_page)
     entries = query.all()
     total_pages = (total + per_page - 1) // per_page  # Ceiling division
-    
+
     return {
         "items": entries,
         "total": total,
@@ -108,47 +108,44 @@ def list_entries(
 @router.get("/{entry_id}", response_model=EntryResponse)
 def get_entry(entry_id: int, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
-    
+
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     return entry
 
 
 @router.get("/by-sharing-uuid/{uuid}", response_model=EntryResponse)
 def get_entry_by_sharing_uuid(uuid: str, db: Session = Depends(get_db)):
-    entry = db.query(Entry).filter(
-        Entry.sharing_uuid == uuid, 
-        Entry.is_public.is_(True),
-        Entry.deleted_at.is_(None)
-    ).first()
-    
+    entry = (
+        db.query(Entry)
+        .filter(Entry.sharing_uuid == uuid, Entry.is_public.is_(True), Entry.deleted_at.is_(None))
+        .first()
+    )
+
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     return entry
 
 
 @router.get("/by-edit-uuid/{uuid}", response_model=EntryResponse)
 def get_entry_by_edit_uuid(uuid: str, db: Session = Depends(get_db)):
-    entry = db.query(Entry).filter(
-        Entry.edit_uuid == uuid,
-        Entry.deleted_at.is_(None)
-    ).first()
-    
+    entry = db.query(Entry).filter(Entry.edit_uuid == uuid, Entry.deleted_at.is_(None)).first()
+
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     return entry
 
 
 @router.put("/{entry_id}", response_model=EntryResponse)
 def update_entry(entry_id: int, entry_data: EntryUpdate, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
-    
+
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     # Update fields if they are provided
     if entry_data.name is not None:
         entry.name = entry_data.name
@@ -166,25 +163,25 @@ def update_entry(entry_id: int, entry_data: EntryUpdate, db: Session = Depends(g
         # If changing to private, remove the sharing UUID
         elif not entry_data.is_public:
             entry.sharing_uuid = None
-    
+
     entry.updated_at = datetime.utcnow()
-    
+
     db.commit()
     db.refresh(entry)
-    
+
     return entry
 
 
 @router.delete("/{entry_id}", status_code=204)
 def delete_entry(entry_id: int, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
-    
+
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     # Soft delete
     entry.deleted_at = datetime.utcnow()
-    
+
     db.commit()
-    
+
     return None

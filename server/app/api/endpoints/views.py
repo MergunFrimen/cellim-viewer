@@ -45,7 +45,7 @@ def create_view(view: ViewCreate, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == view.entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     # Create new view
     new_view = View(
         title=view.title,
@@ -55,11 +55,11 @@ def create_view(view: ViewCreate, db: Session = Depends(get_db)):
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
-    
+
     db.add(new_view)
     db.commit()
     db.refresh(new_view)
-    
+
     return new_view
 
 
@@ -70,10 +70,10 @@ def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    
+
     # Get views
     views = db.query(View).filter(View.entry_id == entry_id, View.deleted_at.is_(None)).all()
-    
+
     return views
 
 
@@ -81,10 +81,10 @@ def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
 def get_view(view_id: int, db: Session = Depends(get_db)):
     """Get a single view by ID."""
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
-    
+
     if not view:
         raise HTTPException(status_code=404, detail="View not found")
-    
+
     return view
 
 
@@ -92,10 +92,10 @@ def get_view(view_id: int, db: Session = Depends(get_db)):
 def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_db)):
     """Update a view."""
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
-    
+
     if not view:
         raise HTTPException(status_code=404, detail="View not found")
-    
+
     # Update fields if they are provided
     if view_data.title is not None:
         view.title = view_data.title
@@ -103,12 +103,12 @@ def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_d
         view.description = view_data.description
     if view_data.mvsj is not None:
         view.mvsj = view_data.mvsj
-    
+
     view.updated_at = datetime.utcnow()
-    
+
     db.commit()
     db.refresh(view)
-    
+
     return view
 
 
@@ -116,13 +116,13 @@ def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_d
 def delete_view(view_id: int, db: Session = Depends(get_db)):
     """Soft delete a view."""
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
-    
+
     if not view:
         raise HTTPException(status_code=404, detail="View not found")
-    
+
     # Soft delete
     view.deleted_at = datetime.utcnow()
-    
+
     db.commit()
-    
+
     return None

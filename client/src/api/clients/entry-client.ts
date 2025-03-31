@@ -1,34 +1,21 @@
-import { API_ENDPOINTS } from "@/lib/api-schema";
+import { API_BASE_URL } from "@/config/config";
+import { Entry } from "@/types";
+import { API_ENDPOINTS } from "../api-schema";
 import {
-  Entry,
-  EntryCreateRequest,
-  EntryListResponse,
-  EntryUpdateRequest,
   SearchParams,
-  View,
-  ViewCreateRequest,
-  ViewUpdateRequest,
-} from "@/types";
+  EntryCreateRequest,
+  EntryUpdateRequest,
+} from "../contracts/requests";
+import { PaginatedResponse } from "../contracts/responses";
+import { handleResponse } from "./common";
 
-// Base API URL
-const API_BASE_URL = "http://0.0.0.0:8000/api";
-
-// Helper function for HTTP errors
-function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-  }
-  return response.json() as Promise<T>;
-}
-
-// Entries API
 export const entriesApi = {
   // Search entries with pagination
   list: async ({
     search,
     page = 1,
     per_page = 10,
-  }: SearchParams): Promise<EntryListResponse> => {
+  }: SearchParams): Promise<PaginatedResponse<Entry>> => {
     const params = new URLSearchParams();
     if (search) params.append("search", search);
     params.append("page", page.toString());
@@ -37,7 +24,7 @@ export const entriesApi = {
     const response = await fetch(
       `${API_ENDPOINTS.ENTRIES.LIST}?${params.toString()}`,
     );
-    return handleResponse<EntryListResponse>(response);
+    return handleResponse<PaginatedResponse<Entry>>(response);
   },
 
   // Get entry by ID
@@ -89,55 +76,6 @@ export const entriesApi = {
   // Delete entry
   delete: async (id: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-  },
-};
-
-// Views API
-export const viewsApi = {
-  // List views for an entry
-  listByEntry: async (entryId: number): Promise<View[]> => {
-    const response = await fetch(`${API_BASE_URL}/views/entry/${entryId}`);
-    return handleResponse<View[]>(response);
-  },
-
-  // Get view by ID
-  getById: async (id: number): Promise<View> => {
-    const response = await fetch(`${API_BASE_URL}/views/${id}`);
-    return handleResponse<View>(response);
-  },
-
-  // Create new view
-  create: async (data: ViewCreateRequest): Promise<View> => {
-    const response = await fetch(`${API_BASE_URL}/views`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    return handleResponse<View>(response);
-  },
-
-  // Update view
-  update: async (id: number, data: ViewUpdateRequest): Promise<View> => {
-    const response = await fetch(`${API_BASE_URL}/views/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    return handleResponse<View>(response);
-  },
-
-  // Delete view
-  delete: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/views/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {

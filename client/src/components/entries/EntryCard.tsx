@@ -1,4 +1,11 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Entry } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Edit, Share2, Trash2, View } from "lucide-react";
@@ -15,18 +22,18 @@ interface EntryCardProps {
 export function EntryCard({ entry, onDelete }: EntryCardProps) {
   const truncateDescription = (description: string | null) => {
     if (!description) return "";
-    
+
     // Get the first paragraph or first 150 characters
     const firstParagraph = description.split("\n\n")[0];
     if (firstParagraph.length <= 150) return firstParagraph;
-    
+
     return firstParagraph.substring(0, 150) + "...";
   };
-  
-  const createdAt = entry.created_at 
+
+  const createdAt = entry.created_at
     ? formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })
     : "Unknown";
-    
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>
@@ -36,11 +43,17 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
             <CardDescription>Created {createdAt}</CardDescription>
           </div>
           {entry.is_public ? (
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-300"
+            >
               Public
             </Badge>
           ) : (
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+            <Badge
+              variant="outline"
+              className="bg-yellow-50 text-yellow-700 border-yellow-300"
+            >
               Private
             </Badge>
           )}
@@ -48,7 +61,9 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="prose prose-sm prose-gray dark:prose-invert">
-          <ReactMarkdown>{truncateDescription(entry.description)}</ReactMarkdown>
+          <ReactMarkdown>
+            {truncateDescription(entry.description)}
+          </ReactMarkdown>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between pt-2 border-t">
@@ -58,7 +73,7 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
             View
           </Link>
         </Button>
-        
+
         <div className="flex gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link to={`/entries/${entry.id}/edit`}>
@@ -66,7 +81,7 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
               Edit
             </Link>
           </Button>
-          
+
           {entry.is_public && entry.sharing_uuid && (
             <Button asChild variant="ghost" size="sm">
               <Link to={`/share/${entry.sharing_uuid}`}>
@@ -75,11 +90,11 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
               </Link>
             </Button>
           )}
-          
+
           {onDelete && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-red-500 hover:text-red-700 hover:bg-red-50"
               onClick={() => onDelete(entry)}
             >

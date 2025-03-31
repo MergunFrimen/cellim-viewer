@@ -1,7 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { entryFormSchema, EntryFormValues } from "@/lib/form-schemas";
@@ -15,7 +30,11 @@ interface EntryFormProps {
   isLoading?: boolean;
 }
 
-export function EntryForm({ entry, onSubmit, isLoading = false }: EntryFormProps) {
+export function EntryForm({
+  entry,
+  onSubmit,
+  isLoading = false,
+}: EntryFormProps) {
   const form = useForm<EntryFormValues>({
     resolver: zodResolver(entryFormSchema),
     defaultValues: {
@@ -72,7 +91,8 @@ export function EntryForm({ entry, onSubmit, isLoading = false }: EntryFormProps
                     />
                   </FormControl>
                   <FormDescription>
-                    A detailed description of this entry. Markdown formatting is supported.
+                    A detailed description of this entry. Markdown formatting is
+                    supported.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +170,11 @@ export function EntryForm({ entry, onSubmit, isLoading = false }: EntryFormProps
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : entry ? "Update Entry" : "Create Entry"}
+              {isLoading
+                ? "Saving..."
+                : entry
+                  ? "Update Entry"
+                  : "Create Entry"}
             </Button>
           </CardFooter>
         </form>

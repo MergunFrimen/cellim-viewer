@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { entriesApi, viewsApi } from "@/lib/api-client";
+import { entriesApi, viewsApi } from "@/api/api-client";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -226,7 +226,7 @@ export function EntryDetailPage() {
                     <div key={view.id} className="border rounded-md p-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium">{view.title}</h3>
+                          <h3 className="font-medium">{view.name}</h3>
                           <p className="text-sm text-muted-foreground mt-1">
                             {view.description}
                           </p>

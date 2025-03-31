@@ -175,7 +175,7 @@ function ViewCard({
               size={16}
               className="text-muted-foreground cursor-grab"
             />
-            <CardTitle className="text-base">{view.title}</CardTitle>
+            <CardTitle className="text-base">{view.name}</CardTitle>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -206,7 +206,7 @@ function ViewCard({
           {screenshotUrl ? (
             <img
               src={screenshotUrl}
-              alt={`Preview of ${view.title}`}
+              alt={`Preview of ${view.name}`}
               className="w-full h-full object-cover"
             />
           ) : (
