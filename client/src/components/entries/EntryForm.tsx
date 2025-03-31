@@ -40,8 +40,6 @@ export function EntryForm({
     defaultValues: {
       name: entry?.name || "",
       description: entry?.description || "",
-      author_email: entry?.author_email || "",
-      thumbnail_path: entry?.thumbnail_path || "",
       is_public: entry?.is_public ?? true,
     },
   });
@@ -93,46 +91,6 @@ export function EntryForm({
                   <FormDescription>
                     A detailed description of this entry. Markdown formatting is
                     supported.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="author_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Author Email (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="author@example.com"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="thumbnail_path"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Thumbnail Path (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="/thumbnails/example.jpg"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Path to a thumbnail image for this entry.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

@@ -1,19 +1,18 @@
 // src/pages/ViewDemo.tsx
-import { Button } from "@/components/ui/button";
-import { MolstarViewer } from "@/components/molstar/MolstarViewer";
-import { ViewsSidebar } from "@/components/views/ViewsSidebar";
-import { SaveViewDialog } from "@/components/views/SaveViewDialog";
-import { EditViewDialog } from "@/components/views/EditViewDialog";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
+import { MolstarViewer } from "@/components/molstar/MolstarViewer";
+import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
+import { EditViewDialog } from "@/components/views/ViewEditDialog";
+import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/context/MolstarContext";
+import { useBehavior } from "@/hooks/useBehavior";
 import { useViews } from "@/hooks/useViews";
 import { View } from "@/types";
-import { useState, useEffect, useCallback } from "react";
-import { Expand, Loader, SidebarOpen, SidebarClose } from "lucide-react";
-import { useBehavior } from "@/hooks/useBehavior";
+import { Loader } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import snapshotExample1 from "../data/snapshot-example-1.json";
 import snapshotExample2 from "../data/snapshot-example-2.json";
-import { toast } from "sonner";
 
 export function ViewDemo() {
   const { viewer } = useMolstar();
@@ -54,22 +53,9 @@ export function ViewDemo() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [viewToEdit, setViewToEdit] = useState<View | null>(null);
   const [viewToDelete, setViewToDelete] = useState<View | null>(null);
-  const [showSidebar, setShowSidebar] = useState(true);
 
   // Get viewer states
   const isLoading = useBehavior(viewer.state.isLoading);
-  const isExpanded = useBehavior(viewer.state.isExpanded);
-  const showControls = useBehavior(viewer.state.showControls);
-
-  // Toggle viewer controls
-  const toggleControls = useCallback(() => {
-    viewer.state.showControls.next(!showControls);
-  }, [viewer, showControls]);
-
-  // Toggle fullscreen
-  const toggleExpand = useCallback(() => {
-    viewer.state.isExpanded.next(!isExpanded);
-  }, [viewer, isExpanded]);
 
   // Handle saving a new view
   const handleSaveView = () => {
@@ -128,20 +114,18 @@ export function ViewDemo() {
       {/* Main Content Area - Using flex and making sure both sidebar and content can scroll independently */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar with proper height constraints */}
-        {showSidebar && (
-          <aside className="p-4 border-r h-full overflow-hidden flex flex-col">
-            <ViewsSidebar
-              views={views}
-              currentViewId={currentViewId}
-              screenshotUrls={screenshotUrls}
-              onSaveView={handleSaveView}
-              onEditView={handleEditView}
-              onLoadView={handleLoadView}
-              onDeleteView={handleDeleteView}
-              onReorderViews={reorderViews}
-            />
-          </aside>
-        )}
+        <aside className="p-4 border-r h-full overflow-hidden flex flex-col">
+          <ViewsSidebar
+            views={views}
+            currentViewId={currentViewId}
+            screenshotUrls={screenshotUrls}
+            onSaveView={handleSaveView}
+            onEditView={handleEditView}
+            onLoadView={handleLoadView}
+            onDeleteView={handleDeleteView}
+            onReorderViews={reorderViews}
+          />
+        </aside>
 
         {/* Viewer area */}
         <main className="flex-1 relative">

@@ -1,8 +1,8 @@
-import { API_BASE_URL } from "@/config/config";
+import { API_BASE_URL } from "@/config/dev-config";
 import { Entry } from "@/types";
 import { API_ENDPOINTS } from "../api-schema";
 import {
-  SearchParams,
+  EntryListRequest,
   EntryCreateRequest,
   EntryUpdateRequest,
 } from "../contracts/requests";
@@ -12,10 +12,10 @@ import { handleResponse } from "./common";
 export const entriesApi = {
   // Search entries with pagination
   list: async ({
-    search,
+    search_term: search,
     page = 1,
     per_page = 10,
-  }: SearchParams): Promise<PaginatedResponse<Entry>> => {
+  }: EntryListRequest): Promise<PaginatedResponse<Entry>> => {
     const params = new URLSearchParams();
     if (search) params.append("search", search);
     params.append("page", page.toString());
@@ -28,24 +28,8 @@ export const entriesApi = {
   },
 
   // Get entry by ID
-  getById: async (id: number): Promise<Entry> => {
+  getById: async (id: string): Promise<Entry> => {
     const response = await fetch(`${API_BASE_URL}/entries/${id}`);
-    return handleResponse<Entry>(response);
-  },
-
-  // Get entry by sharing UUID
-  getBySharing: async (uuid: string): Promise<Entry> => {
-    const response = await fetch(
-      `${API_BASE_URL}/entries/by-sharing-uuid/${uuid}`,
-    );
-    return handleResponse<Entry>(response);
-  },
-
-  // Get entry by edit UUID
-  getByEdit: async (uuid: string): Promise<Entry> => {
-    const response = await fetch(
-      `${API_BASE_URL}/entries/by-edit-uuid/${uuid}`,
-    );
     return handleResponse<Entry>(response);
   },
 
@@ -62,7 +46,7 @@ export const entriesApi = {
   },
 
   // Update entry
-  update: async (id: number, data: EntryUpdateRequest): Promise<Entry> => {
+  update: async (id: string, data: EntryUpdateRequest): Promise<Entry> => {
     const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
       method: "PUT",
       headers: {
@@ -74,7 +58,7 @@ export const entriesApi = {
   },
 
   // Delete entry
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
       method: "DELETE",
     });

@@ -1,5 +1,5 @@
 export interface Entry {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   is_public: boolean;
@@ -9,7 +9,7 @@ export interface Entry {
 }
 
 export interface View {
-  id: number;
+  id: string;
   name: string;
   description: string;
   mvsj: Record<string, any> | null;

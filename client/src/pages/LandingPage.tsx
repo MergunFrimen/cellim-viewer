@@ -22,7 +22,8 @@ export function LandingPage() {
   // Query for entries
   const { data, isLoading, error } = useQuery({
     queryKey: ["entries", { search, page, perPage }],
-    queryFn: () => entriesApi.list({ search, page, per_page: perPage }),
+    queryFn: () =>
+      entriesApi.list({ search_term: search, page, per_page: perPage }),
   });
 
   // Update search parameters

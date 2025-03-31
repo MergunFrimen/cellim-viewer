@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Any, List
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column, relationship
 from sqlalchemy.types import JSON, String
 from typing_extensions import Annotated
 
-intpk = Annotated[int, mapped_column(primary_key=True)]
+uuidpk = Annotated[UUID, mapped_column(primary_key=True)]
 str255 = Annotated[str, 255]
 
 
@@ -21,7 +21,7 @@ class Entry(Base):
     __tablename__ = "entries"
 
     # Attributes
-    id: Mapped[intpk]
+    id: Mapped[uuidpk]
     name: Mapped[str255]
     description: Mapped[str | None]
     is_public: Mapped[bool]
@@ -36,7 +36,7 @@ class Entry(Base):
 class View(Base):
     __tablename__ = "views"
 
-    id: Mapped[intpk]
+    id: Mapped[uuidpk]
     name: Mapped[str255]
     description: Mapped[str]
     mvsj: Mapped[dict[str, Any] | None]

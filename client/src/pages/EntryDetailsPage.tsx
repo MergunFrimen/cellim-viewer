@@ -1,4 +1,7 @@
+import { entriesApi } from "@/api/clients/entry-client";
+import { viewsApi } from "@/api/clients/views-client";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,41 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { entriesApi, viewsApi } from "@/api/api-client";
-import { format } from "date-fns";
-import {
-  ArrowLeft,
-  Calendar,
-  Edit,
-  Eye,
-  Mail,
-  Share2,
-  Trash2,
-  Copy,
-  Check,
-} from "lucide-react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ArrowLeft, Calendar, Edit, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 
 export function EntryDetailPage() {
-  const params = useParams<{ id?: string; uuid?: string }>();
+  const params = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
 
-  const isUuidMode = !!params.uuid;
-  const entryId = params.id ? parseInt(params.id) : undefined;
-  const sharingUuid = params.uuid;
+  const entryId = params.id;
 
   // Determine the appropriate query function based on the route
   const fetchEntry = async () => {
-    if (isUuidMode) {
-      return entriesApi.getBySharing(sharingUuid!);
-    } else if (entryId) {
+    if (entryId) {
       return entriesApi.getById(entryId);
     }
     throw new Error("Invalid route parameters");
@@ -51,26 +37,19 @@ export function EntryDetailPage() {
   const [entryQuery, viewsQuery] = useQueries({
     queries: [
       {
-        queryKey: isUuidMode
-          ? ["entry", "share", sharingUuid]
-          : ["entry", entryId],
+        queryKey: ["entry", entryId],
         queryFn: fetchEntry,
-        enabled: !!(isUuidMode ? sharingUuid : entryId),
+        enabled: !!entryId,
       },
       {
-        queryKey: ["views", isUuidMode ? sharingUuid : entryId],
+        queryKey: ["views", entryId],
         queryFn: () => {
-          if (isUuidMode && sharingUuid) {
-            // First get the entry to extract its ID
-            return entriesApi.getBySharing(sharingUuid).then((entry) => {
-              return viewsApi.listByEntry(entry.id);
-            });
-          } else if (entryId) {
+          if (entryId) {
             return viewsApi.listByEntry(entryId);
           }
           throw new Error("Invalid route parameters");
         },
-        enabled: !!(isUuidMode ? sharingUuid : entryId),
+        enabled: !!entryId,
       },
     ],
   });
@@ -93,22 +72,6 @@ export function EntryDetailPage() {
   const views = viewsQuery.data || [];
   const isLoading = entryQuery.isLoading || viewsQuery.isLoading;
   const error = entryQuery.error || viewsQuery.error;
-
-  const copyShareLink = async () => {
-    if (!entry || !entry.sharing_uuid) return;
-
-    const baseUrl = window.location.origin;
-    const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
-    const shareUrl = `${baseUrl}${basePath}/share/${entry.sharing_uuid}`;
-
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -158,15 +121,7 @@ export function EntryDetailPage() {
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-3xl font-bold">{entry.name}</h1>
-              {entry.author_email && (
-                <div className="flex items-center text-muted-foreground mt-2">
-                  <Mail className="h-4 w-4 mr-2" />
-                  {entry.author_email}
-                </div>
-              )}
-            </div>
+            <h1 className="text-3xl font-bold">{entry.name}</h1>
 
             {entry.is_public ? (
               <Badge
@@ -258,7 +213,7 @@ export function EntryDetailPage() {
                   </Link>
                 </Button>
 
-                {entry.is_public && entry.sharing_uuid && (
+                {/* {entry.is_public && entry.sharing_uuid && (
                   <>
                     <Button
                       variant="outline"
@@ -276,7 +231,7 @@ export function EntryDetailPage() {
                       )}
                     </Button>
                   </>
-                )}
+                )} */}
 
                 <Button
                   variant="outline"

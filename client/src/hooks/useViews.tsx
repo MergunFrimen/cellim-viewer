@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { View } from "@/types";
 import { useMolstar } from "@/context/MolstarContext";
+import { UUID } from "molstar/lib/commonjs/mol-util";
 
 // Optional initial views to load
 interface UseViewsOptions {
@@ -11,7 +12,7 @@ interface UseViewsOptions {
 export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
   const { viewer } = useMolstar();
   const [views, setViews] = useState<View[]>(initialViews);
-  const [currentViewId, setCurrentViewId] = useState<string | null>(null);
+  const [currentViewId, setCurrentViewId] = useState<number | null>(null);
   const [screenshotUrls, setScreenshotUrls] = useState<Record<string, string>>(
     {},
   );
@@ -31,7 +32,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
     }
 
     const newView: View = {
-      id: `view-${Date.now()}`,
+      id: UUID.createv4,
       name: title || `View ${views.length + 1}`,
       description: description || "No description provided",
       mvsj: snapshot,
@@ -114,7 +115,7 @@ export function useViews({ initialViews = [] }: UseViewsOptions = {}) {
         try {
           // Load the view
           if (view.mvsj) {
-            await viewer.setState(view.mvsj);
+            await viewer.setState(view.mvsj as any);
 
             // Take screenshot
             const url = await viewer.screenshot();

@@ -1,17 +1,17 @@
-import { API_BASE_URL } from "@/config/config";
+import { API_BASE_URL } from "@/config/dev-config";
 import { View } from "@/types";
 import { ViewCreateRequest, ViewUpdateRequest } from "../contracts/requests";
 import { handleResponse } from "./common";
 
 export const viewsApi = {
   // List views for an entry
-  listByEntry: async (entryId: number): Promise<View[]> => {
+  listByEntry: async (entryId: string): Promise<View[]> => {
     const response = await fetch(`${API_BASE_URL}/views/entry/${entryId}`);
     return handleResponse<View[]>(response);
   },
 
   // Get view by ID
-  getById: async (id: number): Promise<View> => {
+  getById: async (id: string): Promise<View> => {
     const response = await fetch(`${API_BASE_URL}/views/${id}`);
     return handleResponse<View>(response);
   },
@@ -29,7 +29,7 @@ export const viewsApi = {
   },
 
   // Update view
-  update: async (id: number, data: ViewUpdateRequest): Promise<View> => {
+  update: async (id: string, data: ViewUpdateRequest): Promise<View> => {
     const response = await fetch(`${API_BASE_URL}/views/${id}`, {
       method: "PUT",
       headers: {
@@ -41,7 +41,7 @@ export const viewsApi = {
   },
 
   // Delete view
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/views/${id}`, {
       method: "DELETE",
     });

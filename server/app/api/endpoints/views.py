@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from server.app.api.contracts.requests.views import ViewCreateRequest, ViewUpdateRequest
+from server.app.api.contracts.responses.views import ViewResponse
 from sqlalchemy.orm import Session
 
 from app.database.models import Entry, View
@@ -11,36 +11,8 @@ from app.database.session import get_db
 router = APIRouter()
 
 
-# Request Models
-class ViewBase(BaseModel):
-    title: str = Field(..., min_length=1, max_length=50)
-    description: str
-    mvsj: Optional[Dict[str, Any]] = None
-
-
-class ViewCreate(ViewBase):
-    entry_id: int
-
-
-class ViewUpdate(BaseModel):
-    title: Optional[str] = Field(None, min_length=1, max_length=50)
-    description: Optional[str] = None
-    mvsj: Optional[Dict[str, Any]] = None
-
-
-# Response Models
-class ViewResponse(ViewBase):
-    id: int
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-
-
 @router.post("", response_model=ViewResponse, status_code=201)
-def create_view(view: ViewCreate, db: Session = Depends(get_db)):
-    """Create a new view for an entry."""
+def create_view(view: ViewCreateRequest, db: Session = Depends(get_db)):
     # Check if entry exists
     entry = db.query(Entry).filter(Entry.id == view.entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
@@ -63,9 +35,8 @@ def create_view(view: ViewCreate, db: Session = Depends(get_db)):
     return new_view
 
 
-@router.get("/entry/{entry_id}", response_model=List[ViewResponse])
+@router.get("/entry/{entry_id}", response_model=list[ViewResponse])
 def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
-    """Get all views for a specific entry."""
     # Check if entry exists
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
@@ -79,7 +50,6 @@ def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{view_id}", response_model=ViewResponse)
 def get_view(view_id: int, db: Session = Depends(get_db)):
-    """Get a single view by ID."""
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
@@ -89,8 +59,7 @@ def get_view(view_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{view_id}", response_model=ViewResponse)
-def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_db)):
-    """Update a view."""
+def update_view(view_id: int, view_data: ViewUpdateRequest, db: Session = Depends(get_db)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
@@ -104,7 +73,7 @@ def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_d
     if view_data.mvsj is not None:
         view.mvsj = view_data.mvsj
 
-    view.updated_at = datetime.utcnow()
+    view.updated_at = datetime.now()
 
     db.commit()
     db.refresh(view)
@@ -114,14 +83,13 @@ def update_view(view_id: int, view_data: ViewUpdate, db: Session = Depends(get_d
 
 @router.delete("/{view_id}", status_code=204)
 def delete_view(view_id: int, db: Session = Depends(get_db)):
-    """Soft delete a view."""
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
         raise HTTPException(status_code=404, detail="View not found")
 
     # Soft delete
-    view.deleted_at = datetime.utcnow()
+    view.deleted_at = datetime.now()
 
     db.commit()
 

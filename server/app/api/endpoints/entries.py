@@ -1,67 +1,27 @@
-import random
+import uuid
 from datetime import datetime
-from typing import Annotated, Any, Dict, List, Optional
+from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, EmailStr, Field
+from server.app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
+from server.app.api.contracts.responses.common import PaginatedResponse
 from sqlalchemy.orm import Session
 
+from app.api.contracts.responses.views import EntryResponse
 from app.database.models import Entry
 from app.database.session import get_db
 
 router = APIRouter()
 
 
-# Request Models
-class EntryBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=50)
-    description: Optional[str] = None
-    author_email: Optional[EmailStr] = None
-    thumbnail_path: Optional[str] = None
-    is_public: bool = True
-
-
-class EntryCreate(EntryBase):
-    pass
-
-
-class EntryUpdate(EntryBase):
-    name: Optional[str] = Field(None, min_length=1, max_length=50)
-    is_public: Optional[bool] = None
-
-
-# Response Models
-class EntryResponse(EntryBase):
-    id: int
-    sharing_uuid: Optional[str] = None
-    edit_uuid: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-
-
-class EntryListResponse(BaseModel):
-    items: List[EntryResponse]
-    total: int
-    page: int
-    per_page: int
-    total_pages: int
-
-
 @router.post("", response_model=EntryResponse, status_code=201)
-def create_entry(entry: EntryCreate, db: Session = Depends(get_db)):
+def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db)):
     new_entry = Entry(
-        id=random.randint(100, 1000),  # TODO: replace with UUID
+        id=uuid.uuid4(),
         name=entry.name,
         description=entry.description,
-        author_email=entry.author_email,
-        thumbnail_path=entry.thumbnail_path,
         is_public=entry.is_public,
-        sharing_uuid=str(uuid4()) if entry.is_public else None,
-        edit_uuid=str(uuid4()),
         created_at=datetime.now(),
         updated_at=datetime.now(),
         deleted_at=None,
@@ -75,7 +35,7 @@ def create_entry(entry: EntryCreate, db: Session = Depends(get_db)):
     return new_entry
 
 
-@router.get("", response_model=EntryListResponse)
+@router.get("", response_model=PaginatedResponse[Entry])
 def list_entries(
     search: Optional[str] = None,
     page: int = Query(1, ge=1),
@@ -115,32 +75,8 @@ def get_entry(entry_id: int, db: Session = Depends(get_db)):
     return entry
 
 
-@router.get("/by-sharing-uuid/{uuid}", response_model=EntryResponse)
-def get_entry_by_sharing_uuid(uuid: str, db: Session = Depends(get_db)):
-    entry = (
-        db.query(Entry)
-        .filter(Entry.sharing_uuid == uuid, Entry.is_public.is_(True), Entry.deleted_at.is_(None))
-        .first()
-    )
-
-    if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
-
-    return entry
-
-
-@router.get("/by-edit-uuid/{uuid}", response_model=EntryResponse)
-def get_entry_by_edit_uuid(uuid: str, db: Session = Depends(get_db)):
-    entry = db.query(Entry).filter(Entry.edit_uuid == uuid, Entry.deleted_at.is_(None)).first()
-
-    if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
-
-    return entry
-
-
 @router.put("/{entry_id}", response_model=EntryResponse)
-def update_entry(entry_id: int, entry_data: EntryUpdate, db: Session = Depends(get_db)):
+def update_entry(entry_id: int, entry_data: EntryUpdateRequest, db: Session = Depends(get_db)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:

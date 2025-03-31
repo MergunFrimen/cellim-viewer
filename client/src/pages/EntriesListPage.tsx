@@ -3,12 +3,12 @@ import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
 import { EntryCard } from "@/components/entries/EntryCard";
 import { Pagination } from "@/components/Pagination";
 import { SearchBar } from "@/components/SearchBar";
-import { entriesApi } from "@/api/api-client";
 import { Entry } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { entriesApi } from "@/api/clients/entry-client";
 
 export function EntriesListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,12 +25,13 @@ export function EntriesListPage() {
   // Query for entries
   const { data, isLoading, error } = useQuery({
     queryKey: ["entries", { search, page, perPage }],
-    queryFn: () => entriesApi.list({ search, page, per_page: perPage }),
+    queryFn: () =>
+      entriesApi.list({ search_term: search, page, per_page: perPage }),
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => entriesApi.delete(id),
+    mutationFn: (id: string) => entriesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["entries"] });
       setEntryToDelete(null);

@@ -8,6 +8,7 @@ import { Layout } from "./components/Layout";
 import { AboutPage } from "./pages/AboutPage";
 import { DocsPage } from "./pages/DocsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { EntryDetailPage } from "./pages/EntryDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ export function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/entries/:id" element={<EntryDetailPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/docs" element={<DocsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
