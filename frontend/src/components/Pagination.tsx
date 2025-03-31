@@ -4,7 +4,6 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Select,
@@ -13,7 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -77,16 +81,19 @@ export function PaginationControls({
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationPrevious
-                to="#"
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={(e) => {
                   e.preventDefault();
                   onPageChange(Math.max(1, currentPage - 1));
                 }}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
+                disabled={currentPage === 1 || totalPages === 0}
+                className="size-9 p-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Previous page</span>
+              </Button>
             </PaginationItem>
 
             {getPageNumbers().map((page) => (
@@ -116,7 +123,7 @@ export function PaginationControls({
                 className="size-9 p-0"
               >
                 <ChevronRight className="h-4 w-4" />
-                <span className="sr-only">Last page</span>
+                <span className="sr-only">Next page</span>
               </Button>
             </PaginationItem>
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -20,12 +21,15 @@ def create_view(view: ViewCreateRequest, db: Session = Depends(get_db)):
 
     # Create new view
     new_view = View(
-        title=view.title,
+        id=uuid4(),
+        name=view.name,
         description=view.description,
         mvsj=view.mvsj,
         entry_id=view.entry_id,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+        deleted_at=None,
+        entry=entry,
     )
 
     db.add(new_view)
@@ -36,7 +40,7 @@ def create_view(view: ViewCreateRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/entry/{entry_id}", response_model=list[ViewResponse])
-def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
+def get_views_for_entry(entry_id: UUID, db: Session = Depends(get_db)):
     # Check if entry exists
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
@@ -49,7 +53,7 @@ def get_views_for_entry(entry_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{view_id}", response_model=ViewResponse)
-def get_view(view_id: int, db: Session = Depends(get_db)):
+def get_view(view_id: UUID, db: Session = Depends(get_db)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
@@ -59,15 +63,15 @@ def get_view(view_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{view_id}", response_model=ViewResponse)
-def update_view(view_id: int, view_data: ViewUpdateRequest, db: Session = Depends(get_db)):
+def update_view(view_id: UUID, view_data: ViewUpdateRequest, db: Session = Depends(get_db)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
         raise HTTPException(status_code=404, detail="View not found")
 
     # Update fields if they are provided
-    if view_data.title is not None:
-        view.title = view_data.title
+    if view_data.name is not None:
+        view.name = view_data.name
     if view_data.description is not None:
         view.description = view_data.description
     if view_data.mvsj is not None:
@@ -82,7 +86,7 @@ def update_view(view_id: int, view_data: ViewUpdateRequest, db: Session = Depend
 
 
 @router.delete("/{view_id}", status_code=204)
-def delete_view(view_id: int, db: Session = Depends(get_db)):
+def delete_view(view_id: UUID, db: Session = Depends(get_db)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:

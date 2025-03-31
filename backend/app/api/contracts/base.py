@@ -10,6 +10,6 @@ class EntryBase(BaseModel):
 
 
 class ViewBase(BaseModel):
-    title: str = Field(..., min_length=1, max_length=50)
+    name: str = Field(..., min_length=1, max_length=50)
     description: str
     mvsj: Optional[Dict[str, Any]] = None

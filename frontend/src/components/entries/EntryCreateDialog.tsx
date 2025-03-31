@@ -137,7 +137,6 @@ export function EntryCreateDialog({
               />
 
               {mutation.error && (
-                <>
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
@@ -147,7 +146,6 @@ export function EntryCreateDialog({
                         : "An error occurred while creating the entry. Please try again."}
                     </AlertDescription>
                   </Alert>
-                </>
               )}
 
               <DialogFooter className="gap-2 pt-4">

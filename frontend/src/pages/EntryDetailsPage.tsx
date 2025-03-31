@@ -1,6 +1,7 @@
 import { entriesApi } from "@/api/clients/entry-client";
 import { viewsApi } from "@/api/clients/views-client";
 import { DeleteDialog } from "@/components/dialogs/DeleteDialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +13,14 @@ import {
 } from "@/components/ui/card";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { ArrowLeft, Calendar, Edit, Eye, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Calendar,
+  Edit,
+  Eye,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -83,14 +91,13 @@ export function EntryDetailPage() {
 
   if (error || !entry) {
     return (
-      <div className="container py-8">
-        <div className="p-4 border border-red-200 bg-red-50 text-red-600 rounded-md">
-          Entry not found or cannot be loaded. Please try again.
-        </div>
-        <Button asChild variant="outline" className="mt-4">
-          <Link to="/entries">Back to Entries</Link>
-        </Button>
-      </div>
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Entry not found or cannot be loaded.
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -212,26 +219,6 @@ export function EntryDetailPage() {
                     Edit Entry
                   </Link>
                 </Button>
-
-                {/* {entry.is_public && entry.sharing_uuid && (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
-                      onClick={copyShareLink}
-                    >
-                      <div className="flex items-center">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Copy Share Link
-                      </div>
-                      {linkCopied ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </>
-                )} */}
 
                 <Button
                   variant="outline"

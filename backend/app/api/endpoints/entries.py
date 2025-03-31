@@ -1,7 +1,6 @@
-import uuid
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -18,7 +17,7 @@ router = APIRouter()
 @router.post("", response_model=EntryResponse, status_code=201)
 def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db)):
     new_entry = Entry(
-        id=uuid.uuid4(),
+        id=uuid4(),
         name=entry.name,
         description=entry.description,
         is_public=entry.is_public,

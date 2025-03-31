@@ -8,7 +8,7 @@ export function EntryPreview({ entry }: { entry: Entry }) {
   return (
     <Card
       key={entry.id}
-      className="overflow-hidden hover:shadow-lg transition-shadow"
+      className="overflow-hidden hover:shadow-lg transition-shadow min-h-96"
     >
       <div className="aspect-video bg-secondary flex items-center justify-center">
         <ImageIcon size={64} className="text-muted-foreground" />
