@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # PostgreSQL
     POSTGRES_DIALECT: str = "postgresql"
-    POSTGRES_DBAPI: str = "psycopg"
+    POSTGRES_DBAPI: str = "asyncpg"
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
