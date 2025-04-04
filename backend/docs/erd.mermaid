@@ -1,58 +1,65 @@
 erDiagram
 
-    ENTRIES {
-        int id PK
+    USER {
+        uuid id PK
+        uuid openid PK
+    }
 
+    ENTRIES {
+        uuid id PK
+        uuid user_id FK
         string name
         string description
-        string author_email
-        string thumbnail_url
-
+        boolean is_public
         datetime created_at
         datetime updated_at
         datetime deleted_at
     }
-
-    PUBLIC_ENTRIES {
-        int entry_id FK
-    }
-
+    
     VIEWS {
-        int id PK
-        int entry_id FK
-
+        uuid id PK
+        uuid entry_id FK
         string title
         string description
-        json mvsj
-
+        json snapshot
         datetime created_at
         datetime updated_at
         datetime deleted_at
     }
 
-    SEGMENTATIONS {
-        int id PK
-        int volume_id FK
-        string description
-        string url
+    LINKS {
+        uuid id PK
+        uuid entry_id FK
+        uuid link
+        boolean editable
     }
+        
+    %% VOLUMES {
+    %%     int id PK
+    %%     int entry_id FK
+    %%     string description
+    %%     string source_url 
+    %%     datetime uploaded_at
+    %% }
 
-    SEGMENTS {
-        int id PK
-        int segmentation_id FK
-        string description
-        string url
-    }
+    %% SEGMENTATIONS {
+    %%     int id PK
+    %%     int volume_id FK
+    %%     string description
+    %%     string source_url 
+    %% }
 
-    VOLUMES {
-        int id PK
-        int entry_id FK
-        string description
-        string url
-    }
-
+    %% SEGMENTS {
+    %%     int id PK
+    %%     int segmentation_id FK
+    %%     string description
+    %%     string source_url 
+    %% }
+        
+    USER ||--o{ ENTRIES : ""
     ENTRIES ||--o{ VIEWS : ""
-    ENTRIES }o--o| VOLUMES : ""
-    VOLUMES ||--o{ SEGMENTATIONS : ""
-    SEGMENTATIONS ||--o{ SEGMENTS : ""
-    PUBLIC_ENTRIES ||--o{ ENTRIES : ""
+    ENTRIES ||--o| LINKS : ""
+    %% ENTRIES }o--o| VOLUMES : ""
+    %% VOLUMES ||--o{ SEGMENTATIONS : ""
+    %% SEGMENTATIONS ||--o{ SEGMENTS : ""
+    %% PUBLIC_ENTRIES ||--o{ ENTRIES : ""
