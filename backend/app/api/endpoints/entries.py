@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
-from app.api.contracts.responses.common import PaginatedResponse
 from app.api.contracts.responses.entries import EntryResponse
+from app.api.contracts.responses.pagination import PaginatedResponse
 from app.database.models.entry import Entry
 from app.database.session import get_db
 
