@@ -9,8 +9,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Dependency to get DB session
 def get_db():
-    db = SessionLocal()
+    session = SessionLocal()
     try:
-        yield db
+        yield session
+    except Exception:
+        session.rollback()
+        raise
     finally:
-        db.close()
+        session.close()

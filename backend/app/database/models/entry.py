@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Uuid
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, str255, timestamptz, uuidfk, uuidpk
+from app.database.models.base import Base, str255, uuidfk, uuidpk
 
 
 class Entry(Base):
