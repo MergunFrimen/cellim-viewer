@@ -6,7 +6,7 @@
             "source.fixAll.ruff": "explicit",
             "source.organizeImports.ruff": "explicit",
             "source.removeUnusedImports": "explicit",
-            "source.unusedImports": "explicit",
+            "source.unusedImports": "never",
         }
     },
     "[typescript]": {
