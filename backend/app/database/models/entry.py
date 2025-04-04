@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models import Base, User, View, str255, uuidpk
+from app.database.models.base import Base, str255, timestamptz, uuidfk, uuidpk
 
 
 class Entry(Base):
@@ -13,11 +14,13 @@ class Entry(Base):
     name: Mapped[str255]
     description: Mapped[str | None]
     is_public: Mapped[bool]
-    created_at: Mapped[datetime | None]
-    updated_at: Mapped[datetime | None]
-    deleted_at: Mapped[datetime | None]
 
     # Relationships
+    user_id: Mapped[uuidfk] = mapped_column(ForeignKey("users.id"))
     views: Mapped[list["View"]] = relationship()
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    links: Mapped[list["Link"]] = relationship()
     user: Mapped["User"] = relationship()
+
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None)

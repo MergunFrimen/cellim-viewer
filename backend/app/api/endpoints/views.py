@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.views import ViewCreateRequest, ViewUpdateRequest
 from app.api.contracts.responses.views import ViewResponse
-from backend.app.database.models.models import Entry, View
+from app.database.models.entry import Entry
+from app.database.models.view import View
 from app.database.session import get_db
 
 router = APIRouter()

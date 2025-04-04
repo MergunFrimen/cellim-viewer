@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
 from app.api.contracts.responses.common import PaginatedResponse
 from app.api.contracts.responses.entries import EntryResponse
-from app.database.models.models import Entry
+from app.database.models.entry import Entry
 from app.database.session import get_db
 
 router = APIRouter()

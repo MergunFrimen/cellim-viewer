@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models import Base, Entry, uuidpk
+from app.database.models.base import Base, uuidpk
 
 
 class User(Base):
@@ -10,9 +10,10 @@ class User(Base):
 
     # Attributes
     id: Mapped[uuidpk]
-    created_at: Mapped[datetime | None]
-    updated_at: Mapped[datetime | None]
-    deleted_at: Mapped[datetime | None]
 
     # Relationships
     entries: Mapped[list["Entry"]] = relationship()
+
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
