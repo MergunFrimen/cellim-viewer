@@ -1,10 +1,10 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from backend.app.api.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.contracts.requests.views import ViewCreateRequest, ViewUpdateRequest
 from app.api.contracts.responses.views import ViewResponse
 from app.database.models.entry import Entry
 from app.database.models.view import View

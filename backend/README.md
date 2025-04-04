@@ -19,7 +19,7 @@ source .venv/bin/activate
 ## How to run app
 
 ```shell
-uv run main.py
+fastapi dev main.py
 ```
 
 ## Tests

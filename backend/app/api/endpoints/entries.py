@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.api.contracts.requests.entries import EntryCreateRequest, EntryUpdateRequest
+from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest
 from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
 from app.database.models.entry import Entry
@@ -36,7 +35,7 @@ def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db)):
 
 @router.get("", response_model=PaginatedResponse[EntryResponse])
 def list_entries(
-    search: Optional[str] = None,
+    search: str | None = None,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
