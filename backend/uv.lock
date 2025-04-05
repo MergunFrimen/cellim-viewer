@@ -51,7 +51,6 @@ dependencies = [
     { name = "pydantic", extra = ["email"] },
     { name = "pydantic-settings" },
     { name = "sqlalchemy" },
-    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -66,7 +65,6 @@ requires-dist = [
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.6" },
     { name = "pydantic-settings", specifier = "==2.8.1" },
     { name = "sqlalchemy", specifier = "==2.0.39" },
-    { name = "uvicorn", specifier = "==0.34.0" },
 ]
 
 [package.metadata.requires-dev]

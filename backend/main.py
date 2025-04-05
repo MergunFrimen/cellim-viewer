@@ -34,9 +34,9 @@ app.include_router(entries.router)
 app.include_router(views.router)
 
 
-if __name__ == "__main__":
-    import uvicorn
+# if __name__ == "__main__":
+#     import uvicorn
 
-    uvicorn.run(
-        "main:app", host=settings.APP_HOST, port=settings.APP_PORT, reload=settings.APP_RELOAD
-    )
+#     uvicorn.run(
+#         "main:app", host=settings.APP_HOST, port=settings.APP_PORT, reload=settings.APP_RELOAD
+#     )

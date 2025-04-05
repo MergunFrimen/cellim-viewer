@@ -2,19 +2,20 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest
 from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
+from app.api.dependencies.core import DbSessionDependency
 from app.database.models.entry import Entry
-from app.database.session import get_db_session
 
 router = APIRouter(prefix="/api/v1/entries", tags=["entries"])
 
 
 @router.post("", response_model=EntryResponse, status_code=201)
-def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db_session)):
+async def create_entry(entry: EntryCreateRequest, db: AsyncSession = Depends(DbSessionDependency)):
     new_entry = Entry(
         id=uuid4(),
         name=entry.name,
@@ -26,7 +27,7 @@ def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db_session
         views=[],
     )
 
-    db.add(new_entry)
+    await db.add(new_entry)
     db.commit()
     db.refresh(new_entry)
 
@@ -38,7 +39,7 @@ def list_entries(
     search: str | None = None,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db_session),
+    db: AsyncSession = Depends(DbSessionDependency),
 ):
     query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
 
@@ -64,7 +65,7 @@ def list_entries(
 
 
 @router.get("/{entry_id}", response_model=EntryResponse)
-def get_entry(entry_id: UUID, db: Session = Depends(get_db_session)):
+def get_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -75,7 +76,7 @@ def get_entry(entry_id: UUID, db: Session = Depends(get_db_session)):
 
 @router.put("/{entry_id}", response_model=EntryResponse)
 def update_entry(
-    entry_id: UUID, entry_data: EntryUpdateRequest, db: Session = Depends(get_db_session)
+    entry_id: UUID, entry_data: EntryUpdateRequest, db: AsyncSession = Depends(DbSessionDependency)
 ):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
@@ -99,7 +100,7 @@ def update_entry(
 
 
 @router.delete("/{entry_id}", status_code=204)
-def delete_entry(entry_id: UUID, db: Session = Depends(get_db_session)):
+def delete_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
