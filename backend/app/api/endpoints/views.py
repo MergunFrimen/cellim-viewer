@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/api/v1/views", tags=["views"])
 
 
 @router.post("", response_model=ViewResponse, status_code=201)
-def create_view(view: ViewCreateRequest, db: Session = Depends(DbSessionDependency)):
+def create_view(view: ViewCreateRequest, db: AsyncSession = Depends(DbSessionDependency)):
     # Check if entry exists
     entry = db.query(Entry).filter(Entry.id == view.entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
@@ -41,7 +42,7 @@ def create_view(view: ViewCreateRequest, db: Session = Depends(DbSessionDependen
 
 
 @router.get("/entry/{entry_id}", response_model=list[ViewResponse])
-def get_views_for_entry(entry_id: UUID, db: Session = Depends(DbSessionDependency)):
+def get_views_for_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     # Check if entry exists
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
     if not entry:
@@ -54,7 +55,7 @@ def get_views_for_entry(entry_id: UUID, db: Session = Depends(DbSessionDependenc
 
 
 @router.get("/{view_id}", response_model=ViewResponse)
-def get_view(view_id: UUID, db: Session = Depends(DbSessionDependency)):
+def get_view(view_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:
@@ -65,7 +66,7 @@ def get_view(view_id: UUID, db: Session = Depends(DbSessionDependency)):
 
 @router.put("/{view_id}", response_model=ViewResponse)
 def update_view(
-    view_id: UUID, view_data: ViewUpdateRequest, db: Session = Depends(DbSessionDependency)
+    view_id: UUID, view_data: ViewUpdateRequest, db: AsyncSession = Depends(DbSessionDependency)
 ):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
@@ -89,7 +90,7 @@ def update_view(
 
 
 @router.delete("/{view_id}", status_code=204)
-def delete_view(view_id: UUID, db: Session = Depends(DbSessionDependency)):
+def delete_view(view_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     view = db.query(View).filter(View.id == view_id, View.deleted_at.is_(None)).first()
 
     if not view:

@@ -3,7 +3,6 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest
 from app.api.contracts.responses.entries import EntryResponse
@@ -27,9 +26,9 @@ async def create_entry(entry: EntryCreateRequest, db: AsyncSession = Depends(DbS
         views=[],
     )
 
-    await db.add(new_entry)
-    db.commit()
-    db.refresh(new_entry)
+    db.add(new_entry)
+    await db.commit()
+    await db.refresh(new_entry)
 
     return new_entry
 
