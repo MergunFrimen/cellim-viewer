@@ -8,13 +8,13 @@ from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequ
 from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
 from app.database.models.entry import Entry
-from app.database.session import get_db
+from app.database.session import get_db_session
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/entries", tags=["entries"])
 
 
 @router.post("", response_model=EntryResponse, status_code=201)
-def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db)):
+def create_entry(entry: EntryCreateRequest, db: Session = Depends(get_db_session)):
     new_entry = Entry(
         id=uuid4(),
         name=entry.name,
@@ -38,7 +38,7 @@ def list_entries(
     search: str | None = None,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_session),
 ):
     query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
 
@@ -64,7 +64,7 @@ def list_entries(
 
 
 @router.get("/{entry_id}", response_model=EntryResponse)
-def get_entry(entry_id: UUID, db: Session = Depends(get_db)):
+def get_entry(entry_id: UUID, db: Session = Depends(get_db_session)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -74,7 +74,9 @@ def get_entry(entry_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.put("/{entry_id}", response_model=EntryResponse)
-def update_entry(entry_id: UUID, entry_data: EntryUpdateRequest, db: Session = Depends(get_db)):
+def update_entry(
+    entry_id: UUID, entry_data: EntryUpdateRequest, db: Session = Depends(get_db_session)
+):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -97,7 +99,7 @@ def update_entry(entry_id: UUID, entry_data: EntryUpdateRequest, db: Session = D
 
 
 @router.delete("/{entry_id}", status_code=204)
-def delete_entry(entry_id: UUID, db: Session = Depends(get_db)):
+def delete_entry(entry_id: UUID, db: Session = Depends(get_db_session)):
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
