@@ -4,13 +4,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import entries, views
+from app.database.models.base import Base
 from app.database.session import sessionmanager
 from app.shared.settings import settings
 
 
+async def init_models():
+    async with sessionmanager._engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # startup
+    await init_models()
     yield
+    # shutdown
     if sessionmanager._engine is not None:
         await sessionmanager.close()
 
@@ -32,11 +42,3 @@ app.add_middleware(
 
 app.include_router(entries.router)
 app.include_router(views.router)
-
-
-# if __name__ == "__main__":
-#     import uvicorn
-
-#     uvicorn.run(
-#         "main:app", host=settings.APP_HOST, port=settings.APP_PORT, reload=settings.APP_RELOAD
-#     )
