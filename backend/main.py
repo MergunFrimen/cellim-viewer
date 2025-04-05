@@ -10,7 +10,7 @@ from app.shared.settings import settings
 
 
 async def init_models():
-    async with sessionmanager._engine.begin() as conn:
+    async with sessionmanager.engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
     await init_models()
     yield
     # shutdown
-    if sessionmanager._engine is not None:
+    if sessionmanager.engine is not None:
         await sessionmanager.close()
 
 

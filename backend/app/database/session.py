@@ -14,25 +14,25 @@ from app.shared.settings import settings
 
 class DatabaseSessionManager:
     def __init__(self, host: str, engine_kwargs: dict[str, Any] = {}):
-        self._engine = create_async_engine(host, **engine_kwargs)
+        self.engine = create_async_engine(host, **engine_kwargs)
         self._sessionmaker = async_sessionmaker(
-            bind=self._engine, autocommit=False, autoflush=False
+            bind=self.engine, autocommit=False, autoflush=False
         )
 
     async def close(self):
-        if self._engine is None:
+        if self.engine is None:
             raise Exception("DatabaseSessionManager is not initialized")
-        await self._engine.dispose()
+        await self.engine.dispose()
 
-        self._engine = None
+        self.engine = None
         self._sessionmaker = None
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
-        if self._engine is None:
+        if self.engine is None:
             raise Exception("DatabaseSessionManager is not initialized")
 
-        async with self._engine.begin() as connection:
+        async with self.engine.begin() as connection:
             try:
                 yield connection
             except Exception:
