@@ -1,26 +1,20 @@
 from datetime import datetime
-from enum import Enum
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, uuidfk, uuidpk
-
-
-class LinkType(Enum):
-    viewer = "viewer"
-    editor = "editor"
+from app.database.models.base import Base, LinkType, UuidFk, UuidPk
 
 
 class Link(Base):
     __tablename__ = "links"
 
     # Attributes
-    id: Mapped[uuidpk]
+    id: Mapped[UuidPk]
     type: Mapped[LinkType]
     # Relationships
-    entry_id: Mapped[uuidfk] = mapped_column(ForeignKey("entries.id"))
-    user_id: Mapped[uuidfk] = mapped_column(ForeignKey("users.id"))
+    entry_id: Mapped[UuidFk] = mapped_column(ForeignKey("entries.id"))
+    user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
     entry: Mapped["Entry"] = relationship()
     user: Mapped["User"] = relationship()
 

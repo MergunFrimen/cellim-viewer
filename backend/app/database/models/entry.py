@@ -3,20 +3,20 @@ from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, str255, uuidfk, uuidpk
+from app.database.models.base import Base, Str255, UuidFk, UuidPk
 
 
 class Entry(Base):
     __tablename__ = "entries"
 
     # Attributes
-    id: Mapped[uuidpk]
-    name: Mapped[str255]
+    id: Mapped[UuidPk]
+    name: Mapped[Str255]
     description: Mapped[str | None]
     is_public: Mapped[bool]
 
     # Relationships
-    user_id: Mapped[uuidfk] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
     views: Mapped[list["View"]] = relationship()
     links: Mapped[list["Link"]] = relationship()
     user: Mapped["User"] = relationship()

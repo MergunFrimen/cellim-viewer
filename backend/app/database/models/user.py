@@ -2,14 +2,14 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, uuidpk
+from app.database.models.base import Base, UuidPk
 
 
 class User(Base):
     __tablename__ = "users"
 
     # Attributes
-    id: Mapped[uuidpk]
+    id: Mapped[UuidPk]
 
     # Relationships
     entries: Mapped[list["Entry"]] = relationship()
