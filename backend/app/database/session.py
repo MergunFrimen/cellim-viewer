@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Annotated, Any, AsyncIterator
+from typing import Any, AsyncIterator
 
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession,
@@ -15,9 +14,7 @@ from app.shared.settings import settings
 class DatabaseSessionManager:
     def __init__(self, host: str, engine_kwargs: dict[str, Any] = {}):
         self.engine = create_async_engine(host, **engine_kwargs)
-        self._sessionmaker = async_sessionmaker(
-            bind=self.engine, autocommit=False, autoflush=False
-        )
+        self._sessionmaker = async_sessionmaker(bind=self.engine, autocommit=False, autoflush=False)
 
     async def close(self):
         if self.engine is None:
@@ -57,10 +54,7 @@ class DatabaseSessionManager:
 sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings.DATABASE_ECHO_SQL})
 
 
-# Functional dependency for DB session
+# Dependency for DB session
 async def get_db_session():
     async with sessionmanager.session() as session:
         yield session
-
-
-DBSessionDep = Annotated[AsyncSession, Depends(get_db_session)]

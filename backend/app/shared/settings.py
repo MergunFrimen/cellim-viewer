@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from pydantic_settings import BaseSettings
 
@@ -14,7 +13,7 @@ class Settings(BaseSettings):
     APP_RELOAD: bool = True
 
     # CORS
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: list[str] = [
         "http://localhost:3000",  # for frontend
         "http://localhost:8000",  # for OpenAPI docs
     ]
