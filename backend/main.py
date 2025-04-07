@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import entries, files, views
 from app.database.models.base import Base
 from app.database.session import sessionmanager
-from app.middleware.TestMiddleware import TestMiddleware
+from app.middleware.test_middleware import TestMiddleware
 from app.shared.settings import settings
 
 

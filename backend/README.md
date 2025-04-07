@@ -1,5 +1,11 @@
 # CELLIM Viewer API
 
+## Repomix
+
+```shell
+npx repomix --ignore '' --copy --output repopack.txt && rm -f repopack.txt
+```
+
 ## Prerequisites
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
