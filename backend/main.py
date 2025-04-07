@@ -1,3 +1,4 @@
+import uuid
 from contextlib import asynccontextmanager
 from enum import Enum
 
@@ -6,10 +7,40 @@ from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import entries, files, views
+from app.database.models import Entry, User
 from app.database.models.base import Base
 from app.database.session import sessionmanager
 from app.middleware.test_middleware import TestMiddleware
 from app.shared.settings import settings
+
+
+async def seed_database():
+    """Seed the database with initial data."""
+    async with sessionmanager.session() as session:
+        # Create a user
+        user_id = uuid.uuid4()
+        user = User(id=user_id, entries=[])
+        session.add(user)
+
+        # Create an entry
+        entry_id = uuid.uuid4()
+        entry = Entry(
+            id=entry_id,
+            user_id=user_id,
+            name="Sample Entry",
+            description="This is a sample entry created during database seeding.",
+            user=user,
+            views=[],
+            links=[],
+        )
+        session.add(entry)
+
+        # Commit the changes
+        await session.commit()
+
+        # Print the created objects
+        print(f"Created user with ID: {user_id}")
+        print(f"Created entry with ID: {entry_id}")
 
 
 # TODO: move somewhere else
@@ -28,6 +59,7 @@ async def init_models():
 async def lifespan(app: FastAPI):
     # startup
     await init_models()
+    await seed_database()
     yield
     # shutdown
     if sessionmanager.engine is not None:

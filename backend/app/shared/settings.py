@@ -28,6 +28,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
     DATABASE_ECHO_SQL: bool = True
 
+    # File Storage
+    FILE_STORAGE_PATH: str = os.getenv("FILE_STORAGE_PATH", "storage")
+
+    # MinIO settings for future use
+    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
+    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET", "cellim-viewer")
+    MINIO_SECURE: bool = os.getenv("MINIO_SECURE", "False").lower() == "true"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

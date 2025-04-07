@@ -13,7 +13,6 @@ class Entry(Base):
     id: Mapped[UuidPk]
     name: Mapped[Str255]
     description: Mapped[str | None]
-    is_public: Mapped[bool]
 
     # Relationships
     user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
@@ -21,6 +20,7 @@ class Entry(Base):
     links: Mapped[list["Link"]] = relationship()
     user: Mapped["User"] = relationship()
 
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    is_public: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
     deleted_at: Mapped[datetime | None] = mapped_column(default=None)

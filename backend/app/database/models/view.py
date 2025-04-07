@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,6 +19,7 @@ class View(Base):
     entry_id: Mapped[UuidFk] = mapped_column(ForeignKey("entries.id"))
     entry: Mapped["Entry"] = relationship()
 
+    image_path: Mapped[str | None] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     deleted_at: Mapped[datetime | None] = mapped_column(default=None)

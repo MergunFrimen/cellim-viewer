@@ -9,5 +9,6 @@ class View(BaseModel):
     name: str = Field(max_length=255)
     description: str | None = Field(default=None, max_length=255)
     snapshot: dict[str, Any] | None = Field(default=None)
+    image_path: str | None = Field(default=None)
 
     model_config = ConfigDict(from_attributes=True)

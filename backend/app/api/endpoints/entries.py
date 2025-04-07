@@ -39,15 +39,6 @@ async def create_entry(
 def list_entries(
     search_query: Annotated[SearchParams, Query()],
     db: DbSessionDependency,
-    # search_term: Annotated[
-    #     list[str] | None,
-    #     Query(
-    #         max_length=50,
-    #         description="Keywords to search by in entry titles and descriptions.",
-    #     ),
-    # ] = None,
-    # page: Annotated[int, Query(ge=1)] = 1,
-    # per_page: Annotated[int, Query(ge=1, le=100)] = 10,
 ) -> PaginatedResponse[EntryResponse]:
     query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
 
