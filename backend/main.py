@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from enum import Enum
 
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
@@ -9,6 +10,12 @@ from app.database.models.base import Base
 from app.database.session import sessionmanager
 from app.middleware.test_middleware import TestMiddleware
 from app.shared.settings import settings
+
+
+# TODO: move somewhere else
+class Tags(Enum):
+    entries = "entries"
+    views = "views"
 
 
 async def init_models():
@@ -40,6 +47,7 @@ middleware: list[Middleware] = [
 ]
 
 app = FastAPI(
+    root_path="/api",
     title=settings.APP_NAME,
     description=settings.APP_DESCRIPTION,
     version=settings.APP_VERSION,
@@ -48,6 +56,6 @@ app = FastAPI(
 )
 
 
-app.include_router(entries.router, prefix="/api/v1/entries")
-app.include_router(views.router, prefix="/api/v1/views")
-app.include_router(files.router, prefix="/api/v1/files")
+app.include_router(entries.router, prefix="/v1/entries")
+app.include_router(views.router, prefix="/v1/views")
+app.include_router(files.router, prefix="/v1/files")

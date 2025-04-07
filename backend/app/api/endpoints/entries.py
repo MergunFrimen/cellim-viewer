@@ -1,20 +1,22 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Body, HTTPException, Path, Query, Response, status
 
-from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest
+from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest, SearchParams
 from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
 from app.api.dependencies.core import DbSessionDependency
-from app.database.models.entry import Entry
+from app.schemas.entry import Entry
 
 router = APIRouter(tags=["entries"])
 
 
-@router.post("", response_model=EntryResponse, status_code=201)
-async def create_entry(entry: EntryCreateRequest, db: AsyncSession = Depends(DbSessionDependency)):
+@router.post("")
+async def create_entry(
+    entry: Annotated[EntryCreateRequest, Body()], db: DbSessionDependency
+) -> Annotated[EntryResponse, Response(status_code=status.HTTP_201_CREATED)]:
     new_entry = Entry(
         id=uuid4(),
         name=entry.name,
@@ -33,38 +35,49 @@ async def create_entry(entry: EntryCreateRequest, db: AsyncSession = Depends(DbS
     return new_entry
 
 
-@router.get("", response_model=PaginatedResponse[EntryResponse])
+@router.get("")
 def list_entries(
-    search: str | None = None,
-    page: int = Query(1, ge=1),
-    per_page: int = Query(10, ge=1, le=100),
-    db: AsyncSession = Depends(DbSessionDependency),
-):
+    search_query: Annotated[SearchParams, Query()],
+    db: DbSessionDependency,
+    # search_term: Annotated[
+    #     list[str] | None,
+    #     Query(
+    #         max_length=50,
+    #         description="Keywords to search by in entry titles and descriptions.",
+    #     ),
+    # ] = None,
+    # page: Annotated[int, Query(ge=1)] = 1,
+    # per_page: Annotated[int, Query(ge=1, le=100)] = 10,
+) -> PaginatedResponse[EntryResponse]:
     query = db.query(Entry).filter(Entry.deleted_at.is_(None), Entry.is_public.is_(True))
 
-    if search:
-        search_term = f"%{search}%"
+    if search_term:
+        search_term = f"%{search_term}%"
         query = query.filter(
             (Entry.name.ilike(search_term)) | (Entry.description.ilike(search_term))
         )
 
-    total = query.count()
+    total_items = query.count()
     query = query.order_by(Entry.created_at.desc())
-    query = query.offset((page - 1) * per_page).limit(per_page)
-    entries = query.all()
-    total_pages = (total + per_page - 1) // per_page  # Ceiling division
+    query = query.offset((search_query.page - 1) * search_query.per_page).limit(per_page)
+    items = query.all()
+    total_pages = (
+        total_items + search_query.per_page - 1
+    ) // search_query.per_page  # Ceiling division
 
     return {
-        "items": entries,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
+        "items": items,
+        "total_items": total_items,
         "total_pages": total_pages,
+        "current_page": search_query.page,
+        "per_page": search_query.per_page,
     }
 
 
-@router.get("/{entry_id}", response_model=EntryResponse)
-def get_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
+@router.get("/{entry_id}")
+def get_entry(
+    entry_id: Annotated[UUID, Path(title="Entry ID")], db: DbSessionDependency
+) -> EntryResponse:
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -73,10 +86,10 @@ def get_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
     return entry
 
 
-@router.put("/{entry_id}", response_model=EntryResponse)
+@router.put("/{entry_id}")
 def update_entry(
-    entry_id: UUID, entry_data: EntryUpdateRequest, db: AsyncSession = Depends(DbSessionDependency)
-):
+    entry_id: UUID, entry_data: EntryUpdateRequest, db: DbSessionDependency
+) -> EntryResponse:
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
@@ -98,8 +111,10 @@ def update_entry(
     return entry
 
 
-@router.delete("/{entry_id}", status_code=204)
-def delete_entry(entry_id: UUID, db: AsyncSession = Depends(DbSessionDependency)):
+@router.delete("/{entry_id}")
+def delete_entry(
+    entry_id: UUID, db: DbSessionDependency
+) -> Annotated[None, Response(status_code=204)]:
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:

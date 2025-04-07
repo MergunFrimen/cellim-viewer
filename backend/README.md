@@ -25,7 +25,7 @@ source .venv/bin/activate
 ## How to run app
 
 ```shell
-fastapi dev main.py
+fastapi dev
 ```
 
 ## Tests
