@@ -3,7 +3,6 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from app.api.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
 from app.api.contracts.responses.views import ViewResponse
@@ -11,7 +10,7 @@ from app.api.dependencies.core import DbSessionDependency
 from app.database.models.entry import Entry
 from app.database.models.view import View
 
-router = APIRouter(prefix="/api/v1/views", tags=["views"])
+router = APIRouter(tags=["views"])
 
 
 @router.post("", response_model=ViewResponse, status_code=201)

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import entries, views
+from app.api.endpoints import entries, files, views
 from app.database.models.base import Base
 from app.database.session import sessionmanager
 from app.middleware.TestMiddleware import TestMiddleware
@@ -27,7 +27,6 @@ async def lifespan(app: FastAPI):
         await sessionmanager.close()
 
 
-#
 middleware: list[Middleware] = [
     Middleware(
         CORSMiddleware,
@@ -49,5 +48,6 @@ app = FastAPI(
 )
 
 
-app.include_router(entries.router)
-app.include_router(views.router)
+app.include_router(entries.router, prefix="/api/v1/entries")
+app.include_router(views.router, prefix="/api/v1/views")
+app.include_router(files.router, prefix="/api/v1/files")

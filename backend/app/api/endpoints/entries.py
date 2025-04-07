@@ -10,7 +10,7 @@ from app.api.contracts.responses.pagination import PaginatedResponse
 from app.api.dependencies.core import DbSessionDependency
 from app.database.models.entry import Entry
 
-router = APIRouter(prefix="/api/v1/entries", tags=["entries"])
+router = APIRouter(tags=["entries"])
 
 
 @router.post("", response_model=EntryResponse, status_code=201)
