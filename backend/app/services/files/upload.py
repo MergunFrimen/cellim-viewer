@@ -1,10 +1,11 @@
 import os
 import shutil
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from typing import BinaryIO, Protocol
 from uuid import UUID
 
+from app.services.files.minio import MinioBackend
 from app.shared.settings import settings
 
 
@@ -108,13 +109,14 @@ class FileStorage:
 
 # Create a singleton instance with the configured backend
 local_backend = LocalStorageBackend(settings.FILE_STORAGE_PATH)
-file_storage = FileStorage(local_backend)
 
-# This will be used when switching to MinIO
-# def get_minio_backend():
-#     return MinioBackend(
-#         endpoint=settings.MINIO_ENDPOINT,
-#         access_key=settings.MINIO_ACCESS_KEY,
-#         secret_key=settings.MINIO_SECRET_KEY,
-#         bucket=settings.MINIO_BUCKET
-#     )
+file_storage = FileStorage(local_backend)
+file_storage = FileStorage(
+    MinioBackend(
+        endpoint=settings.MINIO_ENDPOINT,
+        access_key=settings.MINIO_ACCESS_KEY,
+        secret_key=settings.MINIO_SECRET_KEY,
+        bucket=settings.MINIO_BUCKET,
+        secure=settings.MINIO_SECURE,
+    )
+)
