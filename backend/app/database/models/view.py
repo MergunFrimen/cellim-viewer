@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, SnapshotType, Str255, UuidFk, UuidPk
+from app.database.models.base import Base, Str255, UuidFk, UuidPk
 
 
 class View(Base):
@@ -13,7 +14,7 @@ class View(Base):
     id: Mapped[UuidPk]
     name: Mapped[Str255]
     description: Mapped[str | None]
-    snapshot: Mapped[SnapshotType | None]
+    snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSON)
 
     # Relationships
     entry_id: Mapped[UuidFk] = mapped_column(ForeignKey("entries.id"))

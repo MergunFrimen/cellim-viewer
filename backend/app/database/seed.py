@@ -1,15 +1,17 @@
-import asyncio
 import random
 from datetime import datetime, timedelta
 
 from faker import Faker
+from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.faker_provider import CellimProvider
 from app.database.models import Entry, User, View
+from app.database.models.link import Link
 from app.database.session import sessionmanager
 
 fake = Faker()
+fake.add_provider(internet)
 fake.add_provider(CellimProvider)
 
 
@@ -40,6 +42,8 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
 
         for user in users:
             for _ in range(num_entries):
+                views = []
+                links = []
                 entry_id = fake.uuid4()
                 created_date = fake.date_time_between(start_date="-1y", end_date="now")
                 entry = Entry(
@@ -54,21 +58,23 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     deleted_at=None
                     if random.random() > 0.1
                     else created_date + timedelta(days=random.randint(0, 30)),
-                    views=[],
-                    links=[],
+                    views=views,
+                    links=links,
                 )
                 session.add(entry)
 
-                # if random.random() < 0.5:
-                #     link = Link(
-                #         id=fake.uuid4(),
-                #         entry_id=entry_id,
-                #         user_id=user.id,
-                #         type="viewer" if random.random() < 0.7 else "editor",
-                #         entry=entry,
-                #         user=user,
-                #     )
-                #     session.add(link)
+                link = Link(
+                    id=fake.uuid4(),
+                    entry_id=entry_id,
+                    entry=entry,
+                    link=fake.uuid4(),
+                    editable=True,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                    deleted_at=None,
+                )
+                links.append(link)
+                session.add(link)
 
                 for _ in range(random.randint(0, num_views)):
                     view_created = entry.created_at + timedelta(hours=random.randint(1, 48))
@@ -85,6 +91,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                         updated_at=view_created,
                         entry=entry,
                     )
+                    views.append(view)
                     session.add(view)
 
         await session.commit()
@@ -98,7 +105,3 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         print(f"✅ Created {entry_count.scalar_one()} entries")
         print(f"✅ Created {view_count.scalar_one()} views")
         print(f"✅ Created {link_count.scalar_one()} links")
-
-
-if __name__ == "__main__":
-    asyncio.run(seed_database(clear=True))

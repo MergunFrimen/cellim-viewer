@@ -1,9 +1,10 @@
 from datetime import datetime
+from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, LinkType, UuidFk, UuidPk
+from app.database.models.base import Base, UuidFk, UuidPk
 
 
 class Link(Base):
@@ -11,13 +12,13 @@ class Link(Base):
 
     # Attributes
     id: Mapped[UuidPk]
-    type: Mapped[LinkType]
+
     # Relationships
     entry_id: Mapped[UuidFk] = mapped_column(ForeignKey("entries.id"))
-    user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
     entry: Mapped["Entry"] = relationship()
-    user: Mapped["User"] = relationship()
 
+    link: Mapped[UUID] = mapped_column(Uuid, default=uuid4)
+    editable: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     deleted_at: Mapped[datetime | None] = mapped_column(default=None)
