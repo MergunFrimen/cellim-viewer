@@ -17,7 +17,7 @@ class Entry(Base):
     # Relationships
     user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
     views: Mapped[list["View"]] = relationship()
-    links: Mapped[list["Link"]] = relationship()
+    link: Mapped["Link"] = relationship()
     user: Mapped["User"] = relationship()
 
     is_public: Mapped[bool] = mapped_column(default=False)

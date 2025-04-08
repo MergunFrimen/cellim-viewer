@@ -57,7 +57,7 @@ async def create_view_with_image(
         description=description,
         snapshot=snapshot,
         entry_id=entry_id,
-        image_path=image_path,
+        thumbnail_uri=image_path,
         created_at=datetime.now(),
         updated_at=datetime.now(),
         deleted_at=None,

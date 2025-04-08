@@ -36,6 +36,8 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 entries=[],
+                email=fake.email(),
+                openid=fake.uuid4(),
             )
             session.add(user)
             users.append(user)
@@ -43,7 +45,6 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         for user in users:
             for _ in range(num_entries):
                 views = []
-                links = []
                 entry_id = fake.uuid4()
                 created_date = fake.date_time_between(start_date="-1y", end_date="now")
                 entry = Entry(
@@ -59,7 +60,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     if random.random() > 0.1
                     else created_date + timedelta(days=random.randint(0, 30)),
                     views=views,
-                    links=links,
+                    link=None,
                 )
                 session.add(entry)
 
@@ -68,12 +69,13 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     entry_id=entry_id,
                     entry=entry,
                     link=fake.uuid4(),
-                    editable=True,
+                    editable=random.random() < 0.5,
                     created_at=datetime.now(),
                     updated_at=datetime.now(),
                     deleted_at=None,
                 )
-                links.append(link)
+                entry.link = link
+
                 session.add(link)
 
                 for _ in range(random.randint(0, num_views)):
@@ -83,13 +85,15 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     view = View(
                         id=fake.uuid4(),
                         entry_id=entry_id,
+                        entry=entry,
                         name=fake.view_name(),
                         description=fake.view_description(),
                         snapshot=view_snapshot,
-                        image_path=None,
+                        thumbnail_uri=None,
+                        snapshot_uri=None,
                         created_at=view_created,
                         updated_at=view_created,
-                        entry=entry,
+                        deleted_at=None,
                     )
                     views.append(view)
                     session.add(view)

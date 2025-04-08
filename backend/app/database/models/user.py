@@ -1,8 +1,9 @@
 from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database.models.base import Base, UuidPk
+from app.database.models.base import Base, Str255, UuidPk
 
 
 class User(Base):
@@ -10,6 +11,8 @@ class User(Base):
 
     # Attributes
     id: Mapped[UuidPk]
+    openid: Mapped[UUID]
+    email: Mapped[Str255]
 
     # Relationships
     entries: Mapped[list["Entry"]] = relationship()
