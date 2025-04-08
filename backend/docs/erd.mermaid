@@ -3,14 +3,22 @@ erDiagram
     USER {
         uuid id PK
         uuid openid PK
+        str email
+        boolean is_superuser
+
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
     }
 
     ENTRIES {
         uuid id PK
         uuid user_id FK
+        uuid link_id FK
         string name
         string description
         boolean is_public
+
         datetime created_at
         datetime updated_at
         datetime deleted_at
@@ -21,7 +29,9 @@ erDiagram
         uuid entry_id FK
         string title
         string description
-        json snapshot
+        str snapshot_uri
+        str thumbnail_uri
+
         datetime created_at
         datetime updated_at
         datetime deleted_at
@@ -32,34 +42,12 @@ erDiagram
         uuid entry_id FK
         uuid link
         boolean editable
+
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
     }
-        
-    %% VOLUMES {
-    %%     int id PK
-    %%     int entry_id FK
-    %%     string description
-    %%     string source_url 
-    %%     datetime uploaded_at
-    %% }
-
-    %% SEGMENTATIONS {
-    %%     int id PK
-    %%     int volume_id FK
-    %%     string description
-    %%     string source_url 
-    %% }
-
-    %% SEGMENTS {
-    %%     int id PK
-    %%     int segmentation_id FK
-    %%     string description
-    %%     string source_url 
-    %% }
-        
+                
     USER ||--o{ ENTRIES : ""
     ENTRIES ||--o{ VIEWS : ""
-    ENTRIES ||--o| LINKS : ""
-    %% ENTRIES }o--o| VOLUMES : ""
-    %% VOLUMES ||--o{ SEGMENTATIONS : ""
-    %% SEGMENTATIONS ||--o{ SEGMENTS : ""
-    %% PUBLIC_ENTRIES ||--o{ ENTRIES : ""
+    ENTRIES ||--|| LINKS : ""
