@@ -4,7 +4,7 @@ from typing import BinaryIO
 from minio import Minio
 from minio.error import S3Error
 
-from app.shared.settings import settings
+from app.core.settings import settings
 
 
 class MinioBackend:

@@ -61,3 +61,17 @@ uv run mypy .
 ```shell
 uvx pre-commit install
 ```
+
+## Database
+
+### Init
+
+```shell
+typer tools/db_cli.py run init
+```
+
+### Seed
+
+```shell
+typer tools/db_cli.py run seed
+```

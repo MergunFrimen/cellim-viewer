@@ -5,10 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import entries, files, views
 from app.api.tags import tags_metadata
+from app.core.settings import settings
 from app.database.models.base import Base
 from app.database.session import sessionmanager
 from app.middleware.test_middleware import TestMiddleware
-from app.shared.settings import settings
 
 
 # TODO: move this somewhere else
@@ -29,20 +29,19 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    root_path=settings.APP_ROOT_PATH,
     title=settings.APP_NAME,
     summary=settings.APP_SUMMARY,
     version=settings.APP_VERSION,
     contact=settings.APP_CONTACT,
     license_info=settings.APP_LICENCE,
-    lifespan=lifespan,
     openapi_tags=tags_metadata,
+    lifespan=lifespan,
 )
 
 # routes
-app.include_router(entries.router, prefix="/v1")
-app.include_router(views.router, prefix="/v1")
-app.include_router(files.router, prefix="/v1")
+app.include_router(entries.router, prefix=settings.API_V1_PATH)
+app.include_router(views.router, prefix=settings.API_V1_PATH)
+app.include_router(files.router, prefix=settings.API_V1_PATH)
 
 # middleware
 app.add_middleware(

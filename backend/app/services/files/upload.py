@@ -6,7 +6,7 @@ from typing import BinaryIO, Protocol
 from uuid import UUID
 
 from app.services.files.minio import MinioBackend
-from app.shared.settings import settings
+from app.core.settings import settings
 
 
 class StorageBackend(Protocol):

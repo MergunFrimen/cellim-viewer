@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # App
     APP_NAME: str = "CELLIM Viewer API"
-    APP_ROOT_PATH: str = "/api"
     APP_SUMMARY: str = "API managing CELLIM data entries"
     APP_VERSION: str = "0.0.0"
     APP_HOST: str = "0.0.0.0"
@@ -21,6 +20,9 @@ class Settings(BaseSettings):
         "name": "Apache 2.0",
         "identifier": "MIT",
     }
+
+    # API
+    API_V1_PATH: str = "/api/v1"
 
     # CORS
     CORS_ORIGINS: list[str] = [

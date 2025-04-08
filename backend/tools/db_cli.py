@@ -11,7 +11,7 @@ from rich.panel import Panel
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database.models.base import Base
-from backend.app.database.seeding.seed_database import seed_database
+from app.database.seeding.seed_database import seed_database
 from app.database.session import sessionmanager
 
 # Create Typer app
@@ -71,7 +71,7 @@ def seed(
 
 @app.command()
 def reset(
-    users: int = typer.Option(3, "--users", "-u", help="Number of users to create"),
+    users: int = typer.Option(5, "--users", "-u", help="Number of users to create"),
     entries: int = typer.Option(10, "--entries", "-e", help="Number of entries per user"),
     views: int = typer.Option(5, "--views", "-v", help="Max number of views per entry"),
 ):
@@ -79,13 +79,13 @@ def reset(
 
     async def _reset_db():
         try:
-            # Display warning
-            confirmation = typer.confirm(
-                "⚠️  This will erase all data in the database. Continue?", default=False
-            )
-            if not confirmation:
-                console.print("[bold yellow]Operation cancelled.[/]")
-                return
+            # # Display warning
+            # confirmation = typer.confirm(
+            #     "⚠️  This will erase all data in the database. Continue?", default=False
+            # )
+            # if not confirmation:
+            #     console.print("[bold yellow]Operation cancelled.[/]")
+            #     return
 
             # Step 1: Drop and recreate schema
             with console.status("[bold blue]Dropping and recreating database schema...[/]"):
