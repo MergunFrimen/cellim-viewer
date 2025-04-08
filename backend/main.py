@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import lifespan
 from app.api.endpoints import entries, files, views
 from app.api.tags import tags_metadata
 from app.database.models.base import Base
@@ -33,8 +32,9 @@ app = FastAPI(
     root_path=settings.APP_ROOT_PATH,
     title=settings.APP_NAME,
     summary=settings.APP_SUMMARY,
-    contact=settings.APP_CONTACT,
     version=settings.APP_VERSION,
+    contact=settings.APP_CONTACT,
+    license_info=settings.APP_LICENCE,
     lifespan=lifespan,
     openapi_tags=tags_metadata,
 )

@@ -17,6 +17,10 @@ class Settings(BaseSettings):
         "url": "https://github.com/MergunFrimen/cellim-viewer",
         "email": "492772@mail.muni.cz",
     }
+    APP_LICENCE: dict[str, str] = {
+        "name": "Apache 2.0",
+        "identifier": "MIT",
+    }
 
     # CORS
     CORS_ORIGINS: list[str] = [
