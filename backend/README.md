@@ -4,6 +4,7 @@
 
 ```shell
 npx repomix --ignore '' --copy --output repopack.txt && rm -f repopack.txt
+npx repomix --ignore 'app/database/seeding/*' --copy --output repopack.txt && rm -f repopack.txt
 ```
 
 ## Prerequisites
