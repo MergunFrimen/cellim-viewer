@@ -9,11 +9,12 @@ from sqlalchemy import select
 
 from app.api.contracts.responses.views import ViewResponse
 from app.api.dependencies.core import DbSessionDependency
+from app.api.tags import Tags
 from app.database.models.entry import Entry
 from app.database.models.view import View
 from app.services.files.upload import file_storage
 
-router = APIRouter(tags=["views"])
+router = APIRouter(prefix="/views", tags=[Tags.views])
 
 
 @router.post("/with-image", status_code=201)

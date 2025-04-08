@@ -2,21 +2,22 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body, HTTPException, Path, Query, Response, status
+from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 
 from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest, SearchParams
 from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
 from app.api.dependencies.core import DbSessionDependency
+from app.api.tags import Tags
 from app.schemas.entry import Entry
 
-router = APIRouter(tags=["entries"])
+router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 
-@router.post("")
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_entry(
     entry: Annotated[EntryCreateRequest, Body()], db: DbSessionDependency
-) -> Annotated[EntryResponse, Response(status_code=status.HTTP_201_CREATED)]:
+) -> EntryResponse:
     new_entry = Entry(
         id=uuid4(),
         name=entry.name,
@@ -72,7 +73,7 @@ def get_entry(
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
 
     return entry
 
@@ -84,7 +85,7 @@ def update_entry(
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
 
     # Update fields if they are provided
     if entry_data.name is not None:
@@ -102,18 +103,14 @@ def update_entry(
     return entry
 
 
-@router.delete("/{entry_id}")
-def delete_entry(
-    entry_id: UUID, db: DbSessionDependency
-) -> Annotated[None, Response(status_code=204)]:
+@router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_entry(entry_id: UUID, db: DbSessionDependency) -> None:
     entry = db.query(Entry).filter(Entry.id == entry_id, Entry.deleted_at.is_(None)).first()
 
     if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
 
     # Soft delete
     entry.deleted_at = datetime.now()
 
     db.commit()
-
-    return None

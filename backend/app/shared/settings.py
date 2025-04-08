@@ -5,12 +5,18 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # App
-    APP_NAME: str = "CELLIM Viewer"
-    APP_DESCRIPTION: str = "API managing CELLIM data entries"
+    APP_NAME: str = "CELLIM Viewer API"
+    APP_ROOT_PATH: str = "/api"
+    APP_SUMMARY: str = "API managing CELLIM data entries"
     APP_VERSION: str = "0.0.0"
     APP_HOST: str = "0.0.0.0"
     APP_PORT: str = "8000"
     APP_RELOAD: bool = True
+    APP_CONTACT: dict[str, str] = {
+        "name": "CELLIM Viewer developers",
+        "url": "https://github.com/MergunFrimen/cellim-viewer",
+        "email": "492772@mail.muni.cz",
+    }
 
     # CORS
     CORS_ORIGINS: list[str] = [
