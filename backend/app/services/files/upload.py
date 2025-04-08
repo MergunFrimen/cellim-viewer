@@ -107,10 +107,9 @@ class FileStorage:
             return False
 
 
-# Create a singleton instance with the configured backend
-local_backend = LocalStorageBackend(settings.FILE_STORAGE_PATH)
+# local_backend = LocalStorageBackend(settings.FILE_STORAGE_PATH)
+# file_storage = FileStorage(local_backend)
 
-file_storage = FileStorage(local_backend)
 file_storage = FileStorage(
     MinioBackend(
         endpoint=settings.MINIO_ENDPOINT,

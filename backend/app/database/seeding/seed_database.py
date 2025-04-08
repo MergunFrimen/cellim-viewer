@@ -5,7 +5,7 @@ from faker import Faker
 from faker.providers import internet
 from sqlalchemy import text
 
-from app.database.faker_provider import CellimProvider
+from backend.app.database.seeding.faker_provider import CellimProvider
 from app.database.models import Entry, User, View
 from app.database.models.link import Link
 from app.database.session import sessionmanager

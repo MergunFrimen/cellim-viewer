@@ -11,7 +11,7 @@ from rich.panel import Panel
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database.models.base import Base
-from app.database.seed import seed_database
+from backend.app.database.seeding.seed_database import seed_database
 from app.database.session import sessionmanager
 
 # Create Typer app
