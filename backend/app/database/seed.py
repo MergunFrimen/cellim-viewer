@@ -1,0 +1,112 @@
+import asyncio
+import random
+import uuid
+from datetime import datetime, timedelta
+
+from faker import Faker
+from faker.providers import DynamicProvider
+from sqlalchemy import text
+
+from app.database.models import Entry, User, View
+from app.database.session import sessionmanager
+
+fake = Faker()
+
+
+medical_professions_provider = DynamicProvider(
+    provider_name="medical_profession",
+    elements=["dr.", "doctor", "nurse", "surgeon", "clerk"],
+)
+
+fake.add_provider(medical_professions_provider)
+
+
+async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
+    async with sessionmanager.session() as session:
+        if clear:
+            print("Clearing existing data...")
+            await session.execute(text("DELETE FROM views"))
+            await session.execute(text("DELETE FROM links"))
+            await session.execute(text("DELETE FROM entries"))
+            await session.execute(text("DELETE FROM users"))
+            await session.commit()
+
+        print(f"Creating {num_users} users with {num_entries} entries each...")
+        users = []
+
+        # Create users
+        for _ in range(num_users):
+            user = User(
+                id=uuid.uuid4(),
+                is_superuser=False,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+                entries=[],
+            )
+            session.add(user)
+            users.append(user)
+
+        for user in users:
+            for _ in range(num_entries):
+                entry_id = uuid.uuid4()
+                created_date = fake.date_time_between(start_date="-1y", end_date="now")
+                entry = Entry(
+                    id=entry_id,
+                    user_id=user.id,
+                    name=fake.catch_phrase(),
+                    description=fake.paragraph(nb_sentences=random.randint(3, 8)),
+                    is_public=random.random() < 0.7,
+                    user=user,
+                    created_at=created_date,
+                    updated_at=created_date + timedelta(days=random.randint(0, 30)),
+                    deleted_at=None
+                    if random.random() > 0.1
+                    else created_date + timedelta(days=random.randint(0, 30)),
+                    views=[],
+                    links=[],
+                )
+                session.add(entry)
+
+                # if random.random() < 0.5:
+                #     link = Link(
+                #         id=uuid.uuid4(),
+                #         entry_id=entry_id,
+                #         user_id=user.id,
+                #         type="viewer" if random.random() < 0.7 else "editor",
+                #         entry=entry,
+                #         user=user,
+                #     )
+                #     session.add(link)
+
+                for _ in range(random.randint(0, num_views)):
+                    view_id = uuid.uuid4()
+                    view_created = entry.created_at + timedelta(hours=random.randint(1, 48))
+
+                    view = View(
+                        id=view_id,
+                        entry_id=entry_id,
+                        name=fake.building_name(),
+                        description=fake.sentence(),
+                        snapshot=None,
+                        image_path=None,
+                        created_at=view_created,
+                        updated_at=view_created,
+                        entry=entry,
+                    )
+                    session.add(view)
+
+        await session.commit()
+
+        user_count = await session.execute(text("SELECT COUNT(*) FROM users"))
+        entry_count = await session.execute(text("SELECT COUNT(*) FROM entries"))
+        view_count = await session.execute(text("SELECT COUNT(*) FROM views"))
+        link_count = await session.execute(text("SELECT COUNT(*) FROM links"))
+
+        print(f"✅ Created {user_count.scalar_one()} users")
+        print(f"✅ Created {entry_count.scalar_one()} entries")
+        print(f"✅ Created {view_count.scalar_one()} views")
+        print(f"✅ Created {link_count.scalar_one()} links")
+
+
+if __name__ == "__main__":
+    asyncio.run(seed_database(clear=True))
