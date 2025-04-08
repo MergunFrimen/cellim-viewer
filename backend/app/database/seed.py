@@ -72,13 +72,14 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
 
                 for _ in range(random.randint(0, num_views)):
                     view_created = entry.created_at + timedelta(hours=random.randint(1, 48))
+                    view_snapshot = fake.view_snapshot() if random.random() < 0.8 else None
 
                     view = View(
                         id=fake.uuid4(),
                         entry_id=entry_id,
                         name=fake.view_name(),
                         description=fake.view_description(),
-                        snapshot=None,
+                        snapshot=view_snapshot,
                         image_path=None,
                         created_at=view_created,
                         updated_at=view_created,
