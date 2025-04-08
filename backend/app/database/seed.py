@@ -1,24 +1,16 @@
 import asyncio
 import random
-import uuid
 from datetime import datetime, timedelta
 
 from faker import Faker
-from faker.providers import DynamicProvider
 from sqlalchemy import text
 
+from app.database.faker_provider import CellimProvider
 from app.database.models import Entry, User, View
 from app.database.session import sessionmanager
 
 fake = Faker()
-
-
-medical_professions_provider = DynamicProvider(
-    provider_name="medical_profession",
-    elements=["dr.", "doctor", "nurse", "surgeon", "clerk"],
-)
-
-fake.add_provider(medical_professions_provider)
+fake.add_provider(CellimProvider)
 
 
 async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
@@ -37,7 +29,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         # Create users
         for _ in range(num_users):
             user = User(
-                id=uuid.uuid4(),
+                id=fake.uuid4(),
                 is_superuser=False,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
@@ -48,13 +40,13 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
 
         for user in users:
             for _ in range(num_entries):
-                entry_id = uuid.uuid4()
+                entry_id = fake.uuid4()
                 created_date = fake.date_time_between(start_date="-1y", end_date="now")
                 entry = Entry(
                     id=entry_id,
                     user_id=user.id,
-                    name=fake.catch_phrase(),
-                    description=fake.paragraph(nb_sentences=random.randint(3, 8)),
+                    name=fake.entry_name(),
+                    description=fake.entry_description(),
                     is_public=random.random() < 0.7,
                     user=user,
                     created_at=created_date,
@@ -69,7 +61,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
 
                 # if random.random() < 0.5:
                 #     link = Link(
-                #         id=uuid.uuid4(),
+                #         id=fake.uuid4(),
                 #         entry_id=entry_id,
                 #         user_id=user.id,
                 #         type="viewer" if random.random() < 0.7 else "editor",
@@ -79,14 +71,13 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 #     session.add(link)
 
                 for _ in range(random.randint(0, num_views)):
-                    view_id = uuid.uuid4()
                     view_created = entry.created_at + timedelta(hours=random.randint(1, 48))
 
                     view = View(
-                        id=view_id,
+                        id=fake.uuid4(),
                         entry_id=entry_id,
-                        name=fake.building_name(),
-                        description=fake.sentence(),
+                        name=fake.view_name(),
+                        description=fake.view_description(),
                         snapshot=None,
                         image_path=None,
                         created_at=view_created,
