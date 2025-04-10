@@ -19,6 +19,7 @@ class Link(Base):
 
     link: Mapped[UUID] = mapped_column(Uuid, default=uuid4)
     editable: Mapped[bool] = mapped_column(default=False)
+    active: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     deleted_at: Mapped[datetime | None] = mapped_column(default=None)
