@@ -20,7 +20,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         if clear:
             print("Clearing existing data...")
             await session.execute(text("DELETE FROM views"))
-            await session.execute(text("DELETE FROM links"))
+            await session.execute(text("DELETE FROM share_links"))
             await session.execute(text("DELETE FROM entries"))
             await session.execute(text("DELETE FROM users"))
             await session.commit()
@@ -67,7 +67,6 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 link = ShareLink(
                     id=fake.uuid4(),
                     entry_id=entry_id,
-                    entry=entry,
                     link=fake.uuid4(),
                     editable=random.random() < 0.5,
                     active=random.random() < 0.8,
@@ -104,9 +103,9 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         user_count = await session.execute(text("SELECT COUNT(*) FROM users"))
         entry_count = await session.execute(text("SELECT COUNT(*) FROM entries"))
         view_count = await session.execute(text("SELECT COUNT(*) FROM views"))
-        link_count = await session.execute(text("SELECT COUNT(*) FROM links"))
+        link_count = await session.execute(text("SELECT COUNT(*) FROM share_links"))
 
         print(f"✅ Created {user_count.scalar_one()} users")
         print(f"✅ Created {entry_count.scalar_one()} entries")
         print(f"✅ Created {view_count.scalar_one()} views")
-        print(f"✅ Created {link_count.scalar_one()} links")
+        print(f"✅ Created {link_count.scalar_one()} share_links")

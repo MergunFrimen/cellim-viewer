@@ -17,7 +17,7 @@ class Entry(Base):
     # Relationships
     user_id: Mapped[UuidFk] = mapped_column(ForeignKey("users.id"))
     views: Mapped[list["View"]] = relationship()
-    link: Mapped["Link"] = relationship()
+    link: Mapped["ShareLink"] = relationship()
     user: Mapped["User"] = relationship()
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)

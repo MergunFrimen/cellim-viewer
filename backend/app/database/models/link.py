@@ -2,21 +2,16 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey, Uuid
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database.models.base import Base, UuidFk, UuidPk
+from app.database.models.base import Base
 
 
 class ShareLink(Base):
     __tablename__ = "share_links"
 
-    # Attributes
-    id: Mapped[UuidPk]
-
-    # Relationships
-    entry_id: Mapped[UuidFk] = mapped_column(ForeignKey("entries.id"))
-    entry: Mapped["Entry"] = relationship()
-
+    entry_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("entries.id"))
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     link: Mapped[UUID] = mapped_column(Uuid, default=uuid4)
     editable: Mapped[bool] = mapped_column(default=False)
     active: Mapped[bool] = mapped_column(default=False)

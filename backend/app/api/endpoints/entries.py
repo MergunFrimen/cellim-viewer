@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
+from sqlalchemy import select
 
 from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest, SearchParams
 from app.api.contracts.responses.entries import EntryResponse
@@ -18,34 +19,43 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_entry(
-    request: Annotated[EntryCreateRequest, Body()], db: DbSessionDependency
+    request: Annotated[EntryCreateRequest, Body()], session: DbSessionDependency
 ) -> EntryResponse:
-    # TODO: get this from cookie
-    user: User | None = db.get(User, request.user_id)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    async with session.begin():
+        stmt = select(User).where(User.id == request.user_id)
+        result = await session.execute(stmt)
+        user: User | None = result.scalar_one_or_none()
 
-    new_link = ShareLink(
-        id=UUID.uuid4(),
-        active=False,
-        editable=False,
-        link=UUID.uuid4(),
-    )
-    new_entry = Entry(
-        id=UUID.uuid4(),
-        name=request.name,
-        description=request.description,
-        is_public=request.is_public,
-        link=new_link,
-        user=user,
-        user_id=user.id,
-        views=[],
-    )
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    db.add(new_entry)
-    await db.commit()
+        entry_id = uuid4()
 
-    return new_entry
+        new_link = ShareLink(
+            id=uuid4(),
+            active=False,
+            editable=False,
+            link=uuid4(),
+            entry_id=entry_id,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        new_entry = Entry(
+            id=entry_id,
+            name=request.name,
+            description=request.description,
+            is_public=request.is_public,
+            link=new_link,
+            user=user,
+            user_id=user.id,
+            views=[],
+        )
+
+        session.add(new_link)
+        session.add(new_entry)
+
+    return {"entry": new_entry.id, "link": new_link.id}
 
 
 @router.get("")
