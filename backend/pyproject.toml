@@ -13,6 +13,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "minio>=7.2.15",
     "httpx>=0.28.1",
+    "sqlmodel>=0.0.24",
 ]
 
 [dependency-groups]

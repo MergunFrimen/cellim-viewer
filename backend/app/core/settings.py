@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     }
 
     # API
-    API_V1_PATH: str = "/api/v1"
+    API_V1_PREFIX: str = "/api"
 
     # CORS
     CORS_ORIGINS: list[str] = [

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Cookie, File, Response, UploadFile
 from pydantic import BaseModel
 
-from app.api.tags import Tags
+from backend.app.api.v1.tags import Tags
 
 router = APIRouter(prefix="/files", tags=[Tags.files])
 

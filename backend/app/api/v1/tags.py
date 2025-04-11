@@ -8,7 +8,7 @@ class Tags(Enum):
     views = "Views"
 
 
-tags_metadata = [
+v1_tags_metadata = [
     {
         "name": Tags.entries,
         "description": "Operations with entries.",

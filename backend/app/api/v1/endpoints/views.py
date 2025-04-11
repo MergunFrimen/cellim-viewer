@@ -7,9 +7,9 @@ from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, 
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 
-from app.api.contracts.responses.views import ViewResponse
-from app.api.dependencies.core import DbSessionDependency
-from app.api.tags import Tags
+from app.api.v1.contracts.responses.views import ViewResponse
+from app.api.v1.dependencies.core import DbSessionDependency
+from app.api.v1.tags import Tags
 from app.database.models.entry import Entry
 from app.database.models.view import View
 from app.services.files.upload import file_storage

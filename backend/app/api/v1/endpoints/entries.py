@@ -5,11 +5,11 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 from sqlalchemy import select
 
-from app.api.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest, SearchParams
-from app.api.contracts.responses.entries import EntryResponse
-from app.api.contracts.responses.pagination import PaginatedResponse
-from app.api.dependencies.core import DbSessionDependency
-from app.api.tags import Tags
+from app.api.v1.contracts.requests.entry import EntryCreateRequest, EntryUpdateRequest, SearchParams
+from app.api.v1.contracts.responses.entries import EntryResponse
+from app.api.v1.contracts.responses.pagination import PaginatedResponse
+from app.api.v1.dependencies.core import DbSessionDependency
+from app.api.v1.tags import Tags
 from app.database.models import Entry
 from app.database.models.link import ShareLink
 from app.database.models.user import User

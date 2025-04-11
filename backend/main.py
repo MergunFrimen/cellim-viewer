@@ -1,14 +1,13 @@
 from contextlib import asynccontextmanager
 
+from backend.app.api.v1.tags import v1_tags_metadata
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import auth, entries, files, views
-from app.api.tags import tags_metadata
+from app.api.v1.api import v1_api_router
 from app.core.settings import settings
 from app.database.models.base import Base
 from app.database.session_manager import sessionmanager
-from app.middleware.test_middleware import TestMiddleware
 
 
 # TODO: move this somewhere else
@@ -34,15 +33,13 @@ app = FastAPI(
     version=settings.APP_VERSION,
     contact=settings.APP_CONTACT,
     license_info=settings.APP_LICENCE,
-    openapi_tags=tags_metadata,
+    openapi_tags=v1_tags_metadata,
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     lifespan=lifespan,
 )
 
 # routes
-app.include_router(auth.router, prefix=settings.API_V1_PATH)
-app.include_router(entries.router, prefix=settings.API_V1_PATH)
-app.include_router(files.router, prefix=settings.API_V1_PATH)
-app.include_router(views.router, prefix=settings.API_V1_PATH)
+app.include_router(v1_api_router)
 
 # middleware
 app.add_middleware(
@@ -52,8 +49,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(TestMiddleware, number=1)
-app.add_middleware(TestMiddleware, number=2)
 
 
 if __name__ == "__main__":
