@@ -1,7 +1,11 @@
 import os
 from functools import lru_cache
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -34,22 +38,22 @@ class Settings(BaseSettings):
     # PostgreSQL
     POSTGRES_DIALECT: str = "postgresql"
     POSTGRES_DBAPI: str = "asyncpg"
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "cellim_viewer")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
+    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     DATABASE_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
     DATABASE_ECHO_SQL: bool = True
 
     # MinIO
-    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET", "cellim-viewer")
-    MINIO_SECURE: bool = os.getenv("MINIO_SECURE", "False") == "True"
+    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT")
+    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY")
+    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY")
+    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")
+    MINIO_SECURE: bool = os.getenv("MINIO_SECURE")
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
+        env_file=".env.example", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
     )
 
 

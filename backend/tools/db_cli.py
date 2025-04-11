@@ -3,13 +3,10 @@ import sys
 from pathlib import Path
 
 import typer
-from dotenv import load_dotenv
 from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
 from sqlmodel import SQLModel
-
-load_dotenv()
 
 # Add the project root to the Python path
 sys.path.append(str(Path(__file__).parent.parent))

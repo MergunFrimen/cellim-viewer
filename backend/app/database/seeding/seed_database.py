@@ -56,7 +56,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     updated_at=created_date + timedelta(days=random.randint(0, 30)),
                 )
                 session.add(entry)
-        #
+                #
                 link = ShareLink(
                     id=fake.uuid4(),
                     link=fake.uuid4(),
@@ -64,7 +64,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     active=random.random() < 0.8,
                 )
                 session.add(link)
-        #
+                #
                 for _ in range(random.randint(0, num_views)):
                     view_created = entry.created_at + timedelta(hours=random.randint(1, 48))
 
