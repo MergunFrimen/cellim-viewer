@@ -41,7 +41,7 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
-        session = self._session_factory()
+        session = scoped_session(self._session_factory)
         try:
             yield session
         except Exception:
