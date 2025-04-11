@@ -8,5 +8,6 @@ from app.services.entries import EntryService
 
 DbSessionDependency = Annotated[AsyncSession, Depends(get_async_session)]
 
+
 async def get_entry_service(session: DbSessionDependency) -> EntryService:
     return EntryService(session=session)

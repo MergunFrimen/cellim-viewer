@@ -3,10 +3,13 @@ import sys
 from pathlib import Path
 
 import typer
+from dotenv import load_dotenv
 from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
 from sqlmodel import SQLModel
+
+load_dotenv()
 
 # Add the project root to the Python path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -79,14 +82,6 @@ def reset(
 
     async def _reset_db():
         try:
-            # # Display warning
-            # confirmation = typer.confirm(
-            #     "⚠️  This will erase all data in the database. Continue?", default=False
-            # )
-            # if not confirmation:
-            #     console.print("[bold yellow]Operation cancelled.[/]")
-            #     return
-
             # Step 1: Drop and recreate schema
             with console.status("[bold blue]Dropping and recreating database schema...[/]"):
                 async with get_session_manager().engine.begin() as conn:

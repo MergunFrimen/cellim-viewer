@@ -5,7 +5,7 @@ from sqlmodel import SQLModel
 from app.database.models.mixins import WithUuid, WithTimestamp
 
 
-class ShareLink(WithUuid, WithTimestamp):
+class ShareLink(WithUuid, WithTimestamp, table=True):
     __tablename__ = "share_links"
 
     link: UUID = uuid4()

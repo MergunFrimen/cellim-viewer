@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field
 from app.database.models.mixins import WithUuid, WithTimestamp
 
 
-class View(WithUuid, WithTimestamp):
+class View(WithUuid, WithTimestamp, table=True):
     __tablename__ = "views"
 
     name: str = Field(max_length=255)
