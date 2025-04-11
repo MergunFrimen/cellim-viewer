@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 
@@ -9,35 +9,47 @@ from app.api.contracts.responses.entries import EntryResponse
 from app.api.contracts.responses.pagination import PaginatedResponse
 from app.api.dependencies.core import DbSessionDependency
 from app.api.tags import Tags
-from app.schemas.entry import Entry
+from app.database.models import Entry
+from app.database.models.link import ShareLink
+from app.database.models.user import User
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_entry(
-    entry: Annotated[EntryCreateRequest, Body()], db: DbSessionDependency
+    request: Annotated[EntryCreateRequest, Body()], db: DbSessionDependency
 ) -> EntryResponse:
+    # TODO: get this from cookie
+    user: User | None = db.get(User, request.user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    new_link = ShareLink(
+        id=UUID.uuid4(),
+        active=False,
+        editable=False,
+        link=UUID.uuid4(),
+    )
     new_entry = Entry(
-        id=uuid4(),
-        name=entry.name,
-        description=entry.description,
-        is_public=entry.is_public,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
-        deleted_at=None,
+        id=UUID.uuid4(),
+        name=request.name,
+        description=request.description,
+        is_public=request.is_public,
+        link=new_link,
+        user=user,
+        user_id=user.id,
         views=[],
     )
 
     db.add(new_entry)
     await db.commit()
-    await db.refresh(new_entry)
 
     return new_entry
 
 
 @router.get("")
-def list_entries(
+async def list_entries(
     search_query: Annotated[SearchParams, Query()],
     db: DbSessionDependency,
 ) -> PaginatedResponse[EntryResponse]:

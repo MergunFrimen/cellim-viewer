@@ -2,9 +2,10 @@ from enum import Enum
 
 
 class Tags(Enum):
+    auth = "Auth"
     entries = "Entries"
-    views = "Views"
     files = "Files"
+    views = "Views"
 
 
 tags_metadata = [

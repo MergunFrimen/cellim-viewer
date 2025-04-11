@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.models.base import Base, UuidFk, UuidPk
 
 
-class Link(Base):
-    __tablename__ = "links"
+class ShareLink(Base):
+    __tablename__ = "share_links"
 
     # Attributes
     id: Mapped[UuidPk]

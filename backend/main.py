@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import entries, files, views
+from app.api.endpoints import auth, entries, files, views
 from app.api.tags import tags_metadata
 from app.core.settings import settings
 from app.database.models.base import Base
-from app.database.session import sessionmanager
+from app.database.session_manager import sessionmanager
 from app.middleware.test_middleware import TestMiddleware
 
 
@@ -39,9 +39,10 @@ app = FastAPI(
 )
 
 # routes
+app.include_router(auth.router, prefix=settings.API_V1_PATH)
 app.include_router(entries.router, prefix=settings.API_V1_PATH)
-app.include_router(views.router, prefix=settings.API_V1_PATH)
 app.include_router(files.router, prefix=settings.API_V1_PATH)
+app.include_router(views.router, prefix=settings.API_V1_PATH)
 
 # middleware
 app.add_middleware(

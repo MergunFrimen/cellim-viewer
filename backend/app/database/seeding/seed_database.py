@@ -6,9 +6,9 @@ from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.models import Entry, User, View
-from app.database.models.link import Link
+from app.database.models.link import ShareLink
 from app.database.seeding.faker_provider import CellimProvider
-from app.database.session import sessionmanager
+from app.database.session_manager import sessionmanager
 
 fake = Faker()
 fake.add_provider(internet)
@@ -64,12 +64,13 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 )
                 session.add(entry)
 
-                link = Link(
+                link = ShareLink(
                     id=fake.uuid4(),
                     entry_id=entry_id,
                     entry=entry,
                     link=fake.uuid4(),
                     editable=random.random() < 0.5,
+                    active=random.random() < 0.8,
                     created_at=datetime.now(),
                     updated_at=datetime.now(),
                     deleted_at=None,
