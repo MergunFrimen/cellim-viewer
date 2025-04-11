@@ -1,17 +1,23 @@
-from pydantic import BaseModel, Field
-
-from app.schemas import Entry
+from pydantic import BaseModel, Field, ConfigDict
 
 
-class EntryCreateRequest(Entry):
+class EntryRequest(BaseModel):
+    name: str = Field(max_length=255, examples=["Entry Name"])
+    description: str | None = Field(default=None, examples=["Markdown description."])
+    is_public: bool = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EntryCreateRequest(EntryRequest):
     pass
 
 
-class EntryUpdateRequest(Entry):
+class EntryUpdateRequest(EntryRequest):
     pass
 
 
-class SearchParams(BaseModel):
+class SearchQueryParams(BaseModel):
     search_term: list[str] | None = Field(
         default=None, description="Keywords to search by in entry titles and descriptions."
     )

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import scoped_session
+
 
 from app.core.settings import settings
 
@@ -44,7 +44,7 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
-        session = scoped_session(self._session_factory)
+        session = self._session_factory()
         try:
             yield session
         except Exception:
@@ -58,6 +58,6 @@ sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings
 
 
 # Dependency for DB session
-async def get_db_session():
+async def get_async_session():
     async with sessionmanager.session() as session:
         yield session
