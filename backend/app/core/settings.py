@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")
     MINIO_SECURE: bool = os.getenv("MINIO_SECURE")
 
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    model_config = SettingsConfigDict(env_file=".env.example", case_sensitive=True)
 
 
 @lru_cache

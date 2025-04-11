@@ -1,17 +1,18 @@
-from io import BytesIO
 from typing import BinaryIO
 
-from minio import Minio
 from minio.error import S3Error
 
-from app.core.settings import settings
+from minio import Minio
 
 
 class MinioBackend:
-    """Implementation of storage operations using MinIO S3-compatible storage."""
-
     def __init__(
-        self, endpoint: str, access_key: str, secret_key: str, bucket: str, secure: bool = False
+        self,
+        endpoint: str,
+        access_key: str,
+        secret_key: str,
+        bucket: str,
+        secure: bool = False,
     ):
         self.client = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
         self.bucket = bucket
@@ -63,6 +64,3 @@ class MinioBackend:
             if "NoSuchKey" in str(e):
                 return False
             raise Exception(f"Error deleting file from MinIO: {str(e)}")
-
-
-# To switch from local storage to MinIO, update the file_storage instance:

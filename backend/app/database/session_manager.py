@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from functools import lru_cache
 from typing import Any, AsyncIterator
 
 from sqlalchemy.ext.asyncio import (
@@ -9,8 +10,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-
-from app.core.settings import settings
+from app.core.settings import get_settings
 
 
 class DatabaseSessionManager:
@@ -54,10 +54,11 @@ class DatabaseSessionManager:
             await session.close()
 
 
-sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings.DATABASE_ECHO_SQL})
+@lru_cache
+def get_session_manager():
+    return DatabaseSessionManager(get_settings().DATABASE_URL, {"echo": get_settings().DATABASE_ECHO_SQL})
 
 
-# Dependency for DB session
 async def get_async_session():
-    async with sessionmanager.session() as session:
+    async with get_session_manager().session() as session:
         yield session

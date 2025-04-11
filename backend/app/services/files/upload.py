@@ -6,7 +6,7 @@ from typing import BinaryIO, Protocol
 from uuid import UUID
 
 from app.services.files.minio import MinioBackend
-from app.core.settings import settings
+from app.core.settings import get_settings
 
 
 class StorageBackend(Protocol):
@@ -112,10 +112,10 @@ class FileStorage:
 
 file_storage = FileStorage(
     MinioBackend(
-        endpoint=settings.MINIO_ENDPOINT,
-        access_key=settings.MINIO_ACCESS_KEY,
-        secret_key=settings.MINIO_SECRET_KEY,
-        bucket=settings.MINIO_BUCKET,
-        secure=settings.MINIO_SECURE,
+        endpoint=get_settings().MINIO_ENDPOINT,
+        access_key=get_settings().MINIO_ACCESS_KEY,
+        secret_key=get_settings().MINIO_SECRET_KEY,
+        bucket=get_settings().MINIO_BUCKET,
+        secure=get_settings().MINIO_SECURE,
     )
 )

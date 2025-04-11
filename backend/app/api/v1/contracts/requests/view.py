@@ -10,11 +10,11 @@ class ViewRequest(BaseModel):
 
 
 class ViewCreateRequest(ViewRequest):
-    name: str = Form()
-    description: str | None = (Form(default=None),)
-    thumbnail_image: UploadFile | None = (File(default=None),)
-    snapshot_json: str | None = (Form(default=None),)
+    name: str = Form(max_length=255, examples=["View Name"])
+    description: str | None = Form(default=None, examples=["Markdown description."])
+    thumbnail_image: UploadFile | None = File(default=None)
+    snapshot_json: str | None = Form(default=None)
 
 
-class ViewUpdateRequest(BaseModel):
+class ViewUpdateRequest(ViewRequest):
     pass
