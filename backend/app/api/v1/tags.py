@@ -9,16 +9,20 @@ class Tags(Enum):
 
 
 v1_tags_metadata = [
-    {
-        "name": Tags.auth,
-        "description": "Auth",
-    },
+    # {
+    #     "name": Tags.auth,
+    #     "description": "Auth",
+    # },
     {
         "name": Tags.entries,
         "description": "Entries",
     },
+    # {
+    #     "name": Tags.files,
+    #     "description": "Files",
+    # },
     {
-        "name": Tags.files,
+        "name": Tags.views,
         "description": "Views",
     },
 ]

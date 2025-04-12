@@ -27,7 +27,6 @@ class DatabaseSessionManager:
         if self.engine is None:
             raise Exception("DatabaseSessionManager is not initialized")
         await self.engine.dispose()
-
         self.engine = None
 
     @asynccontextmanager

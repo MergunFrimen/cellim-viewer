@@ -28,6 +28,7 @@ async def create_entry(
     entry = Entry(**request.model_dump())
     session.add(entry)
     await session.commit()
+    await session.refresh(entry)
     return entry
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=list[EntryResponse])
@@ -65,7 +66,8 @@ async def update_entry(
     entry_db.sqlmodel_update(entry_data)
     session.add(entry_db)
     await session.commit()
-    return request
+    await session.refresh(entry_db)
+    return entry_db
 
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
