@@ -1,15 +1,14 @@
-from typing import Annotated, Any
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Path, Query, status, Depends, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import Response
 
 from app.api.v1.contracts.requests.entry import (
     EntryCreateRequest,
-    SearchQueryParams,
     EntryUpdateRequest,
+    SearchQueryParams,
 )
 from app.api.v1.contracts.responses.entries import EntryResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
@@ -31,14 +30,36 @@ async def create_entry(
     await session.refresh(entry)
     return entry
 
-@router.get("", status_code=status.HTTP_200_OK, response_model=list[EntryResponse])
+
+@router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[EntryResponse])
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    result = await session.execute(select(Entry).limit(5))
-    entries = result.scalars().all()
-    return entries
+    search = search_query.search_term
+    page = search_query.page
+    per_page = search_query.per_page
+    query = select(Entry).where(Entry.is_public == True)
+
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(Entry.name.ilike(search_term) | Entry.description.ilike(search_term))
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total_items = await session.scalar(count_query)
+    query = query.order_by(Entry.created_at.desc())
+    query = query.offset((page - 1) * per_page).limit(per_page)
+    result = await session.execute(query)
+    entries = result.all()
+    total_pages = (total_items + per_page - 1) // per_page
+
+    return {
+        "items": entries,
+        "total_items": total_items,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+    }
 
 
 @router.get("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryResponse)
