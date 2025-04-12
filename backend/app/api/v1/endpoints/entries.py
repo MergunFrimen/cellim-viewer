@@ -24,21 +24,17 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> Any:
-    new_entry = Entry(
-        name=request.name,
-        description=request.description,
-        is_public=request.is_public,
-    )
-    session.add(new_entry)
+):
+    entry = Entry(**request.model_dump())
+    session.add(entry)
     await session.commit()
-    return new_entry
+    return entry
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=list[EntryResponse])
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> Any:
+):
     result = await session.execute(select(Entry).limit(5))
     entries = result.scalars().all()
     return entries
@@ -48,7 +44,7 @@ async def list_entries(
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> Any:
+):
     result = await session.get(Entry, entry_id)
     if not result:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -60,10 +56,15 @@ async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> Any:
-    result = await session.get(Entry, entry_id)
-    if not result:
+):
+    entry_db = await session.get(Entry, entry_id)
+    if not entry_db:
         raise HTTPException(status_code=404, detail="Entry not found")
+    entry_data = request.model_dump(exclude_unset=True)
+    print(entry_data)
+    entry_db.sqlmodel_update(entry_data)
+    session.add(entry_db)
+    await session.commit()
     return request
 
 
