@@ -1,12 +1,11 @@
 from pydantic import BaseModel, Field, ConfigDict
 
+from app.database.models.entry import EntryBase
 
-class EntryRequest(BaseModel):
+
+class EntryRequest(EntryBase):
     name: str = Field(max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
-    is_public: bool = False
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class EntryCreateRequest(EntryRequest):

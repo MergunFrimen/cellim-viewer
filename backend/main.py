@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import v1_api_router
 from app.core.settings import get_settings
-from app.database.session_manager import sessionmanager
+from app.database.session_manager import get_session_manager
 
 
 @asynccontextmanager
@@ -14,8 +14,8 @@ async def lifespan(app: FastAPI):
     # startup
     yield
     # shutdown
-    if sessionmanager.engine is not None:
-        await sessionmanager.close()
+    if get_session_manager().engine is not None:
+        await get_session_manager().close()
 
 
 app = FastAPI(
