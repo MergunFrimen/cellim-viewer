@@ -80,7 +80,7 @@ class FileStorage:
         """Save an image for a view."""
         # Generate a path based on view ID to avoid filename collisions
         extension = os.path.splitext(filename)[1].lower()
-        file_path = f"views/{view_id}/image{extension}"
+        file_path = f"views/{view_id}/thumbnail{extension}"
 
         return await self.backend.save_file(file_content, file_path)
 
@@ -106,9 +106,6 @@ class FileStorage:
         except FileNotFoundError:
             return False
 
-
-# local_backend = LocalStorageBackend(settings.FILE_STORAGE_PATH)
-# file_storage = FileStorage(local_backend)
 
 file_storage = FileStorage(
     MinioBackend(

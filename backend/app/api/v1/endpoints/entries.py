@@ -24,10 +24,10 @@ async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    entry = Entry(**request.model_dump())
-    session.add(entry)
+    new_entry = Entry(**request.model_dump())
+    session.add(new_entry)
     await session.commit()
-    return entry
+    return new_entry
 
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[EntryResponse])

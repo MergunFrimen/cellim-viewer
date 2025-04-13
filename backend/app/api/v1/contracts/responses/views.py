@@ -1,10 +1,5 @@
-from pydantic import BaseModel, ConfigDict, Field
+from app.database.models.view import ViewBase
 
 
-class ViewResponse(BaseModel):
-    name: str = Field(max_length=255, examples=["View Name"])
-    description: str | None = Field(default=None, examples=["Markdown description."])
-    snapshot_url: str | None = None
-    thumbnail_url: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+class ViewResponse(ViewBase):
+    pass
