@@ -15,5 +15,5 @@ class ShareLinkBase(SQLModel):
 class ShareLink(ShareLinkBase, WithUuid, WithTimestamp, table=True):
     __tablename__ = "share_links"
 
-    entry_id: UUID = Field(foreign_key="entry.id")
+    entry_id: UUID = Field(foreign_key="entry.id", ondelete="CASCADE")
     entry: ["Entry"] = Relationship(back_populates="link")

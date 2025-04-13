@@ -15,5 +15,5 @@ class ViewBase(SQLModel):
 class View(ViewBase, WithUuid, WithTimestamp, table=True):
     __tablename__ = "views"
 
-    entry_id: UUID = Field(foreign_key="entry.id")
+    entry_id: UUID = Field(foreign_key="entry.id", ondelete="CASCADE")
     entry: ["Entry"] = Relationship(back_populates="entries")

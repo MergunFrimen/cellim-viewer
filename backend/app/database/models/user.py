@@ -15,4 +15,4 @@ class UserBase(SQLModel):
 class User(UserBase, WithUuid, WithTimestamp, table=True):
     __tablename__ = "users"
 
-    entries: list["Entry"] = Relationship(back_populates="user", cascade_delete=True)
+    entries: list["Entry"] = Relationship(back_populates="user", passive_deletes="all")
