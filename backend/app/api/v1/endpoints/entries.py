@@ -4,7 +4,6 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.entry import (
     EntryCreateRequest,
@@ -15,7 +14,6 @@ from app.api.v1.contracts.responses.entries import EntryResponse, EntryWithViews
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
-from app.database.models.share_link import ShareLink
 from app.database.session_manager import get_async_session
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
@@ -27,20 +25,10 @@ async def create_entry(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     new_entry = Entry(**request.model_dump())
-    new_link = ShareLink()
-    new_entry.link = new_link
     session.add(new_entry)
     await session.commit()
 
-    stmt = (
-        select(Entry)
-        .where(Entry.id == new_entry.id)
-        .options(selectinload(Entry.link), selectinload(Entry.views))
-    )
-    result = await session.execute(stmt)
-    entry_with_views = result.scalar_one()
-
-    return entry_with_views
+    return new_entry
 
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[EntryResponse])
@@ -82,15 +70,7 @@ async def get_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    stmt = (
-        select(Entry)
-        .where(Entry.id == entry_id)
-        .options(selectinload(Entry.link), selectinload(Entry.views))
-    )
-    result = await session.execute(stmt)
-    entry_with_views = result.scalar_one()
-
-    return entry_with_views
+    return entry
 
 
 @router.put("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
@@ -99,21 +79,15 @@ async def update_entry(
     request: Annotated[EntryUpdateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    entry_db = await session.get(Entry, entry_id)
-    if not entry_db:
+    entry = await session.get(Entry, entry_id)
+    if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    entry_data = request.model_dump(exclude_unset=True)
-    entry_db.update(entry_data)
-    session.add(entry_db)
-
+    for key, value in request.model_dump(exclude_unset=True).items():
+        setattr(entry, key, value)
     await session.commit()
 
-    stmt = select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.views))
-    entry = await session.execute(stmt)
-    entry_with_views = entry.scalar_one()
-
-    return entry_with_views
+    return entry
 
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)

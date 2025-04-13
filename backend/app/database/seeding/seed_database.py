@@ -6,7 +6,7 @@ from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.models import Entry, ShareLink, User, View
-from backend.app.database.models.mixins.timestamp_mixin import utcnow
+from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.seeding.faker_provider import CellimProvider
 from app.database.session_manager import get_session_manager
 
