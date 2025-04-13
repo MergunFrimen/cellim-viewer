@@ -1,5 +1,5 @@
-from fastapi import Form, File, UploadFile
-from pydantic import BaseModel, Field, ConfigDict
+from fastapi import File, Form, UploadFile
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ViewRequest(BaseModel):

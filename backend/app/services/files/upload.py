@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import BinaryIO, Protocol
 from uuid import UUID
 
-from app.services.files.minio import MinioBackend
 from app.core.settings import get_settings
+from app.services.files.minio import MinioBackend
 
 
 class StorageBackend(Protocol):
