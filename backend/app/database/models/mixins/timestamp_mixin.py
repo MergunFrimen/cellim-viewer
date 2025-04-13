@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlmodel import Field, SQLModel, text
+from sqlmodel import Field, SQLModel
 
 
 def utcnow() -> datetime:

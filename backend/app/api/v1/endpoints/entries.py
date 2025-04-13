@@ -4,13 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.entry import (
     EntryCreateRequest,
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entries import EntryResponse
+from app.api.v1.contracts.responses.entries import EntryResponse, EntryWithViewsResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
@@ -19,7 +20,7 @@ from app.database.session_manager import get_async_session
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryResponse)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -27,7 +28,12 @@ async def create_entry(
     new_entry = Entry(**request.model_dump())
     session.add(new_entry)
     await session.commit()
-    return new_entry
+
+    stmt = select(Entry).where(Entry.id == new_entry.id).options(selectinload(Entry.views))
+    result = await session.execute(stmt)
+    entry_with_views = result.scalar_one()
+
+    return entry_with_views
 
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[EntryResponse])
@@ -60,18 +66,23 @@ async def list_entries(
     }
 
 
-@router.get("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryResponse)
+@router.get("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    result = await session.get(Entry, entry_id)
-    if not result:
+    entry = await session.get(Entry, entry_id)
+    if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    return result
+
+    stmt = select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.views))
+    entry = await session.execute(stmt)
+    entry_with_views = entry.scalar_one()
+
+    return entry_with_views
 
 
-@router.put("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryResponse)
+@router.put("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
@@ -87,7 +98,11 @@ async def update_entry(
 
     await session.commit()
 
-    return entry_db
+    stmt = select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.views))
+    entry = await session.execute(stmt)
+    entry_with_views = entry.scalar_one()
+
+    return entry_with_views
 
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
