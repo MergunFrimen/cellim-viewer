@@ -1,22 +1,16 @@
-from uuid import UUID
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.types import String
 
-from sqlmodel import Field, Relationship, SQLModel
-
-from app.database.models.mixins import WithTimestamp, WithUuid
-
-
-class ShareLinkBase(SQLModel):
-    # TODO: update with HttpUrl
-    url: str | None = Field(
-        default=None,
-        max_length=2083,
-    )
-    editable: bool = False
-    active: bool = False
+from app.database.models.base import Base
+from app.database.models.mixins import TimestampMixin, UuidMixin
 
 
-class ShareLink(ShareLinkBase, WithUuid, WithTimestamp, table=True):
+class ShareLink(Base, UuidMixin, TimestampMixin):
     __tablename__ = "share_links"
 
-    entry_id: UUID = Field(foreign_key="entries.id", ondelete="CASCADE")
-    entry: "Entry" = Relationship(back_populates="link")
+    url: Mapped[str | None] = mapped_column(String(255), default=None)
+    editable: Mapped[bool] = False
+    active: Mapped[bool] = False
+
+    # entry_id: UUID = Field(foreign_key="entries.id", ondelete="CASCADE")
+    # entry: "Entry" = Relationship(back_populates="link")

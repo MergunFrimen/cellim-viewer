@@ -99,7 +99,7 @@ async def update_view(
     if not view:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    view.sqlmodel_update(request.model_dump(exclude_unset=True))
+    view.update(request.model_dump(exclude_unset=True))
     session.add(view)
 
     await session.commit()

@@ -1,10 +1,14 @@
 from uuid import UUID, uuid4
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class WithUuid(SQLModel):
-    id: UUID = Field(
+class UuidMixin:
+    id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        default_factory=uuid4,
+        default=uuid4,
     )
+
+    # @declared_attr
+    # def id(cls):
+    #     return mapped_column(UUID, primary_key=True, default=uuid4)

@@ -1,12 +1,14 @@
 from datetime import datetime
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database.models.base import Base
 
 
 def utcnow() -> datetime:
     return datetime.now()
 
 
-class WithTimestamp(SQLModel):
-    created_at: datetime = Field(default_factory=utcnow)
-    updated_at: datetime = Field(default_factory=utcnow, sa_column_kwargs={"onupdate": utcnow})
+class TimestampMixin:
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(default=utcnow, onupdate=utcnow)

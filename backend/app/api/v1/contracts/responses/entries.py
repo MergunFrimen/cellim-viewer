@@ -1,13 +1,15 @@
-from app.api.v1.contracts.responses.views import ViewResponse
-from app.database.models.entry import EntryBase
-from app.database.models.mixins import WithTimestamp
-from app.database.models.share_link import ShareLinkBase
+from pydantic import BaseModel, Field
+
+from app.database.models.mixins import TimestampMixin
 
 
-class EntryResponse(EntryBase):
+class EntryResponse(BaseModel):
+    name: str = Field(max_length=255)
+    description: str | None = None
+    is_public: bool = False
+
+
+class EntryWithViewsResponse(EntryResponse, TimestampMixin):
+    # link: ShareLinkBase
+    # views: list[ViewResponse]
     pass
-
-
-class EntryWithViewsResponse(EntryResponse, WithTimestamp):
-    link: ShareLinkBase
-    views: list[ViewResponse] = []

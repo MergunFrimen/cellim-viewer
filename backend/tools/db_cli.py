@@ -6,11 +6,11 @@ import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
-from sqlmodel import SQLModel
 
 # Add the project root to the Python path
 sys.path.append(str(Path(__file__).parent.parent))
 
+from app.database.models.base import Base
 from app.database.seeding.seed_database import seed_database
 from app.database.session_manager import get_session_manager
 
@@ -38,8 +38,8 @@ def init(
                 async with get_session_manager().engine.begin() as conn:
                     if drop:
                         console.print("[bold yellow]Dropping all tables...[/]")
-                        await conn.run_sync(SQLModel.metadata.drop_all)
-                    await conn.run_sync(SQLModel.metadata.create_all)
+                        await conn.run_sync(Base.metadata.drop_all)
+                    await conn.run_sync(Base.metadata.create_all)
                 console.print("[bold green]Database schema initialized successfully![/]")
             finally:
                 await close_connections()
@@ -82,8 +82,8 @@ def reset(
             # Step 1: Drop and recreate schema
             with console.status("[bold blue]Dropping and recreating database schema...[/]"):
                 async with get_session_manager().engine.begin() as conn:
-                    await conn.run_sync(SQLModel.metadata.drop_all)
-                    await conn.run_sync(SQLModel.metadata.create_all)
+                    await conn.run_sync(Base.metadata.drop_all)
+                    await conn.run_sync(Base.metadata.create_all)
 
             # Step 2: Seed with data
             with console.status("[bold blue]Seeding database with sample data...[/]"):

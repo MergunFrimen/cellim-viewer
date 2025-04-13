@@ -1,20 +1,16 @@
 from pydantic import BaseModel, Field
 
 
-class EntryRequest(BaseModel):
+class EntryCreateRequest(BaseModel):
     name: str = Field(max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
-    is_public: bool = False
+    is_public: bool = Field(default=False)
 
 
-class EntryCreateRequest(EntryRequest):
-    pass
-
-
-class EntryUpdateRequest(EntryRequest):
+class EntryUpdateRequest(BaseModel):
     name: str | None = Field(default=None, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
-    is_public: bool | None = None
+    is_public: bool | None = Field(default=None)
 
 
 class SearchQueryParams(BaseModel):

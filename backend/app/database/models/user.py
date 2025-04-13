@@ -1,18 +1,16 @@
 from uuid import UUID
 
-from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy.orm import Mapped
 
-from app.database.models.mixins import WithTimestamp, WithUuid
-
-
-class UserBase(SQLModel):
-    openid: UUID = Field(unique=True, index=True)
-    email: EmailStr
-    is_superuser: bool = False
+from app.database.models.base import Base
+from app.database.models.mixins import TimestampMixin, UuidMixin
 
 
-class User(UserBase, WithUuid, WithTimestamp, table=True):
+class User(Base, UuidMixin, TimestampMixin):
     __tablename__ = "users"
+
+    openid: Mapped[UUID]
+    email: Mapped[str]
+    is_superuser: Mapped[bool] = False
 
     # entries: list["Entry"] = Relationship(back_populates="user", passive_deletes="all")
