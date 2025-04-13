@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
-from app.api.v1.contracts.responses.views import ViewResponse
+from app.api.v1.contracts.responses.view import ViewResponse
 from app.api.v1.tags import Tags
 from app.database.models.entry import Entry
 from app.database.models.view import View
