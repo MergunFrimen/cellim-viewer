@@ -15,4 +15,4 @@ class Entry(EntryBase, WithUuid, WithTimestamp, table=True):
     # user_id: UUID = Field(foreign_key="user.id", ondelete="CASCADE")
     # user: ["User"] = Relationship(back_populates="entries")
     views: list["View"] = Relationship(back_populates="entry", passive_deletes="all")
-    # link: ["Link"] = Relationship(back_populates="entry", passive_deletes="all")
+    link: "ShareLink" = Relationship(back_populates="entry", passive_deletes="all")

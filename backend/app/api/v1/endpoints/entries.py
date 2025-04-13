@@ -15,6 +15,7 @@ from app.api.v1.contracts.responses.entries import EntryResponse, EntryWithViews
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
+from app.database.models.share_link import ShareLink
 from app.database.session_manager import get_async_session
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
@@ -26,10 +27,16 @@ async def create_entry(
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     new_entry = Entry(**request.model_dump())
+    new_link = ShareLink()
+    new_entry.link = new_link
     session.add(new_entry)
     await session.commit()
 
-    stmt = select(Entry).where(Entry.id == new_entry.id).options(selectinload(Entry.views))
+    stmt = (
+        select(Entry)
+        .where(Entry.id == new_entry.id)
+        .options(selectinload(Entry.link), selectinload(Entry.views))
+    )
     result = await session.execute(stmt)
     entry_with_views = result.scalar_one()
 
@@ -75,9 +82,13 @@ async def get_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    stmt = select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.views))
-    entry = await session.execute(stmt)
-    entry_with_views = entry.scalar_one()
+    stmt = (
+        select(Entry)
+        .where(Entry.id == entry_id)
+        .options(selectinload(Entry.link), selectinload(Entry.views))
+    )
+    result = await session.execute(stmt)
+    entry_with_views = result.scalar_one()
 
     return entry_with_views
 
