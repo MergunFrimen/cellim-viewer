@@ -15,7 +15,7 @@ v1_tags_metadata = [
     # },
     {
         "name": Tags.entries,
-        "description": "Entries",
+        # "description": "Entries",
     },
     # {
     #     "name": Tags.files,
@@ -23,6 +23,6 @@ v1_tags_metadata = [
     # },
     {
         "name": Tags.views,
-        "description": "Views",
+        # "description": "Views",
     },
 ]
