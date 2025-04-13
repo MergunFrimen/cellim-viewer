@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.models.base import Base
 from app.database.models.mixins import TimestampMixin, UuidMixin
@@ -14,5 +14,5 @@ class Entry(Base, UuidMixin, TimestampMixin):
 
     # user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
     # user: Mapped["User"] = relationship(back_populates="entries")
-    # views: Mapped[list["View"]] = relationship(back_populates="entry", cascade="all, delete-orphan")
+    views: Mapped[list["View"]] = relationship(back_populates="entry")
     # link: Mapped["ShareLink"] = relationship(back_populates="entry", cascade="all, delete-orphan")

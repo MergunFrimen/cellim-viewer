@@ -27,8 +27,6 @@ async def create_view(
     if not result:
         raise HTTPException(status_code=404, detail="Entry not found")
 
-    print(request)
-
     view_id = uuid4()
     thumbnail_url: str | None = None
     snapshot_url: str | None = None
