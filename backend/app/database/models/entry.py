@@ -6,6 +6,8 @@ from app.database.models.mixins import TimestampMixin, UuidMixin
 
 
 class Entry(Base, UuidMixin, TimestampMixin):
+    __tablename__ = "entries"
+
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(default=None)
     is_public: Mapped[bool] = mapped_column(default=False)

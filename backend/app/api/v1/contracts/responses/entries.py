@@ -1,6 +1,11 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
-from app.database.models.mixins import TimestampMixin
+
+class Timestamp:
+    created_at: datetime
+    updated_at: datetime
 
 
 class EntryResponse(BaseModel):
@@ -9,7 +14,9 @@ class EntryResponse(BaseModel):
     is_public: bool = False
 
 
-class EntryWithViewsResponse(EntryResponse, TimestampMixin):
+class EntryWithViewsResponse(BaseModel, Timestamp):
+    name: str = Field(max_length=255)
+    description: str | None = None
+    is_public: bool = False
     # link: ShareLinkBase
     # views: list[ViewResponse]
-    pass
