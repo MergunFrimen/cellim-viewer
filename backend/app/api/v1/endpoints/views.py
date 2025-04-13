@@ -2,6 +2,7 @@ from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, Path
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -67,34 +68,52 @@ async def create_view_with_image(
     return new_view
 
 
-@router.get("", status_code=status.HTTP_200_OK)
-def list_views_for_entry(
+@router.get("", status_code=status.HTTP_200_OK, response_model=list[ViewResponse])
+async def list_views_for_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> list[ViewResponse]:
-    pass
+):
+    result = await session.execute(select(View).where(View.entry_id == entry_id))
+    entries = result.scalars().all()
+    return entries
 
 
 @router.get("/{view_id}", status_code=status.HTTP_200_OK)
-def get_view(
+async def get_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> ViewResponse:
-    pass
+    result = await session.get(View, view_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return result
 
 
 @router.put("/{view_id}", status_code=status.HTTP_200_OK)
-def update_view(
+async def update_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> ViewResponse:
-    pass
+    view = await session.get(View, view_id)
+    if not view:
+        raise HTTPException(status_code=404, detail="Entry not found")
+
+    view.sqlmodel_update(request.model_dump(exclude_unset=True))
+    session.add(view)
+
+    await session.commit()
+
+    return view
 
 
 @router.delete("/{view_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_view(
+async def delete_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> None:
-    pass
+    view = await session.get(View, view_id)
+    if not view:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    await session.delete(view)
+    await session.commit()

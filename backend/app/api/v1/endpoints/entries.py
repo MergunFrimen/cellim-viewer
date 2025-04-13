@@ -80,10 +80,13 @@ async def update_entry(
     entry_db = await session.get(Entry, entry_id)
     if not entry_db:
         raise HTTPException(status_code=404, detail="Entry not found")
+
     entry_data = request.model_dump(exclude_unset=True)
     entry_db.sqlmodel_update(entry_data)
     session.add(entry_db)
+
     await session.commit()
+
     return entry_db
 
 
