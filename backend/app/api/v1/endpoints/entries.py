@@ -27,7 +27,6 @@ async def create_entry(
     entry = Entry(**request.model_dump())
     session.add(entry)
     await session.commit()
-    await session.refresh(entry)
     return entry
 
 
@@ -36,28 +35,27 @@ async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    search = search_query.search_term
-    page = search_query.page
-    per_page = search_query.per_page
     query = select(Entry).where(Entry.is_public == True)
 
-    if search:
-        search_term = f"%{search}%"
+    if search_query.search_term:
+        search_term = f"%{search_query.search_term}%"
         query = query.filter(Entry.name.ilike(search_term) | Entry.description.ilike(search_term))
 
     count_query = select(func.count()).select_from(query.subquery())
     total_items = await session.scalar(count_query)
     query = query.order_by(Entry.created_at.desc())
-    query = query.offset((page - 1) * per_page).limit(per_page)
+    query = query.offset((search_query.page - 1) * search_query.per_page).limit(
+        search_query.per_page
+    )
     result = await session.execute(query)
-    entries = result.all()
-    total_pages = (total_items + per_page - 1) // per_page
+    entries = result.scalars().all()
+    total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
 
     return {
         "items": entries,
         "total_items": total_items,
-        "page": page,
-        "per_page": per_page,
+        "page": search_query.page,
+        "per_page": search_query.per_page,
         "total_pages": total_pages,
     }
 
@@ -83,11 +81,9 @@ async def update_entry(
     if not entry_db:
         raise HTTPException(status_code=404, detail="Entry not found")
     entry_data = request.model_dump(exclude_unset=True)
-    print(entry_data)
     entry_db.sqlmodel_update(entry_data)
     session.add(entry_db)
     await session.commit()
-    await session.refresh(entry_db)
     return entry_db
 
 

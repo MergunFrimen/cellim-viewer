@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field
 
-from app.database.models.entry import EntryBase
-
 
 class EntryRequest(BaseModel):
     name: str = Field(max_length=255, examples=["Entry Name"])
@@ -14,7 +12,7 @@ class EntryCreateRequest(EntryRequest):
 
 
 class EntryUpdateRequest(EntryRequest):
-    name: str | None = Field(max_length=255, examples=["Entry Name"])
+    name: str | None = Field(default=None, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     is_public: bool | None = None
 

@@ -14,7 +14,7 @@ class EntryBase(SQLModel):
 class Entry(EntryBase, WithUuid, WithTimestamp, table=True):
     __tablename__ = "entries"
 
-    user_id: UUID = Field(foreign_key="user.id", ondelete="CASCADE")
-    user: ["User"] = Relationship(back_populates="entries")
-    views: ["View"] = Relationship(back_populates="entry", passive_deletes="all")
-    link: ["Link"] = Relationship(back_populates="entry", passive_deletes="all")
+    # user_id: UUID = Field(foreign_key="user.id", ondelete="CASCADE")
+    # user: ["User"] = Relationship(back_populates="entries")
+    # views: ["View"] = Relationship(back_populates="entry", passive_deletes="all")
+    # link: ["Link"] = Relationship(back_populates="entry", passive_deletes="all")

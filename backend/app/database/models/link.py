@@ -1,13 +1,15 @@
-from uuid import UUID
-
 from pydantic import HttpUrl
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 from app.database.models.mixins import WithTimestamp, WithUuid
+from app.database.models.types.http_url import HttpUrlType
 
 
 class ShareLinkBase(SQLModel):
-    link: HttpUrl
+    url: HttpUrl = Field(
+        unique=True,
+        sa_type=HttpUrlType,
+    )
     editable: bool = False
     active: bool = False
 
@@ -15,5 +17,5 @@ class ShareLinkBase(SQLModel):
 class ShareLink(ShareLinkBase, WithUuid, WithTimestamp, table=True):
     __tablename__ = "share_links"
 
-    entry_id: UUID = Field(foreign_key="entry.id", ondelete="CASCADE")
-    entry: ["Entry"] = Relationship(back_populates="link")
+    # entry_id: UUID = Field(foreign_key="entry.id", ondelete="CASCADE")
+    # entry: ["Entry"] = Relationship(back_populates="link")
