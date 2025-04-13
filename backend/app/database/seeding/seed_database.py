@@ -76,7 +76,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                         snapshot_url=None,
                         created_at=view_created,
                         updated_at=view_created,
-                        # entry=entry,
+                        entry=entry,
                     )
                     views.append(view)
                     session.add(view)

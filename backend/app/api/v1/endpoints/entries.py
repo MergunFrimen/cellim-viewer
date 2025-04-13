@@ -10,7 +10,7 @@ from app.api.v1.contracts.requests.entry import (
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entries import EntryResponse, EntryWithViewsResponse
+from app.api.v1.contracts.responses.entry import EntryResponse, EntryWithViewsResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
