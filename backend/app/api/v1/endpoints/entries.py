@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.entry import (
@@ -10,7 +10,7 @@ from app.api.v1.contracts.requests.entry import (
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entry import EntryResponse, EntryWithViewsResponse
+from app.api.v1.contracts.responses.entry import EntryWithViewsResponse, PublicEntryResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
@@ -19,19 +19,10 @@ from app.database.session_manager import get_async_session
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
-async def create_entry(
-    request: Annotated[EntryCreateRequest, Body()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
-):
-    new_entry = Entry(**request.model_dump())
-    session.add(new_entry)
-    await session.commit()
-
-    return new_entry
-
-
-@router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[EntryResponse])
+# PUBLIC
+@router.get(
+    "", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[PublicEntryResponse]
+)
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -39,8 +30,14 @@ async def list_entries(
     query = select(Entry).where(Entry.is_public == True)
 
     if search_query.search_term:
-        search_term = f"%{search_query.search_term}%"
-        query = query.filter(Entry.name.ilike(search_term) | Entry.description.ilike(search_term))
+        search_conditions = []
+        for term in search_query.search_term:
+            search_term = f"%{term}%"
+            search_conditions.append(
+                or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
+            )
+        if search_conditions:
+            query = query.filter(*search_conditions)
 
     count_query = select(func.count()).select_from(query.subquery())
     total_items = await session.scalar(count_query)
@@ -61,6 +58,7 @@ async def list_entries(
     }
 
 
+# PUBLIC
 @router.get("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -73,6 +71,20 @@ async def get_entry(
     return entry
 
 
+# REQUIRE LOGIN
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
+async def create_entry(
+    request: Annotated[EntryCreateRequest, Body()],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+):
+    new_entry = Entry(**request.model_dump())
+    session.add(new_entry)
+    await session.commit()
+
+    return new_entry
+
+
+# REQUIRE LOGIN
 @router.put("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -90,6 +102,7 @@ async def update_entry(
     return entry
 
 
+# REQUIRE LOGIN
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
