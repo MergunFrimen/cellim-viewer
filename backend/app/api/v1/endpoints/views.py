@@ -14,15 +14,15 @@ from app.database.models.view import View
 from app.database.session_manager import get_async_session
 from app.services.files.upload import file_storage
 
-router = APIRouter(prefix="/entry/{entry_id}/views", tags=[Tags.views])
+router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=ViewResponse)
-async def create_view_with_image(
+async def create_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ViewCreateRequest, File()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> ViewResponse:
+):
     result = await session.get(Entry, entry_id)
     if not result:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -78,23 +78,23 @@ async def list_views_for_entry(
     return entries
 
 
-@router.get("/{view_id}", status_code=status.HTTP_200_OK)
+@router.get("/{view_id}", status_code=status.HTTP_200_OK, response_model=ViewResponse)
 async def get_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> ViewResponse:
+):
     result = await session.get(View, view_id)
     if not result:
         raise HTTPException(status_code=404, detail="Entry not found")
     return result
 
 
-@router.put("/{view_id}", status_code=status.HTTP_200_OK)
+@router.put("/{view_id}", status_code=status.HTTP_200_OK, response_model=ViewResponse)
 async def update_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
     session: Annotated[AsyncSession, Depends(get_async_session)],
-) -> ViewResponse:
+):
     view = await session.get(View, view_id)
     if not view:
         raise HTTPException(status_code=404, detail="Entry not found")
