@@ -1,17 +1,29 @@
 import random
 from datetime import timedelta
+from functools import lru_cache
 
 from faker import Faker
 from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.models import Entry, ShareLink, User, View
+from app.database.models.role_model import Role
 from app.database.seeding.faker_provider import CellimProvider
 from app.database.session_manager import get_session_manager
 
 fake = Faker()
 fake.add_provider(internet)
 fake.add_provider(CellimProvider)
+
+
+@lru_cache
+def get_test_user_id():
+    return "f64e498f-6662-4616-b7f5-004d0620d2ea"
+
+
+@lru_cache
+def get_admin_user_id():
+    return "b54ef0d9-35ba-4197-be24-d6b498f8af25"
 
 
 async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
@@ -26,14 +38,43 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
 
         print(f"Creating {num_users} users with {num_entries} entries each...")
 
+        user_role = Role(
+            name="user",
+            description="Something",
+        )
+        admin_role = Role(
+            name="admin",
+            description="Something",
+        )
+        session.add(user_role)
+        session.add(admin_role)
+
         # Create users
         users = []
+        test_user = User(
+            id=get_test_user_id(),
+            openid=fake.uuid4(),
+            email="user@email.com",
+            role=user_role,
+        )
+        admin_user = User(
+            id=get_admin_user_id(),
+            openid=fake.uuid4(),
+            email="admin@email.com",
+            role=admin_role,
+        )
+        session.add(test_user)
+        session.add(admin_user)
+
+        users.append(test_user)
+        users.append(admin_user)
+
         for _ in range(num_users):
             user = User(
                 id=fake.uuid4(),
                 openid=fake.uuid4(),
                 email=fake.email(),
-                is_superuser=False,
+                role=user_role,
             )
             session.add(user)
             users.append(user)

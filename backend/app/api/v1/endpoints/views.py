@@ -1,17 +1,16 @@
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body, Depends, File, HTTPException, Path
+from fastapi import APIRouter, Body, File, HTTPException, Path
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view import ViewResponse
+from app.api.v1.dependencies import SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
 from app.database.models.view_model import View
-from app.database.session_manager import get_async_session
 from app.services.files.upload import file_storage
 
 router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
@@ -21,7 +20,7 @@ router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 async def create_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ViewCreateRequest, File()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     result = await session.get(Entry, entry_id)
     if not result:
@@ -69,7 +68,7 @@ async def create_view(
 @router.get("", status_code=status.HTTP_200_OK, response_model=list[ViewResponse])
 async def list_views_for_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     result = await session.execute(select(View).where(View.entry_id == entry_id))
     entries = result.scalars().all()
@@ -79,7 +78,7 @@ async def list_views_for_entry(
 @router.get("/{view_id}", status_code=status.HTTP_200_OK, response_model=ViewResponse)
 async def get_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     result = await session.get(View, view_id)
     if not result:
@@ -91,7 +90,7 @@ async def get_view(
 async def update_view(
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     view = await session.get(View, view_id)
     if not view:
@@ -108,7 +107,7 @@ async def update_view(
 @router.delete("/{view_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ) -> None:
     view = await session.get(View, view_id)
     if not view:

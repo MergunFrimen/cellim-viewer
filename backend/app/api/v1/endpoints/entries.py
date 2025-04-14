@@ -3,7 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
 from sqlalchemy import func, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.entry import (
     EntryCreateRequest,
@@ -12,10 +11,12 @@ from app.api.v1.contracts.requests.entry import (
 )
 from app.api.v1.contracts.responses.entry import EntryWithViewsResponse, PublicEntryPreviewResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
+from app.api.v1.dependencies import SessionDependency
 from app.api.v1.tags import Tags
+from app.core.security import get_current_user
 from app.database.models import Entry
-from app.database.models.mixins.timestamp_mixin import utcnow
-from app.database.session_manager import get_async_session
+from app.database.models.role_model import RoleEnum
+from app.database.seeding.seed_database import get_test_user_id
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
@@ -24,9 +25,10 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
+    current_user=Depends(get_current_user(user_id=get_test_user_id(), role=RoleEnum.user)),
 ):
-    new_entry = Entry(**request.model_dump())
+    new_entry = Entry(user=current_user, **request.model_dump())
     session.add(new_entry)
     await session.commit()
 
@@ -39,7 +41,7 @@ async def create_entry(
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     query = select(Entry).where(Entry.is_public == True)
 
@@ -76,7 +78,7 @@ async def list_entries(
 @router.get("/{entry_id}", status_code=status.HTTP_200_OK, response_model=EntryWithViewsResponse)
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
@@ -90,7 +92,7 @@ async def get_entry(
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
@@ -107,7 +109,7 @@ async def update_entry(
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
+    session: SessionDependency,
 ) -> None:
     result = await session.get(Entry, entry_id)
     if not result:

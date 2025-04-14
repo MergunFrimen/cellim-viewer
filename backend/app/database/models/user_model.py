@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.models.base_model import Base
 from app.database.models.mixins import TimestampMixin, UuidMixin
@@ -11,6 +12,8 @@ class User(Base, UuidMixin, TimestampMixin):
 
     openid: Mapped[UUID]
     email: Mapped[str]
-    is_superuser: Mapped[bool] = False
 
-    entries: Mapped[list["Entry"]] = relationship(back_populates="user", passive_deletes="all")
+    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"))
+
+    role: Mapped["Role"] = relationship(back_populates="users")
+    entries: Mapped[list["Entry"]] = relationship(back_populates="user")

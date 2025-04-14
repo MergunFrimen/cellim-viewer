@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Any, AsyncIterator
 
+from sqlalchemy import AsyncAdaptedQueuePool, NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncEngine,
@@ -10,12 +11,18 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.settings import get_settings
+from app.core.settings import ModeEnum, get_settings
 
 
 class DatabaseSessionManager:
     def __init__(self, host: str, engine_kwargs: dict[str, Any] = {}):
-        self.engine: AsyncEngine | None = create_async_engine(host, **engine_kwargs)
+        self.engine: AsyncEngine | None = create_async_engine(
+            host,
+            poolclass=NullPool
+            if get_settings().MODE == ModeEnum.testing
+            else AsyncAdaptedQueuePool,
+            **engine_kwargs,
+        )
         self._session_factory = async_sessionmaker(
             bind=self.engine,
             autocommit=False,
@@ -56,5 +63,5 @@ class DatabaseSessionManager:
 @lru_cache
 def get_session_manager():
     return DatabaseSessionManager(
-        get_settings().DATABASE_URL, {"echo": get_settings().DATABASE_ECHO_SQL}
+        get_settings().DATABASE_URL, {"echo": get_settings().MODE != ModeEnum.production}
     )

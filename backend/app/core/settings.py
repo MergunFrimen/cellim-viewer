@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from functools import lru_cache
 
 from dotenv import load_dotenv
@@ -7,13 +8,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 load_dotenv()
 
 
+class ModeEnum(str, Enum):
+    development = "development"
+    production = "production"
+    testing = "testing"
+
+
 class Settings(BaseSettings):
+    MODE: ModeEnum = ModeEnum.development
+
     # App
     APP_NAME: str = "CELLIM Viewer API"
     APP_SUMMARY: str = "API managing CELLIM data entries"
     APP_VERSION: str = "0.0.0"
-    APP_HOST: str = "0.0.0.0"
+    APP_HOST: str = "localhost"
     APP_PORT: str = "8000"
+    APP_URL: str = f"http://{APP_HOST}:{APP_PORT}"
     APP_RELOAD: bool = True
     APP_CONTACT: dict[str, str] = {
         "name": "CELLIM Viewer developers",
@@ -26,12 +36,12 @@ class Settings(BaseSettings):
     }
 
     # API
-    API_V1_PREFIX: str = "/api"
+    API_V1_PREFIX: str = "/api/v1"
 
     # CORS
     CORS_ORIGINS: list[str] = [
+        APP_URL,  # for OpenAPI docs
         "http://localhost:3000",  # for frontend
-        "http://localhost:8000",  # for OpenAPI docs
     ]
 
     # PostgreSQL
