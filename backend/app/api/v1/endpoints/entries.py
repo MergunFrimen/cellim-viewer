@@ -10,18 +10,32 @@ from app.api.v1.contracts.requests.entry import (
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entry import EntryWithViewsResponse, PublicEntryResponse
+from app.api.v1.contracts.responses.entry import EntryWithViewsResponse, PublicEntryPreviewResponse
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.tags import Tags
 from app.database.models import Entry
+from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.session_manager import get_async_session
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
 
+# REQUIRE LOGIN
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
+async def create_entry(
+    request: Annotated[EntryCreateRequest, Body()],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+):
+    new_entry = Entry(**request.model_dump())
+    session.add(new_entry)
+    await session.commit()
+
+    return new_entry
+
+
 # PUBLIC
 @router.get(
-    "", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[PublicEntryResponse]
+    "", status_code=status.HTTP_200_OK, response_model=PaginatedResponse[PublicEntryPreviewResponse]
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
@@ -49,13 +63,13 @@ async def list_entries(
     entries = result.scalars().all()
     total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
 
-    return {
-        "items": entries,
-        "total_items": total_items,
-        "page": search_query.page,
-        "per_page": search_query.per_page,
-        "total_pages": total_pages,
-    }
+    return PaginatedResponse(
+        items=entries,
+        total_items=total_items,
+        page=search_query.page,
+        per_page=search_query.per_page,
+        total_pages=total_pages,
+    )
 
 
 # PUBLIC
@@ -69,19 +83,6 @@ async def get_entry(
         raise HTTPException(status_code=404, detail="Entry not found")
 
     return entry
-
-
-# REQUIRE LOGIN
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=EntryWithViewsResponse)
-async def create_entry(
-    request: Annotated[EntryCreateRequest, Body()],
-    session: Annotated[AsyncSession, Depends(get_async_session)],
-):
-    new_entry = Entry(**request.model_dump())
-    session.add(new_entry)
-    await session.commit()
-
-    return new_entry
 
 
 # REQUIRE LOGIN

@@ -13,6 +13,7 @@ class Entry(Base, UuidMixin, TimestampMixin):
     is_public: Mapped[bool] = mapped_column(default=False)
 
     # user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
+
     # user: Mapped["User"] = relationship(back_populates="entries")
     views: Mapped[list["View"]] = relationship(back_populates="entry")
     # link: Mapped["ShareLink"] = relationship(back_populates="entry", cascade="all, delete-orphan")

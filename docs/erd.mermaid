@@ -2,52 +2,63 @@ erDiagram
 
     USER {
         uuid id PK
-        uuid openid PK
+
+        uuid openid
         str email
         boolean is_superuser
 
-        datetime created_at
-        datetime updated_at
-        datetime deleted_at
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
     }
 
     ENTRIES {
         uuid id PK
+    
         uuid user_id FK
-        uuid link_id FK
-        string name
-        string description
-        boolean is_public
+        uuid link_id FK "NULL"
+        uuid main_view_id FK "NULL"
 
-        datetime created_at
-        datetime updated_at
-        datetime deleted_at
+        string name
+        string description "NULL"
+        boolean is_public "FALSE"
+
+        timestamp created_at "NOW"
+        timestamp updated_at "NOW"
+        timestamp deleted_at
     }
     
     VIEWS {
         uuid id PK
-        uuid entry_id FK
-        string title
-        string description
-        str snapshot_uri
-        str thumbnail_uri
 
-        datetime created_at
-        datetime updated_at
-        datetime deleted_at
+        uuid entry_id FK
+
+        string name
+        string description "NULL"
+        str thumbnail_url "NULL"
+        str snapshot_url
+
+        timestamp created_at "NOW"
+        timestamp updated_at "NOW"
+        timestamp deleted_at
     }
 
-    LINKS {
+    SHARE_LINKS {
         uuid id PK
-        uuid entry_id FK
-        uuid link
-        boolean editable
 
-        datetime created_at
-        datetime updated_at
-        datetime deleted_at
+        uuid entry_id FK
+
+        uuid link_url
+        boolean editable
+        boolean active
+
+        timestamp created_at "NOW"
+        timestamp updated_at "NOW"
+        timestamp deleted_at
     }
+
                 
-    USER ||--o{ ENTRIES : ""
-    ENTRIES ||--o{ VIEWS : ""
-    ENTRIES ||--|| LINKS : ""
+    USER ||--o{ ENTRIES : "manages"
+    ENTRIES ||--o{ VIEWS : "contains"
+    ENTRIES ||--o| VIEWS : "has as main view"
+    ENTRIES ||--o| SHARE_LINKS : "has"

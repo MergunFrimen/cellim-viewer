@@ -1,15 +1,15 @@
 from pydantic import BaseModel, Field
 
-from app.api.v1.contracts.common.timestamp import Timestamp
+from app.api.v1.contracts.common import Timestamp, Uuid
 
 
-class PublicEntryResponse(BaseModel, Timestamp):
-    name: str = Field(max_length=255)
-    description: str | None = None
-    is_public: bool = False
+class PublicEntryPreviewResponse(Uuid, Timestamp, BaseModel):
+    name: str = Field(max_length=255, examples=["Entry Name"])
+    description: str | None = Field(default=None, examples=["Markdown description."])
+    thumbnail_url: str | None = Field(default=None, examples=["URL for entry thumbnail preview"])
 
 
-class EntryWithViewsResponse(BaseModel, Timestamp):
+class EntryWithViewsResponse(Timestamp, BaseModel):
     name: str = Field(max_length=255)
     description: str | None = None
     is_public: bool = False
@@ -17,7 +17,7 @@ class EntryWithViewsResponse(BaseModel, Timestamp):
     # views: list[ViewResponse]
 
 
-class PrivateEntryResponse(BaseModel, Timestamp):
+class PrivateEntryResponse(Timestamp, BaseModel):
     name: str = Field(max_length=255)
     description: str | None = None
     is_public: bool = False
