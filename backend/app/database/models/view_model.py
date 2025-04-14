@@ -16,5 +16,5 @@ class View(Base, UuidMixin, TimestampMixin):
     snapshot_url: Mapped[str | None] = mapped_column(String(2083), default=None)
 
     entry_id: Mapped[UUID] = mapped_column(ForeignKey("entries.id", ondelete="CASCADE"))
-    
+
     entry: Mapped["Entry"] = relationship(back_populates="views")
