@@ -3,12 +3,11 @@ from functools import lru_cache
 from typing import Any
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError, ExpiredSignatureError, MissingRequiredClaimError, decode, encode
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from app.core.bearer import CustomAuthorizationCodeBearer
 from app.core.settings import get_settings
 from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.models.role_model import RoleEnum
@@ -16,7 +15,10 @@ from app.database.models.user_model import User
 from app.database.seeding.seed_database import get_admin_user_id, get_regular_user_id
 from app.database.session_manager import get_session_manager
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{get_settings().API_V1_PREFIX}/token")
+oauth2_scheme = CustomAuthorizationCodeBearer(
+    authorizationUrl=f"{get_settings().API_V1_PREFIX}/token",
+    tokenUrl=f"{get_settings().API_V1_PREFIX}/token",
+)
 
 
 def create_access_token(sub: str | Any) -> str:
