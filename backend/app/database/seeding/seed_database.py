@@ -31,8 +31,8 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         for _ in range(num_users):
             user = User(
                 id=fake.uuid4(),
-                openid=fake.uuid4() if random.random() < 0.7 else None,
-                email=fake.email() if random.random() < 0.7 else None,
+                openid=fake.uuid4(),
+                email=fake.email(),
                 is_superuser=False,
             )
             session.add(user)
@@ -56,7 +56,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 #
                 link = ShareLink(
                     id=fake.uuid4(),
-                    link_url=f"{fake.image_url()}/{fake.uuid4()}",
+                    link_url=fake.image_url(),
                     editable=random.random() < 0.5,
                     active=random.random() < 0.8,
                     entry=entry,
@@ -70,8 +70,8 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                         id=fake.uuid4(),
                         name=fake.view_name(),
                         description=fake.view_description(),
-                        thumbnail_url=None,
-                        snapshot_url=None,
+                        thumbnail_url=fake.image_url(),
+                        snapshot_url=fake.image_url(),
                         created_at=view_created,
                         updated_at=view_created,
                         entry=entry,

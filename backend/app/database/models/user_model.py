@@ -9,8 +9,8 @@ from app.database.models.mixins import TimestampMixin, UuidMixin
 class User(Base, UuidMixin, TimestampMixin):
     __tablename__ = "users"
 
-    openid: Mapped[UUID | None] = None
-    email: Mapped[str | None] = None
+    openid: Mapped[UUID]
+    email: Mapped[str]
     is_superuser: Mapped[bool] = False
 
     entries: Mapped[list["Entry"]] = relationship(back_populates="user", passive_deletes="all")

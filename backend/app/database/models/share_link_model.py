@@ -11,7 +11,7 @@ from app.database.models.mixins import TimestampMixin, UuidMixin
 class ShareLink(Base, UuidMixin, TimestampMixin):
     __tablename__ = "share_links"
 
-    link_url: Mapped[str | None] = mapped_column(String(255), default=None)
+    link_url: Mapped[str] = mapped_column(String(255))
     editable: Mapped[bool] = False
     active: Mapped[bool] = False
 

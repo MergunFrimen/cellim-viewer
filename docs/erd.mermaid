@@ -9,15 +9,12 @@ erDiagram
 
         timestamp created_at
         timestamp updated_at
-        timestamp deleted_at
     }
 
     ENTRIES {
         uuid id PK
     
         uuid user_id FK
-        uuid link_id FK "NULL"
-        uuid main_view_id FK "NULL"
 
         string name
         string description "NULL"
@@ -25,7 +22,6 @@ erDiagram
 
         timestamp created_at "NOW"
         timestamp updated_at "NOW"
-        timestamp deleted_at
     }
     
     VIEWS {
@@ -35,12 +31,11 @@ erDiagram
 
         string name
         string description "NULL"
-        str thumbnail_url "NULL"
+        str thumbnail_url
         str snapshot_url
 
         timestamp created_at "NOW"
         timestamp updated_at "NOW"
-        timestamp deleted_at
     }
 
     SHARE_LINKS {
@@ -48,17 +43,15 @@ erDiagram
 
         uuid entry_id FK
 
-        uuid link_url
+        str link_url
         boolean editable
         boolean active
 
         timestamp created_at "NOW"
         timestamp updated_at "NOW"
-        timestamp deleted_at
     }
 
                 
     USER ||--o{ ENTRIES : "manages"
     ENTRIES ||--o{ VIEWS : "contains"
-    ENTRIES ||--o| VIEWS : "has as main view"
     ENTRIES ||--o| SHARE_LINKS : "has"
