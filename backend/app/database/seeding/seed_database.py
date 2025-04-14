@@ -6,7 +6,6 @@ from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.models import Entry, ShareLink, User, View
-from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.seeding.faker_provider import CellimProvider
 from app.database.session_manager import get_session_manager
 
@@ -32,11 +31,9 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         for _ in range(num_users):
             user = User(
                 id=fake.uuid4(),
-                openid=fake.uuid4(),
-                email=fake.email(),
+                openid=fake.uuid4() if random.random() < 0.7 else None,
+                email=fake.email() if random.random() < 0.7 else None,
                 is_superuser=False,
-                created_at=utcnow(),
-                updated_at=utcnow(),
             )
             session.add(user)
             users.append(user)
@@ -53,6 +50,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     is_public=random.random() < 0.7,
                     created_at=created_date,
                     updated_at=created_date + timedelta(days=random.randint(0, 30)),
+                    user=user,
                 )
                 session.add(entry)
                 #
@@ -61,7 +59,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     link_url=f"{fake.image_url()}/{fake.uuid4()}",
                     editable=random.random() < 0.5,
                     active=random.random() < 0.8,
-                    # entry=entry,
+                    entry=entry,
                 )
                 session.add(link)
                 #

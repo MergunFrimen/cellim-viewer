@@ -9,8 +9,8 @@ from starlette import status
 from app.api.v1.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view import ViewResponse
 from app.api.v1.tags import Tags
-from app.database.models.entry import Entry
-from app.database.models.view import View
+from app.database.models.entry_model import Entry
+from app.database.models.view_model import View
 from app.database.session_manager import get_async_session
 from app.services.files.upload import file_storage
 

@@ -24,5 +24,11 @@
             "source.removeUnusedImports": "explicit",
             "source.sortImports": "explicit",
         }
-    }
+    },
+    "python.analysis.extraPaths": [
+        "backend"
+    ],
+    "python.autoComplete.extraPaths": [
+        "backend"
+    ],
 }

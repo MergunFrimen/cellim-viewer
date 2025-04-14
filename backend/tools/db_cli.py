@@ -10,7 +10,7 @@ from rich.panel import Panel
 # Add the project root to the Python path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from app.database.models.base import Base
+from app.database.models.base_model import Base
 from app.database.seeding.seed_database import seed_database
 from app.database.session_manager import get_session_manager
 
