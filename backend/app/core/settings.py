@@ -17,6 +17,9 @@ class ModeEnum(str, Enum):
 class Settings(BaseSettings):
     MODE: ModeEnum = ModeEnum.development
 
+    # Api
+    API_V1_PREFIX: str = "/api/v1"
+
     # App
     APP_NAME: str = "CELLIM Viewer API"
     APP_SUMMARY: str = "API managing CELLIM data entries"
@@ -35,14 +38,23 @@ class Settings(BaseSettings):
         "identifier": "MIT",
     }
 
-    # API
-    API_V1_PREFIX: str = "/api/v1"
-
     # CORS
     CORS_ORIGINS: list[str] = [
         APP_URL,  # for OpenAPI docs
         "http://localhost:3000",  # for frontend
     ]
+
+    # Jwt
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_ENCRYPT_KEY: str = os.getenv("JWT_ENCRYPT_KEY")
+
+    # MinIO
+    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT")
+    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY")
+    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY")
+    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")
+    MINIO_SECURE: bool = os.getenv("MINIO_SECURE")
 
     # PostgreSQL
     POSTGRES_DIALECT: str = "postgresql"
@@ -51,15 +63,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
-    DATABASE_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
-    DATABASE_ECHO_SQL: bool = True
-
-    # MinIO
-    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT")
-    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY")
-    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY")
-    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")
-    MINIO_SECURE: bool = os.getenv("MINIO_SECURE")
+    POSTGRES_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 
     model_config = SettingsConfigDict(
         env_file=".env.example", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"

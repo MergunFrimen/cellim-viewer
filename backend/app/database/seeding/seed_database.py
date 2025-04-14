@@ -17,7 +17,7 @@ fake.add_provider(CellimProvider)
 
 
 @lru_cache
-def get_test_user_id():
+def get_regular_user_id():
     return "f64e498f-6662-4616-b7f5-004d0620d2ea"
 
 
@@ -52,7 +52,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         # Create users
         users = []
         test_user = User(
-            id=get_test_user_id(),
+            id=get_regular_user_id(),
             openid=fake.uuid4(),
             email="user@email.com",
             role=user_role,
