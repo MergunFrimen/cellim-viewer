@@ -12,8 +12,8 @@ class View(Base, UuidMixin, TimestampMixin):
 
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = None
-    thumbnail_url: Mapped[str] = mapped_column(String(2083))
-    snapshot_url: Mapped[str] = mapped_column(String(2083))
+    thumbnail_url: Mapped[str | None] = mapped_column(String(2083), default=None)
+    snapshot_url: Mapped[str | None] = mapped_column(String(2083), default=None)
 
     entry_id: Mapped[UUID] = mapped_column(ForeignKey("entries.id", ondelete="CASCADE"))
     entry: Mapped["Entry"] = relationship(back_populates="views")

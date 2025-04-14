@@ -58,8 +58,3 @@ def get_session_manager():
     return DatabaseSessionManager(
         get_settings().DATABASE_URL, {"echo": get_settings().DATABASE_ECHO_SQL}
     )
-
-
-async def get_async_session():
-    async with get_session_manager().session() as session:
-        yield session

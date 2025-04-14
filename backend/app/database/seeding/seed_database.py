@@ -58,7 +58,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 #
                 link = ShareLink(
                     id=fake.uuid4(),
-                    url=f"{fake.image_url()}/{fake.uuid4()}",
+                    link_url=f"{fake.image_url()}/{fake.uuid4()}",
                     editable=random.random() < 0.5,
                     active=random.random() < 0.8,
                     # entry=entry,
