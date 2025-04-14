@@ -2,7 +2,7 @@ from datetime import timedelta
 from functools import lru_cache
 from typing import Any
 
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError, ExpiredSignatureError, MissingRequiredClaimError, decode, encode
 from sqlalchemy import select
@@ -28,7 +28,7 @@ def create_access_token(sub: str | Any) -> str:
 
     return encode(
         payload=to_encode,
-        key=get_settings().JWT_ENCRYPT_KEY,
+        key=get_settings().JWT_SECRET_KEY,
         algorithm=get_settings().JWT_ALGORITHM,
     )
 
@@ -36,7 +36,7 @@ def create_access_token(sub: str | Any) -> str:
 def decode_token(token: str) -> dict[str, Any]:
     return decode(
         jwt=token,
-        key=get_settings().JWT_ENCRYPT_KEY,
+        key=get_settings().JWT_SECRET_KEY,
         algorithms=[get_settings().JWT_ALGORITHM],
     )
 
@@ -51,11 +51,8 @@ def get_admin_user_token():
     return create_access_token(get_admin_user_id())
 
 
-def get_current_user(role: RoleEnum | None = None) -> User:
-    # TODO: uncomment once oidc works
-    # async def _get_current_user(token: str = Depends(oauth2_scheme)) -> User:
-    async def _get_current_user() -> User:
-        token = get_regular_user_token()
+def get_current_user(allowed_roles: list[RoleEnum] | None = None) -> User:
+    async def _get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         try:
             payload = decode_token(token)
         except ExpiredSignatureError:
@@ -86,11 +83,13 @@ def get_current_user(role: RoleEnum | None = None) -> User:
                     status_code=404,
                     detail="User not found",
                 )
-            if role and role != user.role.name:
-                raise HTTPException(
-                    status_code=403,
-                    detail=f'Require "{role.value}" role access.',
-                )
+            if allowed_roles is not None:
+                has_allowed_role = any(role.value == user.role.name for role in allowed_roles)
+                if not has_allowed_role:
+                    raise HTTPException(
+                        status_code=403,
+                        detail=f"Allowed access for roles: {', '.join(allowed_roles)}.",
+                    )
             return user
 
     return _get_current_user

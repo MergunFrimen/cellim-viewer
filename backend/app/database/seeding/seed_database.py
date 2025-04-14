@@ -7,7 +7,7 @@ from faker.providers import internet
 from sqlalchemy import text
 
 from app.database.models import Entry, ShareLink, User, View
-from app.database.models.role_model import Role
+from app.database.models.role_model import Role, RoleEnum
 from app.database.seeding.faker_provider import CellimProvider
 from app.database.session_manager import get_session_manager
 
@@ -17,13 +17,13 @@ fake.add_provider(CellimProvider)
 
 
 @lru_cache
-def get_regular_user_id():
-    return "f64e498f-6662-4616-b7f5-004d0620d2ea"
+def get_admin_user_id():
+    return "11111111-1111-1111-1111-111111111111"
 
 
 @lru_cache
-def get_admin_user_id():
-    return "b54ef0d9-35ba-4197-be24-d6b498f8af25"
+def get_regular_user_id():
+    return "22222222-2222-2222-2222-222222222222"
 
 
 async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
@@ -39,11 +39,11 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
         print(f"Creating {num_users} users with {num_entries} entries each...")
 
         user_role = Role(
-            name="user",
+            name=RoleEnum.user,
             description="Something",
         )
         admin_role = Role(
-            name="admin",
+            name=RoleEnum.admin,
             description="Something",
         )
         session.add(user_role)

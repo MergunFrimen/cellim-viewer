@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     # Jwt
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    JWT_ENCRYPT_KEY: str = os.getenv("JWT_ENCRYPT_KEY")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
     # MinIO
     MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT")

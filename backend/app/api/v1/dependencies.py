@@ -10,5 +10,8 @@ from app.database.session_manager import get_async_session
 
 SessionDependency = Annotated[AsyncSession, Depends(get_async_session)]
 
-RequireRegularUser = Annotated[User, Depends(get_current_user(role=RoleEnum.user))]
-RequireAdminUser = Annotated[User, Depends(get_current_user(role=RoleEnum.admin))]
+RequireRegularUser = Annotated[User, Depends(get_current_user(allowed_roles=[RoleEnum.user]))]
+RequireAdminUser = Annotated[User, Depends(get_current_user(allowed_roles=[RoleEnum.admin]))]
+RequireAnyUser = Annotated[
+    User, Depends(get_current_user(allowed_roles=[RoleEnum.user, RoleEnum.admin]))
+]
