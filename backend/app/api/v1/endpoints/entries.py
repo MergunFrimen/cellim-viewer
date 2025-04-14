@@ -9,7 +9,11 @@ from app.api.v1.contracts.requests.entry import (
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entry import EntryPreviewResponse, EntryWithViewsResponse
+from app.api.v1.contracts.responses.entry import (
+    PrivateEntryResponse,
+    PublicEntryPreviewResponse,
+    PublicEntryResponse,
+)
 from app.api.v1.contracts.responses.pagination import PaginatedResponse
 from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
@@ -21,7 +25,7 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    response_model=EntryWithViewsResponse,
+    response_model=PrivateEntryResponse,
 )
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
@@ -38,7 +42,7 @@ async def create_entry(
 @router.get(
     "",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[EntryPreviewResponse],
+    response_model=PaginatedResponse[PublicEntryPreviewResponse],
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
@@ -75,34 +79,34 @@ async def list_entries(
     )
 
 
-@router.get(
-    "/{entry_id}",
-    status_code=status.HTTP_200_OK,
-    response_model=EntryWithViewsResponse,
-)
+@router.get("/{entry_id}", status_code=status.HTTP_200_OK)
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
     current_user: OptionalUser,
 ):
-    entry = await session.get(Entry, entry_id)
+    entry: Entry | None = await session.get(Entry, entry_id)
     if not entry:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
 
-    if current_user is not None:
-        if not entry.user_id != current_user.id:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        return EntryPreviewResponse(**entry)
-    else:
-        if not entry.is_public:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        return EntryPreviewResponse(**entry)
+    if current_user is not None and entry.user_id == current_user.id:
+        return PrivateEntryResponse.model_validate(entry)
+
+    if not entry.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Entry is not public",
+        )
+    return PublicEntryResponse.model_validate(entry)
 
 
 @router.put(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,
-    response_model=EntryWithViewsResponse,
+    response_model=PrivateEntryResponse,
 )
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],

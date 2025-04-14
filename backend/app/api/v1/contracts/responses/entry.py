@@ -1,25 +1,32 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.api.v1.contracts.common import Timestamp, Uuid
+from app.api.v1.contracts.common import DebugModelName, Timestamp, Uuid
 
 
-class EntryPreviewResponse(Uuid, Timestamp, BaseModel):
+class PublicEntryPreviewResponse(Uuid, Timestamp, DebugModelName, BaseModel):
     name: str = Field(max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     thumbnail_url: str | None = Field(default=None, examples=["URL for entry thumbnail preview"])
+    is_public: bool = Field(default=False)
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class EntryWithViewsResponse(Timestamp, BaseModel):
-    name: str = Field(max_length=255)
-    description: str | None = None
-    is_public: bool = False
+class PublicEntryResponse(Uuid, Timestamp, DebugModelName, BaseModel):
+    name: str = Field(max_length=255, examples=["Entry Name"])
+    description: str | None = Field(default=None, examples=["Markdown description."])
+    thumbnail_url: str | None = Field(default=None, examples=["URL for entry thumbnail preview"])
+    is_public: bool = Field(default=False)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PrivateEntryResponse(Uuid, Timestamp, DebugModelName, BaseModel):
+    name: str = Field(max_length=255, examples=["Entry Name"])
+    description: str | None = Field(default=None, examples=["Markdown description."])
+    thumbnail_url: str | None = Field(default=None, examples=["URL for entry thumbnail preview"])
+    is_public: bool = Field(default=False)
     # link: ShareLinkBase
     # views: list[ViewResponse]
 
-
-class PrivateEntryResponse(Timestamp, BaseModel):
-    name: str = Field(max_length=255)
-    description: str | None = None
-    is_public: bool = False
-    # link: ShareLinkResponse
-    # views: list[ViewResponse]
+    model_config = ConfigDict(from_attributes=True)

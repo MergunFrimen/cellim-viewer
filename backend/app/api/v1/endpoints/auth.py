@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Header
 
 from app.api.v1.tags import Tags
-from app.core.security import get_admin_user_token, get_current_user, get_regular_user_token
+from app.core.security import get_admin_user_token, get_regular_user_token, get_required_user
 from app.database.models.role_model import RoleEnum
 from app.database.models.user_model import User
 
@@ -24,7 +24,7 @@ async def login_user():
 
 @router.get("/get_current_user")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_user())],
+    current_user: Annotated[User, Depends(get_required_user())],
 ):
     return current_user
 

@@ -11,8 +11,8 @@ class Entry(Base, UuidMixin, TimestampMixin):
     __tablename__ = "entries"
 
     name: Mapped[str] = mapped_column(String(255))
-    description: Mapped[str | None] = None
-    is_public: Mapped[bool] = False
+    description: Mapped[str | None] = mapped_column(default=None)
+    is_public: Mapped[bool] = mapped_column(default=False)
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 

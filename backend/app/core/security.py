@@ -55,10 +55,10 @@ def get_admin_user_token():
     return create_access_token(get_admin_user_id())
 
 
-def get_current_user(
-    required_role: RoleEnum | None = None,
-) -> User:
-    async def _get_current_user(user: str | None = Depends(get_user(required_role))) -> User:
+def get_required_user(required_role: RoleEnum | None = None) -> User:
+    async def _get_current_user(
+        user: str | None = Depends(get_current_user(required_role)),
+    ) -> User:
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -71,15 +71,16 @@ def get_current_user(
 
 
 def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
-    async def _get_optional_user(user: str | None = Depends(get_user(required_role))) -> User:
+    async def _get_optional_user(
+        user: str | None = Depends(get_current_user(required_role)),
+    ) -> User:
         return user
 
     return _get_optional_user
 
 
-def get_user(required_role: RoleEnum | None = None) -> User | None:
+def get_current_user(required_role: RoleEnum | None = None) -> User | None:
     async def _get_user(token: str | None = Depends(oauth2_scheme)):
-        print("token", token)
         if token is None:
             return None
         try:
