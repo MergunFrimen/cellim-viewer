@@ -5,8 +5,8 @@ from fastapi import APIRouter, Body, File, HTTPException, Path
 from sqlalchemy import select
 from starlette import status
 
-from app.api.v1.contracts.requests.view import ViewCreateRequest, ViewUpdateRequest
-from app.api.v1.contracts.responses.view import ViewResponse
+from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
+from app.api.v1.contracts.responses.view_responses import ViewResponse
 from app.api.v1.dependencies import SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry

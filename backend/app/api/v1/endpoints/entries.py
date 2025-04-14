@@ -1,23 +1,26 @@
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 from sqlalchemy import func, or_, select
+from sqlalchemy.orm import selectinload
 
-from app.api.v1.contracts.requests.entry import (
+from app.api.v1.contracts.requests.entry_requests import (
     EntryCreateRequest,
     EntryUpdateRequest,
     SearchQueryParams,
 )
-from app.api.v1.contracts.responses.entry import (
-    PrivateEntryResponse,
+from app.api.v1.contracts.responses.entry_responses import (
+    PrivateEntryDetailsResponse,
+    PublicEntryDetailsResponse,
     PublicEntryPreviewResponse,
-    PublicEntryResponse,
 )
-from app.api.v1.contracts.responses.pagination import PaginatedResponse
+from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
+from app.api.v1.contracts.responses.share_link_responses import PrivateShareLinkResponse
 from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models import Entry
+from app.database.models.share_link_model import ShareLink
 
 router = APIRouter(prefix="/entries", tags=[Tags.entries])
 
@@ -25,14 +28,15 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    response_model=PrivateEntryResponse,
+    response_model=PrivateEntryDetailsResponse,
 )
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
     session: SessionDependency,
     current_user: RequireUser,
 ):
-    new_entry = Entry(user=current_user, **request.model_dump())
+    new_link = ShareLink(link_url=str(uuid4()))
+    new_entry = Entry(user=current_user, link=new_link, views=[], **request.model_dump())
     session.add(new_entry)
     await session.commit()
 
@@ -79,7 +83,11 @@ async def list_entries(
     )
 
 
-@router.get("/{entry_id}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{entry_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PrivateEntryDetailsResponse | PublicEntryDetailsResponse,
+)
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
@@ -92,31 +100,35 @@ async def get_entry(
             detail="Entry not found",
         )
 
+    result: Entry | None = await session.execute(
+        select(Entry)
+        .where(Entry.id == entry_id)
+        .options(selectinload(Entry.views), selectinload(Entry.link))
+    )
+    entry = result.scalar()
+
     if current_user is not None and entry.user_id == current_user.id:
-        return PrivateEntryResponse.model_validate(entry)
+        return PrivateEntryDetailsResponse.model_validate(entry)
 
     if not entry.is_public:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Entry is not public",
         )
-    return PublicEntryResponse.model_validate(entry)
+    return PublicEntryDetailsResponse.model_validate(entry)
 
 
 @router.put(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateEntryResponse,
+    response_model=PrivateEntryDetailsResponse,
 )
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
     session: SessionDependency,
-    current_user: RequireUser,
+    _: RequireUser,
 ):
-    if current_user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
     entry = await session.get(Entry, entry_id)
     if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
@@ -135,13 +147,10 @@ async def update_entry(
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
-    current_user: RequireUser,
+    _: RequireUser,
 ):
-    if current_user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-    result = await session.get(Entry, entry_id)
-    if not result:
+    entry = await session.get(Entry, entry_id)
+    if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
-    await session.delete(result)
+    await session.delete(entry)
     await session.commit()
