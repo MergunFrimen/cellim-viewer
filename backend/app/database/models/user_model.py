@@ -16,4 +16,7 @@ class User(Base, UuidMixin, TimestampMixin):
     role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"))
 
     role: Mapped["Role"] = relationship(back_populates="users")
-    entries: Mapped[list["Entry"]] = relationship(back_populates="user")
+    entries: Mapped[list["Entry"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
