@@ -16,7 +16,6 @@ from app.api.v1.contracts.responses.entry_responses import (
     PublicEntryPreviewResponse,
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
-from app.api.v1.contracts.responses.share_link_responses import PrivateShareLinkResponse
 from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models import Entry
@@ -70,6 +69,55 @@ async def list_entries(
     query = query.offset((search_query.page - 1) * search_query.per_page).limit(
         search_query.per_page
     )
+    result = await session.execute(query)
+    entries = result.scalars().all()
+    total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
+
+    return PaginatedResponse(
+        items=entries,
+        total_items=total_items,
+        page=search_query.page,
+        per_page=search_query.per_page,
+        total_pages=total_pages,
+    )
+
+
+@router.get(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[PrivateEntryDetailsResponse],
+)
+async def list_entries_for_user(
+    user_id: Annotated[UUID, Path(title="User ID")],
+    search_query: Annotated[SearchQueryParams, Query()],
+    session: SessionDependency,
+    current_user: RequireUser,
+):
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Don't have access rights",
+        )
+
+    query = select(Entry).where(Entry.user_id == user_id)
+
+    if search_query.search_term:
+        search_conditions = []
+        for term in search_query.search_term:
+            search_term = f"%{term}%"
+            search_conditions.append(
+                or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
+            )
+        if search_conditions:
+            query = query.filter(*search_conditions)
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total_items = await session.scalar(count_query)
+    query = query.order_by(Entry.created_at.desc())
+    query = query.offset((search_query.page - 1) * search_query.per_page).limit(
+        search_query.per_page
+    )
+    query = query.options(selectinload(Entry.views), selectinload(Entry.link))
     result = await session.execute(query)
     entries = result.scalars().all()
     total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
