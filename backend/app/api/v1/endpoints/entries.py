@@ -83,7 +83,7 @@ async def list_entries(
 
 
 @router.get(
-    "/{user_id}",
+    "/user/{user_id}",
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[PrivateEntryDetailsResponse],
 )
