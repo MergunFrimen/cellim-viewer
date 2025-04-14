@@ -45,5 +45,5 @@ app.add_middleware(
 app.add_middleware(
     TestAuthMiddleware,
     role=RoleEnum.user,
-    enabled=get_settings().MODE != ModeEnum.production and True,
+    enabled=get_settings().MODE != ModeEnum.production,
 )

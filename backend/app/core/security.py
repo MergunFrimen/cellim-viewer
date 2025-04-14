@@ -18,6 +18,7 @@ from app.database.session_manager import get_session_manager
 oauth2_scheme = CustomAuthorizationCodeBearer(
     authorizationUrl=f"{get_settings().API_V1_PREFIX}/token",
     tokenUrl=f"{get_settings().API_V1_PREFIX}/token",
+    auto_error=False,
 )
 
 
@@ -54,8 +55,33 @@ def get_admin_user_token():
     return create_access_token(get_admin_user_id())
 
 
-def get_current_user(allowed_roles: list[RoleEnum] | None = None) -> User:
-    async def _get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+def get_current_user(
+    required_role: RoleEnum | None = None,
+) -> User:
+    async def _get_current_user(user: str | None = Depends(get_user(required_role))) -> User:
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
+
+    return _get_current_user
+
+
+def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
+    async def _get_optional_user(user: str | None = Depends(get_user(required_role))) -> User:
+        return user
+
+    return _get_optional_user
+
+
+def get_user(required_role: RoleEnum | None = None) -> User | None:
+    async def _get_user(token: str | None = Depends(oauth2_scheme)):
+        print("token", token)
+        if token is None:
+            return None
         try:
             payload = decode_token(token)
         except ExpiredSignatureError:
@@ -83,16 +109,14 @@ def get_current_user(allowed_roles: list[RoleEnum] | None = None) -> User:
             user: User | None = result.scalar()
             if user is None:
                 raise HTTPException(
-                    status_code=404,
+                    status_code=status.HTTP_404_NOT_FOUND,
                     detail="User not found",
                 )
-            if allowed_roles is not None:
-                has_allowed_role = any(role.value == user.role.name for role in allowed_roles)
-                if not has_allowed_role:
-                    raise HTTPException(
-                        status_code=403,
-                        detail=f"Allowed access for roles: {', '.join(allowed_roles)}.",
-                    )
+            if required_role is not None and required_role.value != user.role.name:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Require {required_role.value} role for access.",
+                )
             return user
 
-    return _get_current_user
+    return _get_user
