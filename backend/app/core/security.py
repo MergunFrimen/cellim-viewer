@@ -1,10 +1,12 @@
 from datetime import timedelta
 from functools import lru_cache
-from typing import Any
+from typing import Annotated, Any, Literal
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from jwt import DecodeError, ExpiredSignatureError, MissingRequiredClaimError, decode, encode
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -15,6 +17,17 @@ from app.database.models.user_model import User
 from app.database.seeding.seed_database import get_admin_user_id, get_regular_user_id
 from app.database.session_manager import get_session_manager
 
+
+class Token(BaseModel):
+    token: str
+    token_type: Literal["access", "refresh"]
+
+
+class TokenData(BaseModel):
+    sub: UUID
+    scopes: list[str] = []
+
+
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=f"{get_settings().API_V1_PREFIX}/token",
     tokenUrl=f"{get_settings().API_V1_PREFIX}/token",
@@ -23,13 +36,15 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 )
 
 
-def create_access_token(sub: str | Any) -> str:
-    expire = utcnow() + timedelta(minutes=get_settings().JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {
-        "sub": str(sub),
-        "exp": expire,
-        "type": "access",
-    }
+def create_access_token(data: dict[str, str], expires_delta: timedelta = None) -> str:
+    to_encode = data.copy()
+
+    if expires_delta:
+        expire = utcnow() + expires_delta
+    else:
+        expire = utcnow() + timedelta(minutes=get_settings().JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_encode.update({"exp": expire})
 
     return encode(
         payload=to_encode,
@@ -48,12 +63,12 @@ def decode_token(token: str) -> dict[str, Any]:
 
 @lru_cache
 def get_regular_user_token():
-    return create_access_token(get_regular_user_id())
+    return create_access_token({"sub": get_regular_user_id()})
 
 
 @lru_cache
 def get_admin_user_token():
-    return create_access_token(get_admin_user_id())
+    return create_access_token({"sub": get_admin_user_id()})
 
 
 def get_required_user(required_role: RoleEnum | None = None) -> User:
@@ -86,7 +101,7 @@ def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
 
 
 def get_current_user(required_role: RoleEnum | None = None) -> User | None:
-    async def _get_user(token: str | None = Depends(oauth2_scheme)):
+    async def _get_user(token: Annotated[str | None, Depends(oauth2_scheme)]):
         if token is None:
             return None
         try:
@@ -119,11 +134,23 @@ def get_current_user(required_role: RoleEnum | None = None) -> User | None:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="User not found",
                 )
-            if required_role is not None and required_role.value != user.role.name:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Require {required_role.value} role for access.",
-                )
             return user
 
     return _get_user
+
+
+# TODO: anonymous
+# TODO: logged in but no roles required
+# TODO: allow only certain roles
+
+
+def check_user_roles(allowed_roles: list[RoleEnum]):
+    async def check_user(current_user: User = Depends(get_current_user)):
+        if not any(role.name != current_user.role.name for role in allowed_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions",
+            )
+        return current_user
+
+    return check_user
