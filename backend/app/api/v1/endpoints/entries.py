@@ -195,10 +195,14 @@ async def update_entry(
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
-    _: RequireUser,
+    current_user: RequireUser,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+
+    if entry.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     await session.delete(entry)
     await session.commit()
