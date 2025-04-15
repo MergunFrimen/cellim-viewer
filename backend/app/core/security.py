@@ -3,11 +3,11 @@ from functools import lru_cache
 from typing import Any
 
 from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2AuthorizationCodeBearer
 from jwt import DecodeError, ExpiredSignatureError, MissingRequiredClaimError, decode, encode
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.core.bearer import CustomAuthorizationCodeBearer
 from app.core.settings import get_settings
 from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.models.role_model import RoleEnum
@@ -15,10 +15,11 @@ from app.database.models.user_model import User
 from app.database.seeding.seed_database import get_admin_user_id, get_regular_user_id
 from app.database.session_manager import get_session_manager
 
-oauth2_scheme = CustomAuthorizationCodeBearer(
+oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=f"{get_settings().API_V1_PREFIX}/token",
     tokenUrl=f"{get_settings().API_V1_PREFIX}/token",
     auto_error=False,
+    scopes={"openid": "OpenId", "email": "Email"},
 )
 
 
@@ -65,6 +66,11 @@ def get_required_user(required_role: RoleEnum | None = None) -> User:
                 detail="Not authenticated",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        # if user.deleted_at is not None:
+        #     raise HTTPException(
+        #         status_code=400,
+        #         detail="Inactive user",
+        #     )
         return user
 
     return _get_current_user
