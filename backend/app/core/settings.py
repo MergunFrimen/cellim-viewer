@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     APP_HOST: str = "localhost"
     APP_PORT: str = "8000"
     APP_URL: str = f"http://{APP_HOST}:{APP_PORT}"
-    APP_RELOAD: bool = True
     APP_CONTACT: dict[str, str] = {
         "name": "CELLIM Viewer developers",
         "url": "https://github.com/MergunFrimen/cellim-viewer",
