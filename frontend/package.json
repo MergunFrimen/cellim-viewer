@@ -8,7 +8,7 @@
     "dev": "vite",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "generate-client": "npx @hey-api/openapi-ts --input ../backend/docs/openapi.json --output ./src/client --client @hey-api/client-fetch",
+    "openapi-ts": "openapi-ts",
     "preview": "vite preview",
     "repomix": "npx repomix --ignore 'src/data,src/components/ui/*,index.css,README.md' --copy --output repopack.txt && rm -f repopack.txt"
   },
