@@ -65,6 +65,13 @@ uvx pre-commit install
 
 ## Database
 
+### Docker
+
+```shell
+cd docker
+docker-compose up --build
+```
+
 ### Init
 
 ```shell
