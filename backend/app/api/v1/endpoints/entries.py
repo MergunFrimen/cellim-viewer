@@ -166,6 +166,19 @@ async def get_entry(
     return PublicEntryDetailsResponse.model_validate(entry)
 
 
+@router.get(
+    "/share/{share_link}",
+    status_code=status.HTTP_200_OK,
+)
+async def get_entry_by_share_link(
+    share_link_id: Annotated[UUID, Path(title="Share Link")],
+    session: SessionDependency,
+):
+    share_link = await session.get(ShareLink, share_link_id)
+    if not share_link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+
+
 @router.put(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,

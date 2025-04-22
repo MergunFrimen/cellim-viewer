@@ -3,7 +3,7 @@ from functools import lru_cache
 import httpx
 from fastapi import APIRouter, BackgroundTasks
 
-router = APIRouter(prefix="/test", tags=["tags"])
+router = APIRouter(prefix="/test", tags=["Test"])
 
 
 class AirportService:

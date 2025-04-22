@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.api.v1.contracts.responses.common import DebugModelName, Timestamp, Uuid
 
 
-class ViewResponse(Uuid, BaseModel):
+class ViewResponse(Uuid, Timestamp, BaseModel):
     name: str = Field(max_length=255)
     description: str | None = None
     # TODO: update with HttpUrl
@@ -21,5 +21,5 @@ class PublicViewResponse(ViewResponse, DebugModelName, BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class PrivateViewResponse(Timestamp, ViewResponse, DebugModelName, BaseModel):
+class PrivateViewResponse(ViewResponse, DebugModelName, BaseModel):
     model_config = ConfigDict(from_attributes=True)
