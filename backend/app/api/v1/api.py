@@ -11,8 +11,8 @@ from app.core.settings import get_settings
 
 v1_api_router = APIRouter(prefix=get_settings().API_V1_PREFIX)
 
-v1_api_router.include_router(auth_endpoint.router)
 v1_api_router.include_router(entry_endpoint.router)
 v1_api_router.include_router(view_endpoint.router)
 v1_api_router.include_router(share_link_endpoint.router)
+v1_api_router.include_router(auth_endpoint.router)
 v1_api_router.include_router(test_endpoint.router)

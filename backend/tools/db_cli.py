@@ -102,14 +102,11 @@ def reset(
 def main():
     """
     CELLIM Viewer Database Management CLI
-
-    Manage your CELLIM Viewer database with ease.
     """
     # Display welcome message
     rprint(
         Panel.fit(
             "[bold blue]CELLIM Viewer Database Management[/]",
-            subtitle="[italic]Manage your database with ease[/]",
         )
     )
 

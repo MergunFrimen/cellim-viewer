@@ -36,6 +36,7 @@ class Settings(BaseSettings):
         "name": "Apache 2.0",
         "identifier": "MIT",
     }
+    OPENAPI_URL: str = f"{API_V1_PREFIX}/openapi.json"
 
     # CORS
     CORS_ORIGINS: list[str] = [

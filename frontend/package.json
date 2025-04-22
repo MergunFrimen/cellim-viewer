@@ -8,7 +8,7 @@
     "dev": "vite",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "openapi-generator": "npx @openapitools/openapi-generator-cli generate -i 'http://localhost:8000/openapi.json' -g typescript-fetch -o src/client",
+    "generate-client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client --client fetch",
     "preview": "vite preview",
     "repomix": "npx repomix --ignore 'src/data,src/components/ui/*,index.css,README.md' --copy --output repopack.txt && rm -f repopack.txt"
   },
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@hey-api/openapi-ts": "^0.66.5",
     "@openapitools/openapi-generator-cli": "^2.18.4",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",

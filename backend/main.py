@@ -27,7 +27,7 @@ app = FastAPI(
     contact=get_settings().APP_CONTACT,
     license_info=get_settings().APP_LICENCE,
     openapi_tags=v1_tags_metadata,
-    openapi_url=f"{get_settings().API_V1_PREFIX}/openapi.json",
+    openapi_url=get_settings().OPENAPI_URL,
     lifespan=lifespan,
 )
 
