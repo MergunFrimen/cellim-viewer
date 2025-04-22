@@ -194,11 +194,19 @@ async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
     session: SessionDependency,
-    _: RequireUser,
+    current_user: RequireUser,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
+
+    if entry.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
 
     for key, value in request.model_dump(exclude_unset=True).items():
         setattr(entry, key, value)
@@ -218,7 +226,10 @@ async def delete_entry(
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
 
     if entry.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

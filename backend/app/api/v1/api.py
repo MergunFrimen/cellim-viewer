@@ -1,11 +1,18 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, entries, test, views
+from app.api.v1.endpoints import (
+    auth_endpoint,
+    entry_endpoint,
+    share_link_endpoint,
+    test_endpoint,
+    view_endpoint,
+)
 from app.core.settings import get_settings
 
 v1_api_router = APIRouter(prefix=get_settings().API_V1_PREFIX)
 
-v1_api_router.include_router(auth.router)
-v1_api_router.include_router(entries.router)
-v1_api_router.include_router(views.router)
-v1_api_router.include_router(test.router)
+v1_api_router.include_router(auth_endpoint.router)
+v1_api_router.include_router(entry_endpoint.router)
+v1_api_router.include_router(view_endpoint.router)
+v1_api_router.include_router(share_link_endpoint.router)
+v1_api_router.include_router(test_endpoint.router)

@@ -5,6 +5,7 @@ class Tags(Enum):
     auth = "Auth"
     entries = "Entries"
     files = "Files"
+    share_links = "Share Links"
     views = "Views"
 
 
