@@ -83,23 +83,16 @@ async def list_entries(
 
 
 @router.get(
-    "/user/{user_id}",
+    "/user",
     status_code=status.HTTP_200_OK,
     response_model=PaginatedResponse[PrivateEntryDetailsResponse],
 )
 async def list_entries_for_user(
-    user_id: Annotated[UUID, Path(title="User ID")],
     search_query: Annotated[SearchQueryParams, Query()],
     session: SessionDependency,
     current_user: RequireUser,
 ):
-    if current_user.id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Don't have access rights",
-        )
-
-    query = select(Entry).where(Entry.user_id == user_id)
+    query = select(Entry).where(Entry.user_id == current_user.id)
 
     if search_query.search_term:
         search_conditions = []
@@ -167,7 +160,7 @@ async def get_entry(
 
 
 @router.get(
-    "/share/{share_link}",
+    "/share/{share_link_id}",
     status_code=status.HTTP_200_OK,
 )
 async def get_entry_by_share_link(
@@ -176,7 +169,20 @@ async def get_entry_by_share_link(
 ):
     share_link = await session.get(ShareLink, share_link_id)
     if not share_link:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entry not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found")
+    if not share_link.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Link is not active")
+
+    result: Entry | None = await session.execute(
+        select(Entry)
+        .where(Entry.id == share_link.entry_id)
+        .options(selectinload(Entry.views), selectinload(Entry.link))
+    )
+    entry = result.scalar()
+
+    if share_link.is_editable:
+        return PrivateEntryDetailsResponse.model_validate(entry)
+    return PublicEntryDetailsResponse.model_validate(entry)
 
 
 @router.put(

@@ -15,6 +15,6 @@ class Role(Base, UuidMixin):
     __tablename__ = "roles"
 
     name: Mapped[str] = mapped_column(unique=True)
-    description: Mapped[str | None]
+    description: Mapped[str | None] = mapped_column(default=None)
 
     users: Mapped[list["User"]] = relationship(back_populates="role")

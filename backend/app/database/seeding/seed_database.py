@@ -97,9 +97,8 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                 #
                 link = ShareLink(
                     id=fake.uuid4(),
-                    link_url=fake.image_url(),
-                    editable=random.random() < 0.5,
-                    active=random.random() < 0.8,
+                    is_editable=random.random() < 0.5,
+                    is_active=random.random() < 0.8,
                     entry=entry,
                 )
                 session.add(link)
