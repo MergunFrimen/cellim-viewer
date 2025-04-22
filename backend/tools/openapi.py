@@ -24,7 +24,7 @@ def fix_operation_ids():
 
     async def _fix_operation_ids():
         with console.status("[bold blue]Fixing operation IDs...[/]"):
-            file_path = Path("./openapi.json")
+            file_path = Path("./docs/openapi.json")
             openapi_url = f"{get_settings().APP_URL}{get_settings().OPENAPI_URL}"
             print(openapi_url)
             response = await httpx.AsyncClient().get(openapi_url)
