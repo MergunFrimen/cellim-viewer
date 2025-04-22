@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRoute
 
 from app.api.v1.api import v1_api_router
 from app.api.v1.tags import v1_tags_metadata
@@ -9,6 +10,10 @@ from app.core.settings import ModeEnum, get_settings
 from app.database.models.role_model import RoleEnum
 from app.database.session_manager import get_session_manager
 from app.middleware.test_auth_middleware import TestAuthMiddleware
+
+
+def generate_unique_id_function(route: APIRoute):
+    return f"{route.tags[0]}-{route.name}"
 
 
 @asynccontextmanager
@@ -28,6 +33,7 @@ app = FastAPI(
     license_info=get_settings().APP_LICENCE,
     openapi_tags=v1_tags_metadata,
     openapi_url=get_settings().OPENAPI_URL,
+    generate_unique_id_function=generate_unique_id_function,
     lifespan=lifespan,
 )
 

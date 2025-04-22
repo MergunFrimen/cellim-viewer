@@ -8,6 +8,9 @@ class Tags(Enum):
     share_links = "Share Links"
     views = "Views"
 
+    def __str__(self):
+        return super().value.lower()
+
 
 v1_tags_metadata = [
     # {
