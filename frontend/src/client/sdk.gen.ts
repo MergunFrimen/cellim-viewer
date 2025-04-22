@@ -63,6 +63,21 @@ import {
   viewsCreateViewResponseTransformer,
   viewsUpdateViewResponseTransformer,
 } from "./transformers.gen";
+import {
+  zEntriesListEntriesResponse,
+  zEntriesCreateEntryResponse,
+  zEntriesListEntriesForUserResponse,
+  zEntriesDeleteEntryResponse,
+  zEntriesGetEntryResponse,
+  zEntriesUpdateEntryResponse,
+  zViewsListViewsForEntryResponse,
+  zViewsCreateViewResponse,
+  zViewsDeleteViewResponse,
+  zViewsGetViewResponse,
+  zViewsUpdateViewResponse,
+  zShareLinksGetShareLinkResponse,
+  zShareLinksUpdateShareLinkResponse,
+} from "./zod.gen";
 import { client as _heyApiClient } from "./client.gen";
 
 export type Options<
@@ -94,6 +109,9 @@ export const entriesListEntries = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseTransformer: entriesListEntriesResponseTransformer,
+    responseValidator: async (data) => {
+      return await zEntriesListEntriesResponse.parseAsync(data);
+    },
     url: "/api/v1/entries",
     ...options,
   });
@@ -117,6 +135,9 @@ export const entriesCreateEntry = <ThrowOnError extends boolean = false>(
       },
     ],
     responseTransformer: entriesCreateEntryResponseTransformer,
+    responseValidator: async (data) => {
+      return await zEntriesCreateEntryResponse.parseAsync(data);
+    },
     url: "/api/v1/entries",
     ...options,
     headers: {
@@ -144,6 +165,9 @@ export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
       },
     ],
     responseTransformer: entriesListEntriesForUserResponseTransformer,
+    responseValidator: async (data) => {
+      return await zEntriesListEntriesForUserResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/user",
     ...options,
   });
@@ -166,6 +190,9 @@ export const entriesDeleteEntry = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zEntriesDeleteEntryResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}",
     ...options,
   });
@@ -188,6 +215,9 @@ export const entriesGetEntry = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zEntriesGetEntryResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}",
     ...options,
   });
@@ -211,6 +241,9 @@ export const entriesUpdateEntry = <ThrowOnError extends boolean = false>(
       },
     ],
     responseTransformer: entriesUpdateEntryResponseTransformer,
+    responseValidator: async (data) => {
+      return await zEntriesUpdateEntryResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}",
     ...options,
     headers: {
@@ -255,6 +288,9 @@ export const viewsListViewsForEntry = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zViewsListViewsForEntryResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}/views",
     ...options,
   });
@@ -279,6 +315,9 @@ export const viewsCreateView = <ThrowOnError extends boolean = false>(
       },
     ],
     responseTransformer: viewsCreateViewResponseTransformer,
+    responseValidator: async (data) => {
+      return await zViewsCreateViewResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}/views",
     ...options,
     headers: {
@@ -305,6 +344,9 @@ export const viewsDeleteView = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zViewsDeleteViewResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}/views/{view_id}",
     ...options,
   });
@@ -327,6 +369,9 @@ export const viewsGetView = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zViewsGetViewResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}/views/{view_id}",
     ...options,
   });
@@ -344,6 +389,9 @@ export const viewsUpdateView = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseTransformer: viewsUpdateViewResponseTransformer,
+    responseValidator: async (data) => {
+      return await zViewsUpdateViewResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/{entry_id}/views/{view_id}",
     ...options,
     headers: {
@@ -370,6 +418,9 @@ export const shareLinksGetShareLink = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zShareLinksGetShareLinkResponse.parseAsync(data);
+    },
     url: "/api/v1/share_links/{share_link_id}",
     ...options,
   });
@@ -392,6 +443,9 @@ export const shareLinksUpdateShareLink = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
+    responseValidator: async (data) => {
+      return await zShareLinksUpdateShareLinkResponse.parseAsync(data);
+    },
     url: "/api/v1/share_links/{share_link_id}",
     ...options,
     headers: {

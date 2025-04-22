@@ -627,5 +627,5 @@ export type TestBackgroundTaskResponses = {
 };
 
 export type ClientOptions = {
-  baseUrl: "http://127.0.0.1:8000" | (string & {});
+  baseUrl: "http://0.0.0.0:8000" | (string & {});
 };

@@ -5,7 +5,6 @@ export const EntryCreateRequestSchema = {
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["Entry Name"],
     },
     description: {
@@ -17,18 +16,15 @@ export const EntryCreateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["Markdown description."],
     },
     is_public: {
       type: "boolean",
-      title: "Is Public",
       default: false,
     },
   },
   type: "object",
   required: ["name"],
-  title: "EntryCreateRequest",
 } as const;
 
 export const EntryUpdateRequestSchema = {
@@ -43,7 +39,6 @@ export const EntryUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Name",
       examples: ["Entry Name"],
     },
     description: {
@@ -55,7 +50,6 @@ export const EntryUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["Markdown description."],
     },
     is_public: {
@@ -67,11 +61,9 @@ export const EntryUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Is Public",
     },
   },
   type: "object",
-  title: "EntryUpdateRequest",
 } as const;
 
 export const HTTPValidationErrorSchema = {
@@ -81,11 +73,9 @@ export const HTTPValidationErrorSchema = {
         $ref: "#/components/schemas/ValidationError",
       },
       type: "array",
-      title: "Detail",
     },
   },
   type: "object",
-  title: "HTTPValidationError",
 } as const;
 
 export const PaginatedResponse_PrivateEntryDetailsResponse_Schema = {
@@ -93,35 +83,29 @@ export const PaginatedResponse_PrivateEntryDetailsResponse_Schema = {
     current_page: {
       type: "integer",
       minimum: 1,
-      title: "Current Page",
       default: 1,
     },
     per_page: {
       type: "integer",
       maximum: 100,
       minimum: 1,
-      title: "Per Page",
       default: 100,
     },
     total_pages: {
       type: "integer",
-      title: "Total Pages",
     },
     total_items: {
       type: "integer",
-      title: "Total Items",
     },
     items: {
       items: {
         $ref: "#/components/schemas/PrivateEntryDetailsResponse",
       },
       type: "array",
-      title: "Items",
     },
   },
   type: "object",
   required: ["total_pages", "total_items", "items"],
-  title: "PaginatedResponse[PrivateEntryDetailsResponse]",
 } as const;
 
 export const PaginatedResponse_PublicEntryPreviewResponse_Schema = {
@@ -129,66 +113,55 @@ export const PaginatedResponse_PublicEntryPreviewResponse_Schema = {
     current_page: {
       type: "integer",
       minimum: 1,
-      title: "Current Page",
       default: 1,
     },
     per_page: {
       type: "integer",
       maximum: 100,
       minimum: 1,
-      title: "Per Page",
       default: 100,
     },
     total_pages: {
       type: "integer",
-      title: "Total Pages",
     },
     total_items: {
       type: "integer",
-      title: "Total Items",
     },
     items: {
       items: {
         $ref: "#/components/schemas/PublicEntryPreviewResponse",
       },
       type: "array",
-      title: "Items",
     },
   },
   type: "object",
   required: ["total_pages", "total_items", "items"],
-  title: "PaginatedResponse[PublicEntryPreviewResponse]",
 } as const;
 
 export const PrivateEntryDetailsResponseSchema = {
   properties: {
     response_model: {
       type: "string",
-      title: "Response Model",
       default: "",
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["Entry Name"],
     },
     description: {
@@ -200,7 +173,6 @@ export const PrivateEntryDetailsResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["Markdown description."],
     },
     thumbnail_url: {
@@ -212,19 +184,16 @@ export const PrivateEntryDetailsResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
       examples: ["URL for entry thumbnail preview"],
     },
     is_public: {
       type: "boolean",
-      title: "Is Public",
     },
     views: {
       items: {
         $ref: "#/components/schemas/PrivateViewResponse",
       },
       type: "array",
-      title: "Views",
     },
     link: {
       $ref: "#/components/schemas/PrivateShareLinkResponse",
@@ -240,7 +209,6 @@ export const PrivateEntryDetailsResponseSchema = {
     "views",
     "link",
   ],
-  title: "PrivateEntryDetailsResponse",
 } as const;
 
 export const PrivateShareLinkResponseSchema = {
@@ -248,52 +216,43 @@ export const PrivateShareLinkResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     is_editable: {
       type: "boolean",
-      title: "Is Editable",
     },
     is_active: {
       type: "boolean",
-      title: "Is Active",
     },
   },
   type: "object",
   required: ["id", "is_editable", "is_active"],
-  title: "PrivateShareLinkResponse",
 } as const;
 
 export const PrivateViewResponseSchema = {
   properties: {
     response_model: {
       type: "string",
-      title: "Response Model",
       default: "",
     },
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
     },
     description: {
       anyOf: [
@@ -304,7 +263,6 @@ export const PrivateViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
     },
     thumbnail_url: {
       anyOf: [
@@ -316,7 +274,6 @@ export const PrivateViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
     },
     snapshot_url: {
       anyOf: [
@@ -328,43 +285,36 @@ export const PrivateViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Snapshot Url",
     },
   },
   type: "object",
   required: ["created_at", "updated_at", "id", "name"],
-  title: "PrivateViewResponse",
 } as const;
 
 export const PublicEntryDetailsResponseSchema = {
   properties: {
     response_model: {
       type: "string",
-      title: "Response Model",
       default: "",
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["Entry Name"],
     },
     description: {
@@ -376,7 +326,6 @@ export const PublicEntryDetailsResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["Markdown description."],
     },
     thumbnail_url: {
@@ -388,7 +337,6 @@ export const PublicEntryDetailsResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
       examples: ["URL for entry thumbnail preview"],
     },
     views: {
@@ -396,43 +344,36 @@ export const PublicEntryDetailsResponseSchema = {
         $ref: "#/components/schemas/PublicViewResponse",
       },
       type: "array",
-      title: "Views",
     },
   },
   type: "object",
   required: ["id", "created_at", "updated_at", "name", "views"],
-  title: "PublicEntryDetailsResponse",
 } as const;
 
 export const PublicEntryPreviewResponseSchema = {
   properties: {
     response_model: {
       type: "string",
-      title: "Response Model",
       default: "",
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["Entry Name"],
     },
     description: {
@@ -444,7 +385,6 @@ export const PublicEntryPreviewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["Markdown description."],
     },
     thumbnail_url: {
@@ -456,44 +396,37 @@ export const PublicEntryPreviewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
       examples: ["URL for entry thumbnail preview"],
     },
   },
   type: "object",
   required: ["id", "created_at", "updated_at", "name"],
-  title: "PublicEntryPreviewResponse",
 } as const;
 
 export const PublicViewResponseSchema = {
   properties: {
     response_model: {
       type: "string",
-      title: "Response Model",
       default: "",
     },
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
     },
     description: {
       anyOf: [
@@ -504,7 +437,6 @@ export const PublicViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
     },
     thumbnail_url: {
       anyOf: [
@@ -516,7 +448,6 @@ export const PublicViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
     },
     snapshot_url: {
       anyOf: [
@@ -528,12 +459,10 @@ export const PublicViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Snapshot Url",
     },
   },
   type: "object",
   required: ["created_at", "updated_at", "id", "name"],
-  title: "PublicViewResponse",
 } as const;
 
 export const ShareLinkUpdateRequestSchema = {
@@ -547,7 +476,6 @@ export const ShareLinkUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Is Editable",
     },
     is_active: {
       anyOf: [
@@ -558,11 +486,9 @@ export const ShareLinkUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Is Active",
     },
   },
   type: "object",
-  title: "ShareLinkUpdateRequest",
 } as const;
 
 export const ValidationErrorSchema = {
@@ -579,20 +505,16 @@ export const ValidationErrorSchema = {
         ],
       },
       type: "array",
-      title: "Location",
     },
     msg: {
       type: "string",
-      title: "Message",
     },
     type: {
       type: "string",
-      title: "Error Type",
     },
   },
   type: "object",
   required: ["loc", "msg", "type"],
-  title: "ValidationError",
 } as const;
 
 export const ViewCreateRequestSchema = {
@@ -600,7 +522,6 @@ export const ViewCreateRequestSchema = {
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["View Name"],
     },
     description: {
@@ -613,14 +534,11 @@ export const ViewCreateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["View Description"],
     },
     snapshot_json: {
       type: "string",
       format: "binary",
-      title: "Snapshot Json",
-      description: "Mol* state file (.molj file)",
     },
     thumbnail_image: {
       anyOf: [
@@ -632,13 +550,10 @@ export const ViewCreateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Image",
-      description: "Thumbnail image for view",
     },
   },
   type: "object",
   required: ["name", "snapshot_json"],
-  title: "ViewCreateRequest",
 } as const;
 
 export const ViewResponseSchema = {
@@ -646,25 +561,21 @@ export const ViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      title: "Created At",
       examples: ["2025-04-22 20:35:58.840457+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      title: "Updated At",
       examples: ["2025-04-22 20:35:58.840547+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      title: "Id",
       examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
     },
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
     },
     description: {
       anyOf: [
@@ -675,7 +586,6 @@ export const ViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Description",
     },
     thumbnail_url: {
       anyOf: [
@@ -687,7 +597,6 @@ export const ViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Thumbnail Url",
     },
     snapshot_url: {
       anyOf: [
@@ -699,12 +608,10 @@ export const ViewResponseSchema = {
           type: "null",
         },
       ],
-      title: "Snapshot Url",
     },
   },
   type: "object",
   required: ["created_at", "updated_at", "id", "name"],
-  title: "ViewResponse",
 } as const;
 
 export const ViewUpdateRequestSchema = {
@@ -712,7 +619,6 @@ export const ViewUpdateRequestSchema = {
     name: {
       type: "string",
       maxLength: 255,
-      title: "Name",
       examples: ["View Name"],
     },
     description: {
@@ -725,11 +631,9 @@ export const ViewUpdateRequestSchema = {
           type: "null",
         },
       ],
-      title: "Description",
       examples: ["View Description"],
     },
   },
   type: "object",
   required: ["name"],
-  title: "ViewUpdateRequest",
 } as const;
