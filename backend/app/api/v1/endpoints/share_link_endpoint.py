@@ -20,7 +20,7 @@ router = APIRouter(prefix="/share_links", tags=[Tags.share_links])
     status_code=status.HTTP_200_OK,
     response_model=PrivateShareLinkResponse,
 )
-async def get_entry(
+async def get_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
     current_user: RequireUser,
@@ -36,7 +36,7 @@ async def get_entry(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
         )
-        
+
     print(share_link.entry.user.id)
     print(current_user.id)
 
@@ -53,7 +53,7 @@ async def get_entry(
     status_code=status.HTTP_200_OK,
     response_model=PrivateShareLinkResponse,
 )
-async def get_entry(
+async def update_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ShareLinkUpdateRequest, Body()],
     session: SessionDependency,
