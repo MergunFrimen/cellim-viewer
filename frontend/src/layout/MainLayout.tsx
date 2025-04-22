@@ -1,9 +1,9 @@
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "./theme/ThemeToggle";
-import { Button } from "./ui/button";
 
-export function Layout({ children }: { children: ReactNode | ReactNode[] }) {
+export function MainLayout({ children }: { children: ReactNode | ReactNode[] }) {
   return (
     <div className="min-h-screen">
       <header className="container mx-auto flex flex-row justify-between p-2">

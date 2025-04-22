@@ -1,4 +1,4 @@
-import { useMolstar } from "@/context/MolstarContext";
+import { useMolstar } from "@/contexts/MolstarProvider";
 import { useBehavior } from "@/hooks/useBehavior";
 import { useEffect } from "react";
 import { ViewerLayout } from "./ViewerLayout";

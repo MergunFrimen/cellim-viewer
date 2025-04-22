@@ -1,5 +1,5 @@
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 from sqlalchemy import func, or_, select
@@ -34,7 +34,7 @@ async def create_entry(
     session: SessionDependency,
     current_user: RequireUser,
 ):
-    new_link = ShareLink(link_url=str(uuid4()))
+    new_link = ShareLink()
     new_entry = Entry(user=current_user, link=new_link, views=[], **request.model_dump())
     session.add(new_entry)
     await session.commit()

@@ -4,8 +4,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Toaster } from "sonner";
 import { App } from "./App.tsx";
-import { MolstarProvider } from "./context/MolstarContext.tsx";
-import { ThemeProvider } from "./context/ThemeProvider.tsx";
+import { MolstarProvider } from "./contexts/MolstarProvider.tsx";
+import { ThemeProvider } from "./contexts/ThemeProvider.tsx";
 
 import "./index.css";
 

@@ -1,5 +1,4 @@
 // src/components/views/SaveViewDialog.tsx
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useMolstar } from "@/contexts/MolstarProvider";
 import { Camera } from "lucide-react";
-import { useMolstar } from "@/context/MolstarContext";
+import { useState } from "react";
 
 interface SaveViewDialogProps {
   open: boolean;
@@ -23,16 +23,18 @@ interface SaveViewDialogProps {
   screenshotPreview?: string;
 }
 
-export function SaveViewDialog({ 
-  open, 
-  onOpenChange, 
-  onSave, 
-  screenshotPreview 
+export function SaveViewDialog({
+  open,
+  onOpenChange,
+  onSave,
+  screenshotPreview,
 }: SaveViewDialogProps) {
   const { viewer } = useMolstar();
   const [viewName, setViewName] = useState("");
   const [viewDescription, setViewDescription] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(screenshotPreview);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
+    screenshotPreview,
+  );
 
   // Take a screenshot when the dialog opens
   const captureScreenshot = async () => {
@@ -76,16 +78,16 @@ export function SaveViewDialog({
             Provide a name and description for this view
           </AlertDialogDescription>
         </AlertDialogHeader>
-        
+
         {/* Screenshot Preview */}
         <div className="my-2">
           <Label htmlFor="preview">Preview</Label>
           <div className="aspect-video mt-2 bg-secondary rounded-md overflow-hidden flex items-center justify-center">
             {previewUrl ? (
-              <img 
-                src={previewUrl} 
-                alt="View preview" 
-                className="w-full h-full object-cover" 
+              <img
+                src={previewUrl}
+                alt="View preview"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -95,7 +97,7 @@ export function SaveViewDialog({
             )}
           </div>
         </div>
-        
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
