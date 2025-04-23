@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "openapi-ts": "openapi-ts",
     "preview": "vite preview",
-    "repomix": "npx repomix --ignore 'src/data,src/components/ui/*,index.css,README.md' --copy --output repopack.txt && rm -f repopack.txt",
+    "repomix": "npx repomix --ignore 'src/components/ui/*,index.css,README.md' --copy --output repopack.txt && rm -f repopack.txt",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -109,6 +109,11 @@
   "eslintConfig": {
     "extends": [
       "plugin:storybook/recommended"
+    ]
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
     ]
   }
 }

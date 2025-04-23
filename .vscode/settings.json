@@ -15,14 +15,14 @@
     },
     "[typescript]": {
         "editor.codeActionsOnSave": {
-            "source.removeUnusedImports": "always",
-            "source.sortImports": "always",
+            "source.removeUnusedImports": "never",
+            "source.sortImports": "never",
         }
     },
     "[typescriptreact]": {
         "editor.codeActionsOnSave": {
-            "source.removeUnusedImports": "explicit",
-            "source.sortImports": "explicit",
+            "source.removeUnusedImports": "never",
+            "source.sortImports": "never",
         }
     },
     "python.analysis.extraPaths": [
