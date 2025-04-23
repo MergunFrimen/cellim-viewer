@@ -162,6 +162,7 @@ async def get_entry(
 @router.get(
     "/share/{share_link_id}",
     status_code=status.HTTP_200_OK,
+    response_model=PrivateEntryDetailsResponse | PublicEntryDetailsResponse,
 )
 async def get_entry_by_share_link(
     share_link_id: Annotated[UUID, Path(title="Share Link")],

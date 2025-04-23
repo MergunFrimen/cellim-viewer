@@ -6,7 +6,7 @@ export default defineConfig({
   // input: "../backend/docs/openapi.json",
   input: `${API_BASE_URL}/openapi.json`,
   output: {
-    path: "./src/client",
+    path: "./src/lib/client",
     format: "prettier",
     lint: "eslint",
   },

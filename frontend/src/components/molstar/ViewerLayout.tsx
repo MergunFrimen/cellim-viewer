@@ -1,5 +1,5 @@
 import { useBehavior } from "@/hooks/useBehavior";
-import { MolstarViewerModel } from "@/models/molstar-viewer";
+import { MolstarViewerModel } from "@/lib/models/molstar-viewer";
 import { LeftPanelControls } from "molstar/lib/commonjs/mol-plugin-ui/left-panel";
 import {
   ControlsWrapper,

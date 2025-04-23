@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/react";
-
+import React from "react";
+import { ThemeProvider } from "../src/contexts/ThemeProvider";
 import "../src/index.css";
 
 const preview: Preview = {
@@ -10,7 +11,15 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    layout: "centered",
   },
+  decorators: [
+    (Story) => (
+      <ThemeProvider defaultTheme="system" storageKey="theme">
+        <Story />
+      </ThemeProvider>
+    ),
+  ],
 };
 
 export default preview;

@@ -1,4 +1,4 @@
-import { BaseReactiveModel } from "@/models/base-model";
+import { BaseReactiveModel } from "@/lib/models/base-model";
 import { useEffect } from "react";
 
 export function useReactiveModel<T extends BaseReactiveModel>(

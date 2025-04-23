@@ -1,4 +1,4 @@
-import { MolstarViewerModel } from "@/models/molstar-viewer";
+import { MolstarViewerModel } from "@/lib/models/molstar-viewer";
 import { createContext, useContext, useRef } from "react";
 
 interface MolstarContextType {

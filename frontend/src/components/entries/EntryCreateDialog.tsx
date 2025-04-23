@@ -1,4 +1,3 @@
-import { entriesApi } from "@/api/clients/entry-client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,7 +18,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { entryFormSchema, EntryFormValues } from "@/lib/form-schemas";
+import {
+  EntriesCreateEntryResponse,
+  EntryCreateRequest,
+  zEntryCreateRequest,
+} from "@/lib/client";
+import { entriesCreateEntryMutation } from "@/lib/client/@tanstack/react-query.gen";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
@@ -39,8 +43,8 @@ export function EntryCreateDialog({
 }: EntryCreateDialogProps) {
   const navigate = useNavigate();
 
-  const form = useForm<EntryFormValues>({
-    resolver: zodResolver(entryFormSchema),
+  const form = useForm<EntryCreateRequest>({
+    resolver: zodResolver(zEntryCreateRequest),
     defaultValues: {
       name: "",
       description: "",
@@ -49,11 +53,10 @@ export function EntryCreateDialog({
   });
 
   const mutation = useMutation({
-    mutationFn: (data: EntryFormValues) => entriesApi.create(data),
-    onSuccess: (entry) => {
+    ...entriesCreateEntryMutation(),
+    onSuccess: (entry: EntriesCreateEntryResponse) => {
       toast.success(`Entry "${entry.name}" created successfully`);
       onOpenChange(false);
-      // Redirect to the newly created entry's details page
       navigate(`/entries/${entry.id}`);
     },
     onError: (error) => {
@@ -64,7 +67,7 @@ export function EntryCreateDialog({
     },
   });
 
-  const handleSubmit = (data: EntryFormValues) => {
+  const handleSubmit = (data) => {
     mutation.mutate(data);
   };
 
