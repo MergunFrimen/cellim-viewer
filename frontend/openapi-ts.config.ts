@@ -4,7 +4,7 @@ import { API_BASE_URL } from "./src/config/dev-config";
 export default defineConfig({
   // watch: true,
   // input: "../backend/docs/openapi.json",
-  input: `${API_BASE_URL}/openapi.json`,
+  input: `http://127.0.0.1:8000/api/v1/openapi.json`,
   output: {
     path: "./src/lib/client",
     format: "prettier",

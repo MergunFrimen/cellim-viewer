@@ -14,70 +14,31 @@ export const zEntryUpdateRequest = z.object({
   is_public: z.union([z.boolean(), z.null()]).optional(),
 });
 
+export const zValidationError = z.object({
+  loc: z.array(z.unknown()),
+  msg: z.string(),
+  type: z.string(),
+});
+
 export const zHttpValidationError = z.object({
-  detail: z
-    .array(
-      z.object({
-        loc: z.array(z.unknown()),
-        msg: z.string(),
-        type: z.string(),
-      }),
-    )
-    .optional(),
+  detail: z.array(zValidationError).optional(),
 });
 
-export const zPaginatedResponsePrivateEntryDetailsResponse = z.object({
-  current_page: z.number().int().gte(1).optional().default(1),
-  per_page: z.number().int().gte(1).lte(100).optional().default(100),
-  total_pages: z.number().int(),
-  total_items: z.number().int(),
-  items: z.array(
-    z.object({
-      response_model: z.string().optional().default(""),
-      id: z.string(),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
-      name: z.string().max(255),
-      description: z.union([z.string(), z.null()]).optional(),
-      thumbnail_url: z.union([z.string(), z.null()]).optional(),
-      is_public: z.boolean(),
-      views: z.array(
-        z.object({
-          response_model: z.string().optional().default(""),
-          created_at: z.string().datetime(),
-          updated_at: z.string().datetime(),
-          id: z.string(),
-          name: z.string().max(255),
-          description: z.union([z.string(), z.null()]).optional(),
-          thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-          snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
-        }),
-      ),
-      link: z.object({
-        id: z.string(),
-        is_editable: z.boolean(),
-        is_active: z.boolean(),
-      }),
-    }),
-  ),
+export const zPrivateViewResponse = z.object({
+  response_model: z.string().optional().default(""),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  id: z.string(),
+  name: z.string().max(255),
+  description: z.union([z.string(), z.null()]).optional(),
+  thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
+  snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
 });
 
-export const zPaginatedResponsePublicEntryPreviewResponse = z.object({
-  current_page: z.number().int().gte(1).optional().default(1),
-  per_page: z.number().int().gte(1).lte(100).optional().default(100),
-  total_pages: z.number().int(),
-  total_items: z.number().int(),
-  items: z.array(
-    z.object({
-      response_model: z.string().optional().default(""),
-      id: z.string(),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
-      name: z.string().max(255),
-      description: z.union([z.string(), z.null()]).optional(),
-      thumbnail_url: z.union([z.string(), z.null()]).optional(),
-    }),
-  ),
+export const zPrivateShareLinkResponse = z.object({
+  id: z.string(),
+  is_editable: z.boolean(),
+  is_active: z.boolean(),
 });
 
 export const zPrivateEntryDetailsResponse = z.object({
@@ -89,32 +50,37 @@ export const zPrivateEntryDetailsResponse = z.object({
   description: z.union([z.string(), z.null()]).optional(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
   is_public: z.boolean(),
-  views: z.array(
-    z.object({
-      response_model: z.string().optional().default(""),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
-      id: z.string(),
-      name: z.string().max(255),
-      description: z.union([z.string(), z.null()]).optional(),
-      thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-      snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
-    }),
-  ),
-  link: z.object({
-    id: z.string(),
-    is_editable: z.boolean(),
-    is_active: z.boolean(),
-  }),
+  views: z.array(zPrivateViewResponse),
+  link: zPrivateShareLinkResponse,
 });
 
-export const zPrivateShareLinkResponse = z.object({
+export const zPaginatedResponsePrivateEntryDetailsResponse = z.object({
+  current_page: z.number().int().gte(1).optional().default(1),
+  per_page: z.number().int().gte(1).lte(100).optional().default(100),
+  total_pages: z.number().int(),
+  total_items: z.number().int(),
+  items: z.array(zPrivateEntryDetailsResponse),
+});
+
+export const zPublicEntryPreviewResponse = z.object({
+  response_model: z.string().optional().default(""),
   id: z.string(),
-  is_editable: z.boolean(),
-  is_active: z.boolean(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  name: z.string().max(255),
+  description: z.union([z.string(), z.null()]).optional(),
+  thumbnail_url: z.union([z.string(), z.null()]).optional(),
 });
 
-export const zPrivateViewResponse = z.object({
+export const zPaginatedResponsePublicEntryPreviewResponse = z.object({
+  current_page: z.number().int().gte(1).optional().default(1),
+  per_page: z.number().int().gte(1).lte(100).optional().default(100),
+  total_pages: z.number().int(),
+  total_items: z.number().int(),
+  items: z.array(zPublicEntryPreviewResponse),
+});
+
+export const zPublicViewResponse = z.object({
   response_model: z.string().optional().default(""),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -133,50 +99,12 @@ export const zPublicEntryDetailsResponse = z.object({
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]).optional(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
-  views: z.array(
-    z.object({
-      response_model: z.string().optional().default(""),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
-      id: z.string(),
-      name: z.string().max(255),
-      description: z.union([z.string(), z.null()]).optional(),
-      thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-      snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
-    }),
-  ),
-});
-
-export const zPublicEntryPreviewResponse = z.object({
-  response_model: z.string().optional().default(""),
-  id: z.string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string(), z.null()]).optional(),
-});
-
-export const zPublicViewResponse = z.object({
-  response_model: z.string().optional().default(""),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  id: z.string(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-  snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
+  views: z.array(zPublicViewResponse),
 });
 
 export const zShareLinkUpdateRequest = z.object({
   is_editable: z.union([z.boolean(), z.null()]).optional(),
   is_active: z.union([z.boolean(), z.null()]).optional(),
-});
-
-export const zValidationError = z.object({
-  loc: z.array(z.unknown()),
-  msg: z.string(),
-  type: z.string(),
 });
 
 export const zViewCreateRequest = z.object({
@@ -217,6 +145,11 @@ export const zEntriesGetEntryResponse = z.union([
 ]);
 
 export const zEntriesUpdateEntryResponse = zPrivateEntryDetailsResponse;
+
+export const zEntriesGetEntryByShareLinkResponse = z.union([
+  zPrivateEntryDetailsResponse,
+  zPublicEntryDetailsResponse,
+]);
 
 export const zViewsListViewsForEntryResponse = z.array(z.unknown());
 

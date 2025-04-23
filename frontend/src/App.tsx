@@ -5,6 +5,7 @@ import { AboutPage } from "./pages/AboutPage";
 import { DocsPage } from "./pages/DocsPage";
 import { EntryDetailPage } from "./pages/EntryDetailsPage";
 import { LandingPage } from "./pages/LandingPage";
+import { TestArea } from "./TestArea";
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
           <Route path="/entries/:id" element={<EntryDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/docs" element={<DocsPage />} />
+          <Route path="/test" element={<TestArea />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </MainLayout>

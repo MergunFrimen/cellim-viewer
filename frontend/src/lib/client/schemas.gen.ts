@@ -147,17 +147,17 @@ export const PrivateEntryDetailsResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     name: {
       type: "string",
@@ -216,7 +216,7 @@ export const PrivateShareLinkResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     is_editable: {
       type: "boolean",
@@ -238,17 +238,17 @@ export const PrivateViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     name: {
       type: "string",
@@ -300,17 +300,17 @@ export const PublicEntryDetailsResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     name: {
       type: "string",
@@ -359,17 +359,17 @@ export const PublicEntryPreviewResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     name: {
       type: "string",
@@ -412,17 +412,17 @@ export const PublicViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     name: {
       type: "string",
@@ -561,17 +561,17 @@ export const ViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840457+00:00"],
+      examples: ["2025-04-23 16:19:10.958520+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-22 20:35:58.840547+00:00"],
+      examples: ["2025-04-23 16:19:10.958569+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["47c9f759-3b15-4b6c-8b1d-8a22488c084e"],
+      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
     },
     name: {
       type: "string",

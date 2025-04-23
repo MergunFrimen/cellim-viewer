@@ -338,8 +338,11 @@ export type EntriesGetEntryByShareLinkResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: PrivateEntryDetailsResponse | PublicEntryDetailsResponse;
 };
+
+export type EntriesGetEntryByShareLinkResponse =
+  EntriesGetEntryByShareLinkResponses[keyof EntriesGetEntryByShareLinkResponses];
 
 export type ViewsListViewsForEntryData = {
   body?: never;
@@ -627,5 +630,5 @@ export type TestBackgroundTaskResponses = {
 };
 
 export type ClientOptions = {
-  baseUrl: "http://0.0.0.0:8000" | (string & {});
+  baseUrl: "http://127.0.0.1:8000" | (string & {});
 };

@@ -26,6 +26,7 @@ import type {
   EntriesUpdateEntryResponse,
   EntriesUpdateEntryError,
   EntriesGetEntryByShareLinkData,
+  EntriesGetEntryByShareLinkResponse,
   EntriesGetEntryByShareLinkError,
   ViewsListViewsForEntryData,
   ViewsListViewsForEntryResponse,
@@ -70,6 +71,7 @@ import {
   zEntriesDeleteEntryResponse,
   zEntriesGetEntryResponse,
   zEntriesUpdateEntryResponse,
+  zEntriesGetEntryByShareLinkResponse,
   zViewsListViewsForEntryResponse,
   zViewsCreateViewResponse,
   zViewsDeleteViewResponse,
@@ -262,10 +264,13 @@ export const entriesGetEntryByShareLink = <
   options: Options<EntriesGetEntryByShareLinkData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    unknown,
+    EntriesGetEntryByShareLinkResponse,
     EntriesGetEntryByShareLinkError,
     ThrowOnError
   >({
+    responseValidator: async (data) => {
+      return await zEntriesGetEntryByShareLinkResponse.parseAsync(data);
+    },
     url: "/api/v1/entries/share/{share_link_id}",
     ...options,
   });

@@ -59,16 +59,15 @@ export function EntryCreateDialog({
       onOpenChange(false);
       navigate(`/entries/${entry.id}`);
     },
-    onError: (error) => {
-      toast.error(
-        "Failed to create entry: " +
-          (error instanceof Error ? error.message : "Unknown error"),
-      );
+    onError: () => {
+      toast.error("Failed to create entry: ");
     },
   });
 
-  const handleSubmit = (data) => {
-    mutation.mutate(data);
+  const handleSubmit = (data: EntryCreateRequest) => {
+    mutation.mutate({
+      body: data,
+    });
   };
 
   return (
