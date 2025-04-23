@@ -28,3 +28,4 @@ stats.html
 
 # example data
 ./src/data/*
+*storybook.log
