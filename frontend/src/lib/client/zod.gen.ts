@@ -3,7 +3,7 @@
 import { z } from "zod";
 
 export const zEntryCreateRequest = z.object({
-  name: z.string().max(255),
+  name: z.string().min(1).max(255),
   description: z.union([z.string(), z.null()]).optional(),
   is_public: z.boolean().optional().default(false),
 });
@@ -70,6 +70,7 @@ export const zPublicEntryPreviewResponse = z.object({
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]).optional(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
+  is_public: z.boolean(),
 });
 
 export const zPaginatedResponsePublicEntryPreviewResponse = z.object({
@@ -99,6 +100,7 @@ export const zPublicEntryDetailsResponse = z.object({
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]).optional(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
+  is_public: z.boolean(),
   views: z.array(zPublicViewResponse),
 });
 
@@ -137,7 +139,7 @@ export const zEntriesCreateEntryResponse = zPrivateEntryDetailsResponse;
 export const zEntriesListEntriesForUserResponse =
   zPaginatedResponsePrivateEntryDetailsResponse;
 
-export const zEntriesDeleteEntryResponse = z.void();
+export const zEntriesDeleteEntryResponse = z.string().uuid();
 
 export const zEntriesGetEntryResponse = z.union([
   zPrivateEntryDetailsResponse,
@@ -155,7 +157,7 @@ export const zViewsListViewsForEntryResponse = z.array(z.unknown());
 
 export const zViewsCreateViewResponse = zPrivateViewResponse;
 
-export const zViewsDeleteViewResponse = z.void();
+export const zViewsDeleteViewResponse = z.string().uuid();
 
 export const zViewsGetViewResponse = z.union([
   zPrivateViewResponse,

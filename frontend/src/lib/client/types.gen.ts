@@ -35,8 +35,8 @@ export type PaginatedResponsePublicEntryPreviewResponse = {
 export type PrivateEntryDetailsResponse = {
   response_model?: string;
   id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   description?: string | null;
   thumbnail_url?: string | null;
@@ -53,8 +53,8 @@ export type PrivateShareLinkResponse = {
 
 export type PrivateViewResponse = {
   response_model?: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   id: string;
   name: string;
   description?: string | null;
@@ -65,28 +65,30 @@ export type PrivateViewResponse = {
 export type PublicEntryDetailsResponse = {
   response_model?: string;
   id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   description?: string | null;
   thumbnail_url?: string | null;
+  is_public: boolean;
   views: Array<PublicViewResponse>;
 };
 
 export type PublicEntryPreviewResponse = {
   response_model?: string;
   id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   description?: string | null;
   thumbnail_url?: string | null;
+  is_public: boolean;
 };
 
 export type PublicViewResponse = {
   response_model?: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   id: string;
   name: string;
   description?: string | null;
@@ -119,8 +121,8 @@ export type ViewCreateRequest = {
 };
 
 export type ViewResponse = {
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   id: string;
   name: string;
   description?: string | null;
@@ -251,7 +253,7 @@ export type EntriesDeleteEntryResponses = {
   /**
    * Successful Response
    */
-  204: void;
+  200: string;
 };
 
 export type EntriesDeleteEntryResponse =
@@ -425,7 +427,7 @@ export type ViewsDeleteViewResponses = {
   /**
    * Successful Response
    */
-  204: void;
+  200: string;
 };
 
 export type ViewsDeleteViewResponse =

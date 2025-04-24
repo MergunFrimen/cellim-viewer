@@ -5,6 +5,7 @@ export const EntryCreateRequestSchema = {
     name: {
       type: "string",
       maxLength: 255,
+      minLength: 1,
       examples: ["Entry Name"],
     },
     description: {
@@ -147,17 +148,17 @@ export const PrivateEntryDetailsResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     name: {
       type: "string",
@@ -216,7 +217,7 @@ export const PrivateShareLinkResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     is_editable: {
       type: "boolean",
@@ -238,17 +239,17 @@ export const PrivateViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     name: {
       type: "string",
@@ -300,17 +301,17 @@ export const PublicEntryDetailsResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     name: {
       type: "string",
@@ -339,6 +340,9 @@ export const PublicEntryDetailsResponseSchema = {
       ],
       examples: ["URL for entry thumbnail preview"],
     },
+    is_public: {
+      type: "boolean",
+    },
     views: {
       items: {
         $ref: "#/components/schemas/PublicViewResponse",
@@ -347,7 +351,7 @@ export const PublicEntryDetailsResponseSchema = {
     },
   },
   type: "object",
-  required: ["id", "created_at", "updated_at", "name", "views"],
+  required: ["id", "created_at", "updated_at", "name", "is_public", "views"],
 } as const;
 
 export const PublicEntryPreviewResponseSchema = {
@@ -359,17 +363,17 @@ export const PublicEntryPreviewResponseSchema = {
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     name: {
       type: "string",
@@ -398,9 +402,12 @@ export const PublicEntryPreviewResponseSchema = {
       ],
       examples: ["URL for entry thumbnail preview"],
     },
+    is_public: {
+      type: "boolean",
+    },
   },
   type: "object",
-  required: ["id", "created_at", "updated_at", "name"],
+  required: ["id", "created_at", "updated_at", "name", "is_public"],
 } as const;
 
 export const PublicViewResponseSchema = {
@@ -412,17 +419,17 @@ export const PublicViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     name: {
       type: "string",
@@ -561,17 +568,17 @@ export const ViewResponseSchema = {
     created_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958520+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     updated_at: {
       type: "string",
       format: "date-time",
-      examples: ["2025-04-23 16:19:10.958569+00:00"],
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
     id: {
       type: "string",
       format: "uuid4",
-      examples: ["5e3a34fa-182e-4c01-8e7e-f8ac5ead322b"],
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     name: {
       type: "string",

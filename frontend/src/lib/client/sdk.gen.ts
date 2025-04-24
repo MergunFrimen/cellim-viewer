@@ -57,14 +57,6 @@ import type {
   TestBackgroundTaskData,
 } from "./types.gen";
 import {
-  entriesListEntriesResponseTransformer,
-  entriesCreateEntryResponseTransformer,
-  entriesListEntriesForUserResponseTransformer,
-  entriesUpdateEntryResponseTransformer,
-  viewsCreateViewResponseTransformer,
-  viewsUpdateViewResponseTransformer,
-} from "./transformers.gen";
-import {
   zEntriesListEntriesResponse,
   zEntriesCreateEntryResponse,
   zEntriesListEntriesForUserResponse,
@@ -110,7 +102,6 @@ export const entriesListEntries = <ThrowOnError extends boolean = false>(
     EntriesListEntriesError,
     ThrowOnError
   >({
-    responseTransformer: entriesListEntriesResponseTransformer,
     responseValidator: async (data) => {
       return await zEntriesListEntriesResponse.parseAsync(data);
     },
@@ -136,7 +127,6 @@ export const entriesCreateEntry = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
-    responseTransformer: entriesCreateEntryResponseTransformer,
     responseValidator: async (data) => {
       return await zEntriesCreateEntryResponse.parseAsync(data);
     },
@@ -166,7 +156,6 @@ export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
-    responseTransformer: entriesListEntriesForUserResponseTransformer,
     responseValidator: async (data) => {
       return await zEntriesListEntriesForUserResponse.parseAsync(data);
     },
@@ -242,7 +231,6 @@ export const entriesUpdateEntry = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
-    responseTransformer: entriesUpdateEntryResponseTransformer,
     responseValidator: async (data) => {
       return await zEntriesUpdateEntryResponse.parseAsync(data);
     },
@@ -319,7 +307,6 @@ export const viewsCreateView = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
-    responseTransformer: viewsCreateViewResponseTransformer,
     responseValidator: async (data) => {
       return await zViewsCreateViewResponse.parseAsync(data);
     },
@@ -393,7 +380,6 @@ export const viewsUpdateView = <ThrowOnError extends boolean = false>(
     ViewsUpdateViewError,
     ThrowOnError
   >({
-    responseTransformer: viewsUpdateViewResponseTransformer,
     responseValidator: async (data) => {
       return await zViewsUpdateViewResponse.parseAsync(data);
     },

@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class EntryCreateRequest(BaseModel):
-    name: str = Field(max_length=255, examples=["Entry Name"])
+    name: str = Field(min_length=1, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     is_public: bool = Field(default=False)
 

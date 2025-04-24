@@ -28,14 +28,14 @@ export default defineConfig({
       name: "@hey-api/schemas",
       type: "form",
     },
-    {
-      name: "@hey-api/transformers",
-      dates: true,
-    },
+    // {
+    //   name: "@hey-api/transformers",
+    //   dates: true,
+    // },
     {
       name: "@hey-api/sdk",
       validator: true,
-      transformer: true,
+      // transformer: true,
     },
   ],
 });

@@ -11,12 +11,10 @@ from app.api.v1.contracts.requests.entry_requests import (
     SearchQueryParams,
 )
 from app.api.v1.contracts.responses.entry_responses import (
-    PrivateEntryDetailsResponse,
-    PublicEntryDetailsResponse,
-    PublicEntryPreviewResponse,
+    EntryDetailsResponse,
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
-from app.api.v1.contracts.responses.share_link_responses import PrivateShareLinkResponse
+from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
 from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models import Entry
@@ -28,7 +26,7 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    response_model=PrivateEntryDetailsResponse,
+    response_model=EntryDetailsResponse,
 )
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
@@ -46,7 +44,7 @@ async def create_entry(
 @router.get(
     "",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[PublicEntryPreviewResponse],
+    response_model=PaginatedResponse[EntryDetailsResponse],
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
@@ -86,7 +84,7 @@ async def list_entries(
 @router.get(
     "/user",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[PrivateEntryDetailsResponse],
+    response_model=PaginatedResponse[EntryDetailsResponse],
 )
 async def list_entries_for_user(
     search_query: Annotated[SearchQueryParams, Query()],
@@ -128,7 +126,7 @@ async def list_entries_for_user(
 @router.get(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateEntryDetailsResponse | PublicEntryDetailsResponse,
+    response_model=EntryDetailsResponse,
 )
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -150,20 +148,21 @@ async def get_entry(
     entry = result.scalar()
 
     if current_user is not None and entry.user_id == current_user.id:
-        return PrivateEntryDetailsResponse.model_validate(entry)
+        return EntryDetailsResponse.model_validate(entry)
 
     if not entry.is_public:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Entry is not public",
         )
-    return PublicEntryDetailsResponse.model_validate(entry)
+
+    return EntryDetailsResponse.model_validate(entry)
 
 
 @router.get(
     "/{entry_id}/share",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateShareLinkResponse,
+    response_model=ShareLinkResponse,
 )
 async def get_entry_share_link(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -185,13 +184,13 @@ async def get_entry_share_link(
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
-    return PrivateShareLinkResponse.model_validate(entry.link)
+    return ShareLinkResponse.model_validate(entry.link)
 
 
 @router.get(
     "/share/{share_link_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateEntryDetailsResponse | PublicEntryDetailsResponse,
+    response_model=EntryDetailsResponse,
 )
 async def get_entry_by_share_link(
     share_link_id: Annotated[UUID, Path(title="Share Link")],
@@ -199,9 +198,15 @@ async def get_entry_by_share_link(
 ):
     share_link = await session.get(ShareLink, share_link_id)
     if not share_link:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Link not found",
+        )
     if not share_link.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Link is not active")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Link is not active",
+        )
 
     result: Entry | None = await session.execute(
         select(Entry)
@@ -210,15 +215,13 @@ async def get_entry_by_share_link(
     )
     entry = result.scalar()
 
-    if share_link.is_editable:
-        return PrivateEntryDetailsResponse.model_validate(entry)
-    return PublicEntryDetailsResponse.model_validate(entry)
+    return EntryDetailsResponse.model_validate(entry)
 
 
 @router.put(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateEntryDetailsResponse,
+    response_model=EntryDetailsResponse,
 )
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -242,7 +245,7 @@ async def update_entry(
         setattr(entry, key, value)
     await session.commit()
 
-    return entry
+    return EntryDetailsResponse.model_validate(entry)
 
 
 @router.delete(

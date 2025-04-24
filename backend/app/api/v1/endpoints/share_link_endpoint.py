@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.share_link_requests import ShareLinkUpdateRequest
-from app.api.v1.contracts.responses.share_link_responses import PrivateShareLinkResponse
+from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
 from app.api.v1.dependencies import RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/share_links", tags=[Tags.share_links])
 @router.get(
     "/{share_link_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateShareLinkResponse,
+    response_model=ShareLinkResponse,
 )
 async def get_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
@@ -45,13 +45,13 @@ async def get_share_link(
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
-    return PrivateShareLinkResponse.model_validate(share_link)
+    return ShareLinkResponse.model_validate(share_link)
 
 
 @router.put(
     "/{share_link_id}",
     status_code=status.HTTP_200_OK,
-    response_model=PrivateShareLinkResponse,
+    response_model=ShareLinkResponse,
 )
 async def update_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
@@ -81,4 +81,4 @@ async def update_share_link(
         setattr(share_link, key, value)
     await session.commit()
 
-    return PrivateShareLinkResponse.model_validate(share_link)
+    return ShareLinkResponse.model_validate(share_link)

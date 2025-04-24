@@ -11,7 +11,7 @@ class View(Base, UuidMixin, TimestampMixin):
     __tablename__ = "views"
 
     name: Mapped[str] = mapped_column(String(255))
-    description: Mapped[str | None] = None
+    description: Mapped[str | None] = mapped_column(default=None)
     thumbnail_url: Mapped[str] = mapped_column(String(2083))
     snapshot_url: Mapped[str] = mapped_column(String(2083))
 
