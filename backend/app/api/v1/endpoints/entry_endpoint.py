@@ -16,6 +16,7 @@ from app.api.v1.contracts.responses.entry_responses import (
     PublicEntryPreviewResponse,
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
+from app.api.v1.contracts.responses.share_link_responses import PrivateShareLinkResponse
 from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models import Entry
@@ -160,6 +161,34 @@ async def get_entry(
 
 
 @router.get(
+    "/{entry_id}/share",
+    status_code=status.HTTP_200_OK,
+    response_model=PrivateShareLinkResponse,
+)
+async def get_entry_share_link(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
+    session: SessionDependency,
+    current_user: RequireUser,
+):
+    result: Entry | None = await session.execute(
+        select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.link))
+    )
+    entry = result.scalar()
+    if not entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
+
+    if entry.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    return PrivateShareLinkResponse.model_validate(entry.link)
+
+
+@router.get(
     "/share/{share_link_id}",
     status_code=status.HTTP_200_OK,
     response_model=PrivateEntryDetailsResponse | PublicEntryDetailsResponse,
@@ -218,7 +247,8 @@ async def update_entry(
 
 @router.delete(
     "/{entry_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_200_OK,
+    response_model=UUID,
 )
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -237,3 +267,5 @@ async def delete_entry(
 
     await session.delete(entry)
     await session.commit()
+
+    return entry_id
