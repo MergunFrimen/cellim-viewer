@@ -128,7 +128,7 @@ async def list_entries_for_user(
     status_code=status.HTTP_200_OK,
     response_model=EntryDetailsResponse,
 )
-async def get_entry(
+async def get_public_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
     current_user: OptionalUser,
