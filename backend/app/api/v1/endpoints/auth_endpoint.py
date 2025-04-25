@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Header, status
 
+from app.api.v1.dependencies import RequireUser
 from app.api.v1.tags import Tags
-from app.core.security import get_admin_user_token, get_regular_user_token, get_required_user
+from app.core.security import get_admin_user_token, get_regular_user_token
 from app.database.models.role_model import RoleEnum
-from app.database.models.user_model import User
 
 router = APIRouter(prefix="/auth", tags=[Tags.auth])
 
@@ -22,9 +22,16 @@ async def login_user():
     return {"access_token": access_token, "token_type": "bearer", "role": RoleEnum.user.value}
 
 
+@router.get("/logout", status_code=status.HTTP_200_OK)
+async def logout(
+    current_user: RequireUser,
+):
+    return current_user.id
+
+
 @router.get("/get_current_user")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_required_user())],
+    current_user: RequireUser,
 ):
     return current_user
 
