@@ -1,9 +1,22 @@
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthProvider";
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export function MainLayout({ children }: { children: ReactNode | ReactNode[] }) {
+export function MainLayout({
+  children,
+}: {
+  children: ReactNode | ReactNode[];
+}) {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen">
       <header className="container mx-auto flex flex-row justify-between p-2">
@@ -17,6 +30,23 @@ export function MainLayout({ children }: { children: ReactNode | ReactNode[] }) 
           <Button variant="link" asChild>
             <Link to="/docs">Docs</Link>
           </Button>
+          <Button variant="link" asChild>
+            <Link to="/docs">Docs</Link>
+          </Button>
+          {isAuthenticated && (
+            <Button variant="link" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          )}
+          {isAuthenticated ? (
+            <Button variant="link" onClick={() => handleLogout()}>
+              Logout
+            </Button>
+          ) : (
+            <Button variant="link" asChild>
+              <Link to="/login">Login</Link>
+            </Button>
+          )}
         </nav>
         <ThemeToggle />
       </header>

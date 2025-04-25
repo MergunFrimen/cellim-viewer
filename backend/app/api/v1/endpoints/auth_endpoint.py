@@ -10,19 +10,19 @@ from app.database.models.role_model import RoleEnum
 router = APIRouter(prefix="/auth", tags=[Tags.auth])
 
 
-@router.get("/login/admin")
+@router.post("/login/admin")
 async def login_admin():
     access_token = get_admin_user_token()
     return {"access_token": access_token, "token_type": "bearer", "role": RoleEnum.admin.value}
 
 
-@router.get("/login/user")
+@router.post("/login/user")
 async def login_user():
     access_token = get_regular_user_token()
     return {"access_token": access_token, "token_type": "bearer", "role": RoleEnum.user.value}
 
 
-@router.get("/logout", status_code=status.HTTP_200_OK)
+@router.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(
     current_user: RequireUser,
 ):
@@ -44,3 +44,10 @@ async def protected_route(
         "message": "This is protected",
         "raw_header": authorization,
     }
+
+
+@router.get("/check-auth")
+async def check_auth(
+    current_user: RequireUser,
+):
+    return {"authenticated": True}

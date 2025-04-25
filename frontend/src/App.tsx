@@ -7,6 +7,8 @@ import { LandingPage } from "./pages/LandingPage";
 import { NewEntryPage } from "./pages/NewEntryPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { EntryDetailsPage } from "./pages/EntryDetailsPage";
+import { LoginPage } from "./pages/LoginPage";
+import { DashboardPage } from "./pages/DashboardPage";
 
 export function App() {
   return (
@@ -19,6 +21,8 @@ export function App() {
           <Route path="/entries/:id" element={<EntryDetailsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/docs" element={<DocsPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </MainLayout>
