@@ -128,7 +128,7 @@ async def list_entries_for_user(
     status_code=status.HTTP_200_OK,
     response_model=EntryDetailsResponse,
 )
-async def get_public_entry(
+async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: SessionDependency,
     current_user: OptionalUser,
@@ -147,6 +147,7 @@ async def get_public_entry(
     )
     entry = result.scalar()
 
+    # Allow owner to always get their own entry
     if current_user is not None and entry.user_id == current_user.id:
         return EntryDetailsResponse.model_validate(entry)
 
@@ -160,7 +161,7 @@ async def get_public_entry(
 
 
 @router.get(
-    "/{entry_id}/share",
+    "/{entry_id}/share_link",
     status_code=status.HTTP_200_OK,
     response_model=ShareLinkResponse,
 )
