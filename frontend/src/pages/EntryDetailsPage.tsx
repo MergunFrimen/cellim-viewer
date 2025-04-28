@@ -33,9 +33,12 @@ import { toast } from "sonner";
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
 
+  useEffect(() => {
+    viewer.clear();
+  }, [viewer]);
+
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -44,9 +47,7 @@ export function EntryDetailsPage() {
 
   const entryId = params.id!;
 
-  useEffect(() => {
-    viewer.clear();
-  }, [viewer]);
+  const queryClient = useQueryClient();
 
   const entryQuery = useQuery({
     ...entriesGetEntryOptions({
