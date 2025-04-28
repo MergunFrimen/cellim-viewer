@@ -16,6 +16,7 @@ import {
   viewsGetView,
   viewsUpdateView,
   viewsGetViewSnapshot,
+  viewsGetViewThumbnailImage,
   shareLinksGetShareLink,
   shareLinksUpdateShareLink,
   authLoginAdmin,
@@ -64,6 +65,7 @@ import type {
   ViewsUpdateViewError,
   ViewsUpdateViewResponse,
   ViewsGetViewSnapshotData,
+  ViewsGetViewThumbnailImageData,
   ShareLinksGetShareLinkData,
   ShareLinksUpdateShareLinkData,
   ShareLinksUpdateShareLinkError,
@@ -590,6 +592,27 @@ export const viewsGetViewSnapshotOptions = (
       return data;
     },
     queryKey: viewsGetViewSnapshotQueryKey(options),
+  });
+};
+
+export const viewsGetViewThumbnailImageQueryKey = (
+  options: Options<ViewsGetViewThumbnailImageData>,
+) => createQueryKey("viewsGetViewThumbnailImage", options);
+
+export const viewsGetViewThumbnailImageOptions = (
+  options: Options<ViewsGetViewThumbnailImageData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await viewsGetViewThumbnailImage({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: viewsGetViewThumbnailImageQueryKey(options),
   });
 };
 

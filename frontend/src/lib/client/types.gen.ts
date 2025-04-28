@@ -497,6 +497,33 @@ export type ViewsGetViewSnapshotResponses = {
   200: unknown;
 };
 
+export type ViewsGetViewThumbnailImageData = {
+  body?: never;
+  path: {
+    entry_id: string;
+    view_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail.png";
+};
+
+export type ViewsGetViewThumbnailImageErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ViewsGetViewThumbnailImageError =
+  ViewsGetViewThumbnailImageErrors[keyof ViewsGetViewThumbnailImageErrors];
+
+export type ViewsGetViewThumbnailImageResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type ShareLinksGetShareLinkData = {
   body?: never;
   path: {

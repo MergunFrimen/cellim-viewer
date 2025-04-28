@@ -48,6 +48,8 @@ import type {
   ViewsUpdateViewError,
   ViewsGetViewSnapshotData,
   ViewsGetViewSnapshotError,
+  ViewsGetViewThumbnailImageData,
+  ViewsGetViewThumbnailImageError,
   ShareLinksGetShareLinkData,
   ShareLinksGetShareLinkResponse,
   ShareLinksGetShareLinkError,
@@ -449,6 +451,30 @@ export const viewsGetViewSnapshot = <ThrowOnError extends boolean = false>(
       },
     ],
     url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot.json",
+    ...options,
+  });
+};
+
+/**
+ * Get View Thumbnail Image
+ */
+export const viewsGetViewThumbnailImage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ViewsGetViewThumbnailImageData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    ViewsGetViewThumbnailImageError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail.png",
     ...options,
   });
 };

@@ -200,7 +200,7 @@ async def get_view_snapshot(
     status_code=status.HTTP_200_OK,
     response_class=Response,
 )
-async def get_view_snapshot(
+async def get_view_thumbnail_image(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     current_user: OptionalUser,

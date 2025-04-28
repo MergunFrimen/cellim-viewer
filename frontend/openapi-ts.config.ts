@@ -1,7 +1,7 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
-  // watch: true,
+  watch: true,
   // input: "../backend/docs/openapi.json",
   input: `http://127.0.0.1:8000/api/v1/openapi.json`,
   output: {
