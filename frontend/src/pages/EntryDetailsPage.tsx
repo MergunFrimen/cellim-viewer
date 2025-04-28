@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
+import { useViews } from "@/hooks/useViews";
 
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
@@ -128,6 +129,44 @@ export function EntryDetailsPage() {
     },
   });
 
+  const {
+    views,
+    currentViewId,
+    screenshotUrls,
+    reorderViews,
+    setCurrentView,
+    getViewById,
+  } = useViews({
+    initialViews: viewsQuery.data || [],
+    onViewsChange: () => {
+      queryClient.invalidateQueries({ queryKey: ["views", entryId] });
+    },
+  });
+
+  const handleLoadView = async (view: View) => {
+    if (view.mvsj) {
+      setCurrentView(view.id);
+      await viewer.setState(view.mvsj);
+    }
+  };
+
+  const handleSaveView = () => {
+    setShowSaveDialog(true);
+  };
+
+  // Handle editing a view
+  const handleEditView = (view: View) => {
+    setViewToEdit(view);
+  };
+
+  // Handle deleting a view
+  const handleDeleteView = (viewId: string) => {
+    const view = getViewById(viewId);
+    if (view) {
+      setViewToDelete(view);
+    }
+  };
+
   if (entryQuery.isLoading || viewsQuery.isLoading) {
     return (
       <div className="container py-8">
@@ -191,7 +230,7 @@ export function EntryDetailsPage() {
       <div className="flex flex-1 overflow-hidden gap-x-3">
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
-            views={viewsQuery.data}
+            views={views}
             currentViewId={currentViewId}
             screenshotUrls={screenshotUrls}
             onSaveView={handleSaveView}

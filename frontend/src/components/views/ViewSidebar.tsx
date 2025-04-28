@@ -14,18 +14,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PublicViewResponse } from "@/lib/client";
+import { ViewResponse } from "@/lib/client";
 import { cn } from "@/lib/utils";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 interface ViewsSidebarProps {
-  views: PublicViewResponse[];
+  views: ViewResponse[];
   currentViewId: string | null;
   screenshotUrls: Record<string, string>;
   onSaveView: () => void;
-  onEditView: (view: PublicViewResponse) => void;
-  onLoadView: (view: PublicViewResponse) => void;
+  onEditView: (view: ViewResponse) => void;
+  onLoadView: (view: ViewResponse) => void;
   onDeleteView: (viewId: string) => void;
   onReorderViews: (sourceIndex: number, destinationIndex: number) => void;
 }
@@ -74,11 +74,11 @@ export function ViewsSidebar({
 }
 
 interface DraggableViewListProps {
-  views: PublicViewResponse[];
+  views: ViewResponse[];
   currentViewId: string | null;
   screenshotUrls: Record<string, string>;
-  onEditView: (view: PublicViewResponse) => void;
-  onLoadView: (view: PublicViewResponse) => void;
+  onEditView: (view: ViewResponse) => void;
+  onLoadView: (view: ViewResponse) => void;
   onDeleteView: (viewId: string) => void;
   onReorderViews: (sourceIndex: number, destinationIndex: number) => void;
 }
@@ -147,7 +147,7 @@ function DraggableViewList({
 }
 
 interface ViewCardProps {
-  view: PublicViewResponse;
+  view: ViewResponse;
   isActive: boolean;
   screenshotUrl?: string;
   onEdit: () => void;
