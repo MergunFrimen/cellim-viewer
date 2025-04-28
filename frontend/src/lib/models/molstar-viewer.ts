@@ -77,6 +77,18 @@ export class MolstarViewerModel extends BaseReactiveModel {
     return URL.createObjectURL(file);
   }
 
+  async thumbnailImage(): Promise<File> {
+    // generate new screenshot of render
+    const screenshot = await PluginStateSnapshotManager.getCanvasImageAsset(
+      this.plugin,
+      "screenshot.png",
+    );
+    if (!screenshot) throw new Error("no image");
+    const file = this.plugin.managers.asset.get(screenshot)?.file;
+    if (!file) throw new Error("no file");
+    return file;
+  }
+
   getState(): PluginState.Snapshot {
     // const snapshot = await this.plugin.managers.snapshot.getStateSnapshot()
     return this.plugin.state.getSnapshot({ image: true });

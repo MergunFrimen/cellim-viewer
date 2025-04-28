@@ -411,6 +411,12 @@ export const viewsUpdateView = <ThrowOnError extends boolean = false>(
     ViewsUpdateViewError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     responseValidator: async (data) => {
       return await zViewsUpdateViewResponse.parseAsync(data);
     },

@@ -150,15 +150,29 @@ async def get_view(
     response_model=ViewResponse,
 )
 async def update_view(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
     session: SessionDependency,
+    current_user: RequireUser,
 ):
+    entry = await session.get(Entry, entry_id)
     view = await session.get(View, view_id)
+
+    if not entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
     if not view:
         raise HTTPException(
-            status_code=404,
-            detail="Entry not found",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="View not found",
+        )
+
+    if entry.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
         )
 
     view.update(request.model_dump(exclude_unset=True))

@@ -443,6 +443,7 @@ export type ViewsGetViewResponse =
 export type ViewsUpdateViewData = {
   body: ViewUpdateRequest;
   path: {
+    entry_id: string;
     view_id: string;
   };
   query?: never;

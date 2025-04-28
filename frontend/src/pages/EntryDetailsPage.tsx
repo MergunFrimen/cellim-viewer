@@ -21,11 +21,25 @@ import {
   viewsGetViewQueryKey,
   viewsListViewsForEntryOptions,
   viewsListViewsForEntryQueryKey,
+  viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useViews } from "@/hooks/useViews";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
+import { EditViewDialog } from "@/components/views/ViewEditDialog";
+import { DeleteDialog } from "@/components/common/DeleteDialog";
+import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
 
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
@@ -98,7 +112,7 @@ export function EntryDetailsPage() {
   });
 
   const updateViewMutation = useMutation({
-    ...entriesUpdateEntryMutation(),
+    ...viewsUpdateViewMutation(),
     onSuccess: (updatedView) => {
       toast.success(`View "${updatedView.name}" updated successfully`);
       queryClient.invalidateQueries({
@@ -165,6 +179,60 @@ export function EntryDetailsPage() {
     if (view) {
       setViewToDelete(view);
     }
+  };
+
+  const onConfirmDeleteView = () => {
+    if (viewToDelete) {
+      deleteViewMutation.mutate(viewToDelete.id);
+      setViewToDelete(null);
+    }
+  };
+
+  const onConfirmDelete = () => {
+    deleteEntryMutation.mutate({ path: { entry_id: entryId } });
+  };
+
+  const onSaveView = async (name: string, description: string) => {
+    // Get the molstar state snapshot
+    const snapshot: PluginState.Snapshot = viewer.getState();
+    const thumbnail_image: File = await viewer.thumbnailImage();
+
+    const snapshotJson = JSON.stringify(snapshot);
+    const snapshotBlob = new Blob([snapshotJson], { type: "application/json" });
+
+    // Call the mutation to create the view
+    createViewMutation.mutate({
+      path: {
+        entry_id: entryId,
+      },
+      body: {
+        name,
+        description,
+        snapshot_json: snapshotBlob,
+        thumbnail_image: thumbnail_image,
+      },
+    });
+
+    // Close the dialog
+    setShowSaveDialog(false);
+  };
+
+  const onUpdateView = async (
+    viewId: string,
+    name: string,
+    description: string,
+  ) => {
+    updateViewMutation.mutate({
+      path: {
+        entry_id: entryId,
+        view_id: viewId,
+      },
+      body: {
+        name,
+        description,
+      },
+    });
+    setViewToEdit(null);
   };
 
   if (entryQuery.isLoading || viewsQuery.isLoading) {
@@ -241,13 +309,12 @@ export function EntryDetailsPage() {
           />
         </aside>
 
-        {/* Viewer area */}
         <main className="flex-1 relative">
           <MolstarViewer />
         </main>
       </div>
 
-      {/* <SaveViewDialog
+      <SaveViewDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
         onSave={onSaveView}
@@ -263,16 +330,16 @@ export function EntryDetailsPage() {
         description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
         open={!!viewToDelete}
         onOpenChange={(open) => !open && setViewToDelete(null)}
-        onConfirm={confirmDeleteView}
+        onConfirm={onConfirmDeleteView}
       />
       <DeleteDialog
         title="Delete Entry"
-        description={`Are you sure you want to delete "${entry.name}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete this entry? This action cannot be undone.`}
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
-        onConfirm={confirmDelete}
+        onConfirm={onConfirmDelete}
         isLoading={deleteEntryMutation.isPending}
-      /> */}
+      />
     </div>
   );
 }

@@ -1,9 +1,18 @@
 // src/hooks/useViews.tsx
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { View } from "@/types";
 import { UUID } from "molstar/lib/commonjs/mol-util";
 import { useEffect, useState } from "react";
 
+export interface View {
+  id: string;
+  name: string;
+  description: string;
+  mvsj: Record<string, any> | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+  screenshot?: string;
+}
 // Optional initial views to load and callback when views change
 interface UseViewsOptions {
   initialViews?: View[];
@@ -135,36 +144,6 @@ export function useViews({
     return views.find((view) => view.id === viewId) || null;
   };
 
-  // Generate screenshots for all views without one
-  const generateMissingScreenshots = async () => {
-    // This is a utility function that could be called when all views are loaded
-    // It would ensure every view has a screenshot
-    for (const view of views) {
-      if (!screenshotUrls[view.id]) {
-        try {
-          // Load the view
-          if (view.mvsj) {
-            await viewer.setState(view.mvsj as any);
-
-            // Take screenshot
-            const url = await viewer.screenshot();
-
-            // Save the screenshot URL
-            setScreenshotUrls((prev) => ({
-              ...prev,
-              [view.id]: url,
-            }));
-          }
-        } catch (error) {
-          console.error(
-            `Failed to generate screenshot for view ${view.id}:`,
-            error,
-          );
-        }
-      }
-    }
-  };
-
   return {
     views,
     currentViewId,
@@ -175,6 +154,5 @@ export function useViews({
     reorderViews,
     setCurrentView,
     getViewById,
-    generateMissingScreenshots,
   };
 }
