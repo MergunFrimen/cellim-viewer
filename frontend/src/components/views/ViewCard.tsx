@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
-import { viewsGetViewSnapshotOptions } from "@/lib/client/@tanstack/react-query.gen";
-import { useQuery } from "@tanstack/react-query";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
 
 interface ViewCardProps {

@@ -90,11 +90,11 @@ export function useEntryViews(entryId: string) {
   };
 
   const handleEditView = (view: ViewResponse) => {
-    updateViewMutation.mutate({
-      path: { entry_id: entryId, view_id: view.id },
-      body: { name: view.name, description: view.description },
-    });
-    setViewToEdit(null);
+    // updateViewMutation.mutate({
+    //   path: { entry_id: entryId, view_id: view.id },
+    //   body: { name: view.name, description: view.description },
+    // });
+    setViewToEdit(view);
   };
 
   const handleDeleteView = (viewId: string) => {
@@ -115,5 +115,6 @@ export function useEntryViews(entryId: string) {
     setViewToEdit,
     viewToDelete,
     setViewToDelete,
+    updateViewMutation,
   };
 }

@@ -38,6 +38,7 @@ export function EntryDetailsPage() {
     setViewToEdit,
     viewToDelete,
     setViewToDelete,
+    updateViewMutation,
   } = useEntryViews(entryId);
 
   // Clear viewer when unmounting
@@ -79,10 +80,8 @@ export function EntryDetailsPage() {
         isPublic={entry.is_public}
         createdAt={entry.created_at}
       />
-
       {/* Entry Description Section */}
       <EntryDescription description={entry.description} />
-
       <div className="flex flex-1 overflow-hidden gap-x-3">
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
@@ -98,19 +97,40 @@ export function EntryDetailsPage() {
           <MolstarViewer />
         </main>
       </div>
-
       {/* Dialogs */}
       <SaveViewDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
         onSave={handleSaveView}
       />
-
       <EditViewDialog
         open={!!viewToEdit}
         onOpenChange={(open) => !open && setViewToEdit(null)}
         view={viewToEdit}
-        onUpdate={handleEditView}
+        onUpdate={(viewId, name, description) => {
+          updateViewMutation.mutate({
+            path: { entry_id: entryId, view_id: viewId },
+            body: { name, description },
+          });
+        }}
+        onRecreateSnapshot={async (viewId) => {
+          const snapshot = viewer.getState();
+          const thumbnail_image = await viewer.thumbnailImage();
+          const snapshotJson = JSON.stringify(snapshot);
+          const snapshotBlob = new Blob([snapshotJson], {
+            type: "application/json",
+          });
+
+          await updateViewMutation.mutateAsync({
+            path: { entry_id: entryId, view_id: viewId },
+            body: {
+              name: viewToEdit?.name || "",
+              description: viewToEdit?.description || null,
+              snapshot_json: snapshotBlob,
+              thumbnail_image,
+            },
+          });
+        }}
       />
 
       <DeleteDialog
@@ -125,7 +145,6 @@ export function EntryDetailsPage() {
           }
         }}
       />
-
       {/* <DeleteDialog
         title="Delete Entry"
         description="Are you sure you want to delete this entry? This action cannot be undone."
