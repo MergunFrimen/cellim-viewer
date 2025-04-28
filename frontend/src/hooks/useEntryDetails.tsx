@@ -6,7 +6,7 @@ import {
   entriesGetEntryOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
 
-export function useEntryDetails(entryId?: string) {
+export function useEntryDetails(entryId: string) {
   const navigate = useNavigate();
 
   const entryQuery = useQuery({
@@ -33,7 +33,7 @@ export function useEntryDetails(entryId?: string) {
   });
 
   const handleDeleteEntry = (confirm: boolean) => {
-    if (confirm && entryId) {
+    if (confirm) {
       deleteEntryMutation.mutate({ path: { entry_id: entryId } });
     }
   };

@@ -19,13 +19,10 @@ export function EntryDetailsPage() {
   const entryId = useRequiredParam("entryId");
   const { viewer } = useMolstar();
 
-  // Custom hooks for data management
   const {
     entry,
     isLoading: isEntryLoading,
     error: entryError,
-    handleDeleteEntry,
-    isDeleting,
   } = useEntryDetails(entryId);
 
   const {
@@ -38,7 +35,6 @@ export function EntryDetailsPage() {
     handleEditView,
     handleDeleteView,
     handleLoadView,
-    handleReorderViews,
     showSaveDialog,
     setShowSaveDialog,
     viewToEdit,
@@ -102,7 +98,6 @@ export function EntryDetailsPage() {
             onEditView={handleEditView}
             onLoadView={handleLoadView}
             onDeleteView={handleDeleteView}
-            onReorderViews={handleReorderViews}
           />
         </aside>
 
@@ -139,14 +134,14 @@ export function EntryDetailsPage() {
         }}
       />
 
-      <DeleteDialog
+      {/* <DeleteDialog
         title="Delete Entry"
         description="Are you sure you want to delete this entry? This action cannot be undone."
         open={isDeleting}
         onOpenChange={(open) => !open && handleDeleteEntry(false)}
         onConfirm={() => handleDeleteEntry(true)}
         isLoading={isDeleting}
-      />
+      /> */}
     </div>
   );
 }

@@ -14,10 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ViewResponse, ViewUpdateRequest } from "@/lib/client";
-import { cn } from "@/lib/utils";
+import { ViewResponse } from "@/lib/client";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
-import { useState } from "react";
 
 interface ViewsSidebarProps {
   views: ViewResponse[];
@@ -38,7 +36,6 @@ export function ViewsSidebar({
   onEditView,
   onLoadView,
   onDeleteView,
-  onReorderViews,
 }: ViewsSidebarProps) {
   return (
     <div className="flex flex-col h-full w-96">
@@ -51,8 +48,8 @@ export function ViewsSidebar({
       </div>
 
       {/* Fixed ScrollArea - Set explicit height and make it fill available space */}
-      <ScrollArea className="flex-1 min-h-0 p-2">
-        <div className="pb-4">
+      <ScrollArea className="flex-1 min-h-0 px-2">
+        <div className="pb-0">
           <DraggableViewList
             views={views}
             currentViewId={currentViewId}
@@ -60,7 +57,6 @@ export function ViewsSidebar({
             onEditView={onEditView}
             onLoadView={onLoadView}
             onDeleteView={onDeleteView}
-            onReorderViews={onReorderViews}
           />
           {views.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
@@ -80,7 +76,6 @@ interface DraggableViewListProps {
   onEditView: (view: ViewResponse) => void;
   onLoadView: (view: ViewResponse) => void;
   onDeleteView: (viewId: string) => void;
-  onReorderViews: (sourceIndex: number, destinationIndex: number) => void;
 }
 
 function DraggableViewList({
@@ -90,48 +85,11 @@ function DraggableViewList({
   onEditView,
   onLoadView,
   onDeleteView,
-  onReorderViews,
 }: DraggableViewListProps) {
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
-  const [dragOverItem, setDragOverItem] = useState<number | null>(null);
-
-  const handleDragStart = (index: number) => {
-    setDraggedItem(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    setDragOverItem(index);
-  };
-
-  const handleDragEnd = () => {
-    if (
-      draggedItem !== null &&
-      dragOverItem !== null &&
-      draggedItem !== dragOverItem
-    ) {
-      onReorderViews(draggedItem, dragOverItem);
-    }
-    setDraggedItem(null);
-    setDragOverItem(null);
-  };
-
   return (
     <div className="space-y-3">
-      {views.map((view, index) => (
-        <div
-          key={view.id}
-          draggable
-          onDragStart={() => handleDragStart(index)}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDragEnd={handleDragEnd}
-          className={cn(
-            "transition-transform",
-            draggedItem === index && "opacity-50",
-            dragOverItem === index &&
-              "border-2 border-primary border-dashed rounded-xl",
-          )}
-        >
+      {views.map((view) => (
+        <div key={view.id} className="transition-transform">
           <ViewCard
             view={view}
             isActive={currentViewId === view.id}
@@ -165,11 +123,11 @@ function ViewCard({
 }: ViewCardProps) {
   return (
     <Card
-      className={`transition-all hover:shadow-md m-2 ${isActive ? "ring-2 ring-primary" : ""}`}
+      className={`transition-all hover:shadow-md mx-2 ${isActive ? "ring-2 ring-primary" : ""}`}
     >
-      <CardHeader className="pb-2">
+      <CardHeader>
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-x-2">
             <GripVertical
               size={16}
               className="text-muted-foreground cursor-grab"

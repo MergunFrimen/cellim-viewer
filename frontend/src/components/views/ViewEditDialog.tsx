@@ -13,12 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { View } from "@/types";
+import { ViewResponse } from "@/lib/client";
 
 interface EditViewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  view: View | null;
+  view: ViewResponse | null;
   onUpdate: (viewId: string, name: string, description: string) => void;
 }
 

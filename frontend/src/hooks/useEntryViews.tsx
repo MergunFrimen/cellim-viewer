@@ -11,7 +11,7 @@ import {
   viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { ViewResponse, ViewUpdateRequest } from "@/lib/client";
+import { ViewResponse } from "@/lib/client";
 
 export function useEntryViews(entryId: string) {
   const { viewer } = useMolstar();
@@ -98,33 +98,12 @@ export function useEntryViews(entryId: string) {
   };
 
   const handleDeleteView = (viewId: string) => {
-    deleteViewMutation.mutate({ path: { entry_id: entryId, view_id: viewId } });
+    deleteViewMutation.mutate({ path: { view_id: viewId } });
   };
 
-  const handleLoadView = async (view: any) => {
-    if (view.mvsj) {
-      setCurrentViewId(view.id);
-      await viewer.setState(view.mvsj);
-    }
+  const handleLoadView = async (view: ViewResponse) => {
+    await viewer.loadSnapshot(view.snapshot_url);
   };
-
-  const handleReorderViews = (
-    sourceIndex: number,
-    destinationIndex: number,
-  ) => {
-    // Implementation for reordering views
-  };
-
-  //   const reorderViews = (sourceIndex: number, destinationIndex: number) => {
-  //     if (sourceIndex === destinationIndex) return;
-
-  //     setViews((prevViews) => {
-  //       const result = Array.from(prevViews);
-  //       const [removed] = result.splice(sourceIndex, 1);
-  //       result.splice(destinationIndex, 0, removed);
-  //       return result;
-  //     });
-  //   };
 
   return {
     views: viewsQuery.data || [],
@@ -136,7 +115,6 @@ export function useEntryViews(entryId: string) {
     handleEditView,
     handleDeleteView,
     handleLoadView,
-    handleReorderViews,
     showSaveDialog,
     setShowSaveDialog,
     viewToEdit,
