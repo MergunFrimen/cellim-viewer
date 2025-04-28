@@ -5,6 +5,7 @@ import {
   PluginUISpec,
 } from "molstar/lib/commonjs/mol-plugin-ui/spec";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
+import { PluginCommands } from "molstar/lib/commonjs/mol-plugin/commands";
 import { BehaviorSubject } from "rxjs";
 import { BaseReactiveModel } from "./base-model";
 
@@ -87,19 +88,26 @@ export class MolstarViewerModel extends BaseReactiveModel {
   }
 
   getState(): PluginState.Snapshot {
-    // const snapshot = await this.plugin.managers.snapshot.getStateSnapshot()
     return this.plugin.state.getSnapshot({ image: true });
   }
 
-  async setState(snapshot: PluginState.Snapshot) {
+  async loadSnapshot(url: string) {
     if (this.state.isLoading.value) return;
 
     this.state.isLoading.next(true);
-    await this.plugin.state.setSnapshot(snapshot);
-    this.state.isLoading.next(false);
-  }
+    try {
+      const response = await fetch(url);
+      if (!response.ok)
+        throw new Error(`Failed to fetch snapshot: ${response.statusText}`);
 
-  async loadSnapshot(url: string) {
-    console.log("loading", url);
+      const snapshot: PluginState.Snapshot = await response.json();
+
+      await this.plugin.state.setSnapshot(snapshot);
+    } catch (error) {
+      console.error("Error loading snapshot:", error);
+      throw error;
+    } finally {
+      this.state.isLoading.next(false);
+    }
   }
 }

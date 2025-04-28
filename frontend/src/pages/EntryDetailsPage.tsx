@@ -27,13 +27,11 @@ export function EntryDetailsPage() {
   const {
     views,
     currentViewId,
-    screenshotUrls,
     isViewsLoading,
     viewsError,
     handleSaveView,
     handleEditView,
     handleDeleteView,
-    handleLoadView,
     showSaveDialog,
     setShowSaveDialog,
     viewToEdit,
@@ -88,12 +86,11 @@ export function EntryDetailsPage() {
       <div className="flex flex-1 overflow-hidden gap-x-3">
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
+            entryId={entryId}
             views={views}
             currentViewId={currentViewId}
-            screenshotUrls={screenshotUrls}
             onSaveView={() => setShowSaveDialog(true)}
             onEditView={handleEditView}
-            onLoadView={handleLoadView}
             onDeleteView={handleDeleteView}
           />
         </aside>

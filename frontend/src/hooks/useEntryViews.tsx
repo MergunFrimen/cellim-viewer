@@ -23,7 +23,7 @@ export function useEntryViews(entryId: string) {
   const [viewToDelete, setViewToDelete] = useState(null);
   const [currentViewId, setCurrentViewId] = useState<string | null>(null);
 
-  const viewsQuery = useQuery({
+  const listViewsQuery = useQuery({
     ...viewsListViewsForEntryOptions({
       path: {
         entry_id: entryId!,
@@ -101,20 +101,14 @@ export function useEntryViews(entryId: string) {
     deleteViewMutation.mutate({ path: { view_id: viewId } });
   };
 
-  const handleLoadView = async (view: ViewResponse) => {
-    await viewer.loadSnapshot(view.snapshot_url);
-  };
-
   return {
-    views: viewsQuery.data || [],
+    views: listViewsQuery.data || [],
     currentViewId,
-    screenshotUrls: {}, // Add actual implementation
-    isViewsLoading: viewsQuery.isLoading,
-    viewsError: viewsQuery.error,
+    isViewsLoading: listViewsQuery.isLoading,
+    viewsError: listViewsQuery.error,
     handleSaveView,
     handleEditView,
     handleDeleteView,
-    handleLoadView,
     showSaveDialog,
     setShowSaveDialog,
     viewToEdit,

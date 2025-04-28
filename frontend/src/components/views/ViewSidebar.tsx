@@ -6,22 +6,20 @@ import { Camera } from "lucide-react";
 import { ViewCard } from "./ViewCard";
 
 interface ViewsSidebarProps {
+  entryId: string;
   views: ViewResponse[];
   currentViewId: string | null;
-  screenshotUrls: Record<string, string>;
   onSaveView: () => void;
   onEditView: (view: ViewResponse) => void;
-  onLoadView: (view: ViewResponse) => void;
   onDeleteView: (viewId: string) => void;
 }
 
 export function ViewsSidebar({
+  entryId,
   views,
   currentViewId,
-  screenshotUrls,
   onSaveView,
   onEditView,
-  onLoadView,
   onDeleteView,
 }: ViewsSidebarProps) {
   return (
@@ -44,11 +42,10 @@ export function ViewsSidebar({
           {views.map((view) => (
             <div key={view.id} className="transition-transform">
               <ViewCard
+                entryId={entryId}
                 view={view}
                 isActive={currentViewId === view.id}
-                screenshotUrl={screenshotUrls[view.id]}
                 onEdit={() => onEditView(view)}
-                onLoad={() => onLoadView(view)}
                 onDelete={() => onDeleteView(view.id)}
               />
             </div>

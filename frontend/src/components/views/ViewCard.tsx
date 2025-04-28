@@ -12,26 +12,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
+import { viewsGetViewSnapshotOptions } from "@/lib/client/@tanstack/react-query.gen";
+import { useQuery } from "@tanstack/react-query";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
 
 interface ViewCardProps {
+  entryId: string;
   view: ViewResponse;
   isActive: boolean;
-  screenshotUrl?: string;
   onEdit: () => void;
-  onLoad: () => void;
   onDelete: () => void;
 }
 
 export function ViewCard({
+  entryId,
   view,
   isActive,
-  screenshotUrl,
   onEdit,
-  onLoad,
   onDelete,
 }: ViewCardProps) {
+  const { viewer } = useMolstar();
+
+  const handleLoadView = async () => {
+    await viewer.loadSnapshot(view.snapshot_url);
+  };
+
   return (
     <Card
       className={`transition-all hover:shadow-md mr-0 ${isActive ? "ring-2 ring-primary" : ""}`}
@@ -71,9 +78,9 @@ export function ViewCard({
       {/* Screenshot Preview */}
       <div className="px-6 pb-2">
         <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
-          {screenshotUrl ? (
+          {view.thumbnail_url ? (
             <img
-              src={screenshotUrl}
+              src={view.thumbnail_url}
               alt={`Preview of ${view.name}`}
               className="w-full h-full object-cover"
             />
@@ -90,7 +97,7 @@ export function ViewCard({
       </CardContent>
       <CardFooter className="justify-center pt-2">
         <Button
-          onClick={onLoad}
+          onClick={handleLoadView}
           variant={isActive ? "default" : "outline"}
           size="sm"
           className="w-full"

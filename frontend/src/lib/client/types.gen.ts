@@ -383,33 +383,6 @@ export type ViewsCreateViewResponses = {
 export type ViewsCreateViewResponse =
   ViewsCreateViewResponses[keyof ViewsCreateViewResponses];
 
-export type ViewsGetViewSnapshotData = {
-  body?: never;
-  path: {
-    entry_id: string;
-    view_id: string;
-  };
-  query?: never;
-  url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot";
-};
-
-export type ViewsGetViewSnapshotErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type ViewsGetViewSnapshotError =
-  ViewsGetViewSnapshotErrors[keyof ViewsGetViewSnapshotErrors];
-
-export type ViewsGetViewSnapshotResponses = {
-  /**
-   * Successful Response
-   */
-  200: unknown;
-};
-
 export type ViewsDeleteViewData = {
   body?: never;
   path: {
@@ -438,6 +411,34 @@ export type ViewsDeleteViewResponses = {
 
 export type ViewsDeleteViewResponse =
   ViewsDeleteViewResponses[keyof ViewsDeleteViewResponses];
+
+export type ViewsGetViewData = {
+  body?: never;
+  path: {
+    view_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/views/{view_id}";
+};
+
+export type ViewsGetViewErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ViewsGetViewError = ViewsGetViewErrors[keyof ViewsGetViewErrors];
+
+export type ViewsGetViewResponses = {
+  /**
+   * Successful Response
+   */
+  200: ViewResponse;
+};
+
+export type ViewsGetViewResponse =
+  ViewsGetViewResponses[keyof ViewsGetViewResponses];
 
 export type ViewsUpdateViewData = {
   body: ViewUpdateRequest;
@@ -468,6 +469,33 @@ export type ViewsUpdateViewResponses = {
 
 export type ViewsUpdateViewResponse =
   ViewsUpdateViewResponses[keyof ViewsUpdateViewResponses];
+
+export type ViewsGetViewSnapshotData = {
+  body?: never;
+  path: {
+    entry_id: string;
+    view_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot.json";
+};
+
+export type ViewsGetViewSnapshotErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ViewsGetViewSnapshotError =
+  ViewsGetViewSnapshotErrors[keyof ViewsGetViewSnapshotErrors];
+
+export type ViewsGetViewSnapshotResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type ShareLinksGetShareLinkData = {
   body?: never;

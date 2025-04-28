@@ -105,6 +105,8 @@ export const zViewsCreateViewResponse = zViewResponse;
 
 export const zViewsDeleteViewResponse = z.string().uuid();
 
+export const zViewsGetViewResponse = zViewResponse;
+
 export const zViewsUpdateViewResponse = zViewResponse;
 
 export const zShareLinksGetShareLinkResponse = zShareLinkResponse;
