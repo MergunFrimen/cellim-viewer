@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body, File, HTTPException, Path
+from fastapi import APIRouter, Body, Depends, File, HTTPException, Path
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from starlette import status
@@ -12,7 +12,7 @@ from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
 from app.database.models.view_model import View
-from app.services.files.upload import file_storage
+from app.services.files.upload import FileStorage, get_file_storage
 
 router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 
@@ -27,6 +27,7 @@ async def create_view(
     request: Annotated[ViewCreateRequest, File()],
     session: SessionDependency,
     current_user: RequireUser,
+    file_storage: Annotated[FileStorage, Depends(get_file_storage)],
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
@@ -45,8 +46,9 @@ async def create_view(
     if request.snapshot_json:
         try:
             snapshot_url = await file_storage.save_view_snapshot(
-                view_id,
-                request.snapshot_json.file,
+                entry_id=entry_id,
+                view_id=view_id,
+                file_content=request.snapshot_json.file,
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error saving JSON snapshot: {str(e)}")
@@ -55,9 +57,10 @@ async def create_view(
     if request.thumbnail_image:
         try:
             thumbnail_url = await file_storage.save_view_image(
-                view_id,
-                request.thumbnail_image.file,
-                request.thumbnail_image.filename,
+                entry_id=entry_id,
+                view_id=view_id,
+                filename=request.thumbnail_image.filename,
+                file_content=request.thumbnail_image.file,
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error saving image: {str(e)}")

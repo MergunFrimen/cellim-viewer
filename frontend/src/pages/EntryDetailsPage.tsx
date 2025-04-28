@@ -1,21 +1,24 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { View } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { DeleteDialog } from "@/components/common/DeleteDialog";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
+import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
+import { EditViewDialog } from "@/components/views/ViewEditDialog";
+import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/contexts/MolstarProvider";
+import { useViews } from "@/hooks/useViews";
 import { HttpValidationError } from "@/lib/client";
 import {
   entriesDeleteEntryMutation,
   entriesGetEntryOptions,
   entriesGetEntryQueryKey,
-  entriesUpdateEntryMutation,
   viewsCreateViewMutation,
   viewsDeleteViewMutation,
   viewsGetViewQueryKey,
@@ -23,23 +26,9 @@ import {
   viewsListViewsForEntryQueryKey,
   viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
-import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
-import { ViewsSidebar } from "@/components/views/ViewSidebar";
-import { useViews } from "@/hooks/useViews";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
-import { EditViewDialog } from "@/components/views/ViewEditDialog";
-import { DeleteDialog } from "@/components/common/DeleteDialog";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
+import { toast } from "sonner";
 
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
