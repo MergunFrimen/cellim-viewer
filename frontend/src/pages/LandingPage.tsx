@@ -4,7 +4,6 @@ import { SearchBar } from "@/components/common/SearchBar";
 import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { EntryPreview } from "@/components/entries/EntryPreview";
 import { Button } from "@/components/ui/button";
-import { entriesListEntries } from "@/lib/client";
 import { entriesListEntriesOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";

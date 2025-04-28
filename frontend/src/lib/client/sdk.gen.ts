@@ -25,6 +25,9 @@ import type {
   EntriesUpdateEntryData,
   EntriesUpdateEntryResponse,
   EntriesUpdateEntryError,
+  EntriesGetEntryShareLinkData,
+  EntriesGetEntryShareLinkResponse,
+  EntriesGetEntryShareLinkError,
   EntriesGetEntryByShareLinkData,
   EntriesGetEntryByShareLinkResponse,
   EntriesGetEntryByShareLinkError,
@@ -51,9 +54,11 @@ import type {
   ShareLinksUpdateShareLinkError,
   AuthLoginAdminData,
   AuthLoginUserData,
+  AuthLogoutData,
   AuthReadUsersMeData,
   AuthProtectedRouteData,
   AuthProtectedRouteError,
+  AuthCheckAuthData,
   TestBackgroundTaskData,
 } from "./types.gen";
 import {
@@ -63,6 +68,7 @@ import {
   zEntriesDeleteEntryResponse,
   zEntriesGetEntryResponse,
   zEntriesUpdateEntryResponse,
+  zEntriesGetEntryShareLinkResponse,
   zEntriesGetEntryByShareLinkResponse,
   zViewsListViewsForEntryResponse,
   zViewsCreateViewResponse,
@@ -240,6 +246,31 @@ export const entriesUpdateEntry = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Get Entry Share Link
+ */
+export const entriesGetEntryShareLink = <ThrowOnError extends boolean = false>(
+  options: Options<EntriesGetEntryShareLinkData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    EntriesGetEntryShareLinkResponse,
+    EntriesGetEntryShareLinkError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zEntriesGetEntryShareLinkResponse.parseAsync(data);
+    },
+    url: "/api/v1/entries/{entry_id}/share_link",
+    ...options,
   });
 };
 
@@ -452,12 +483,14 @@ export const shareLinksUpdateShareLink = <ThrowOnError extends boolean = false>(
 export const authLoginAdmin = <ThrowOnError extends boolean = false>(
   options?: Options<AuthLoginAdminData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
-    {
-      url: "/api/v1/auth/login/admin",
-      ...options,
-    },
-  );
+  return (options?.client ?? _heyApiClient).post<
+    unknown,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/login/admin",
+    ...options,
+  });
 };
 
 /**
@@ -466,12 +499,36 @@ export const authLoginAdmin = <ThrowOnError extends boolean = false>(
 export const authLoginUser = <ThrowOnError extends boolean = false>(
   options?: Options<AuthLoginUserData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
-    {
-      url: "/api/v1/auth/login/user",
-      ...options,
-    },
-  );
+  return (options?.client ?? _heyApiClient).post<
+    unknown,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/login/user",
+    ...options,
+  });
+};
+
+/**
+ * Logout
+ */
+export const authLogout = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthLogoutData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    unknown,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/auth/logout",
+    ...options,
+  });
 };
 
 /**
@@ -508,6 +565,26 @@ export const authProtectedRoute = <ThrowOnError extends boolean = false>(
     url: "/api/v1/auth/get_auth_header",
     ...options,
   });
+};
+
+/**
+ * Check Auth
+ */
+export const authCheckAuth = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthCheckAuthData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
+    {
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/auth/check-auth",
+      ...options,
+    },
+  );
 };
 
 /**

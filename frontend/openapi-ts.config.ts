@@ -1,5 +1,4 @@
 import { defineConfig } from "@hey-api/openapi-ts";
-import { API_BASE_URL } from "./src/config/dev-config";
 
 export default defineConfig({
   // watch: true,

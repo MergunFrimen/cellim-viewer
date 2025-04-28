@@ -8,6 +8,17 @@ export const zEntryCreateRequest = z.object({
   is_public: z.boolean().optional().default(false),
 });
 
+export const zEntryDetailsResponse = z.object({
+  response_model: z.string().optional().default(""),
+  id: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  name: z.string().max(255),
+  description: z.union([z.string(), z.null()]).optional(),
+  thumbnail_url: z.union([z.string(), z.null()]).optional(),
+  is_public: z.boolean(),
+});
+
 export const zEntryUpdateRequest = z.object({
   name: z.union([z.string().max(255), z.null()]).optional(),
   description: z.union([z.string(), z.null()]).optional(),
@@ -24,84 +35,22 @@ export const zHttpValidationError = z.object({
   detail: z.array(zValidationError).optional(),
 });
 
-export const zPrivateViewResponse = z.object({
+export const zPaginatedResponseEntryDetailsResponse = z.object({
   response_model: z.string().optional().default(""),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  id: z.string(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-  snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
+  current_page: z.number().int().gte(1).optional().default(1),
+  per_page: z.number().int().gte(1).lte(100).optional().default(100),
+  total_pages: z.number().int(),
+  total_items: z.number().int(),
+  items: z.array(zEntryDetailsResponse),
 });
 
-export const zPrivateShareLinkResponse = z.object({
+export const zShareLinkResponse = z.object({
+  response_model: z.string().optional().default(""),
   id: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
   is_editable: z.boolean(),
   is_active: z.boolean(),
-});
-
-export const zPrivateEntryDetailsResponse = z.object({
-  response_model: z.string().optional().default(""),
-  id: z.string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string(), z.null()]).optional(),
-  is_public: z.boolean(),
-  views: z.array(zPrivateViewResponse),
-  link: zPrivateShareLinkResponse,
-});
-
-export const zPaginatedResponsePrivateEntryDetailsResponse = z.object({
-  current_page: z.number().int().gte(1).optional().default(1),
-  per_page: z.number().int().gte(1).lte(100).optional().default(100),
-  total_pages: z.number().int(),
-  total_items: z.number().int(),
-  items: z.array(zPrivateEntryDetailsResponse),
-});
-
-export const zPublicEntryPreviewResponse = z.object({
-  response_model: z.string().optional().default(""),
-  id: z.string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string(), z.null()]).optional(),
-  is_public: z.boolean(),
-});
-
-export const zPaginatedResponsePublicEntryPreviewResponse = z.object({
-  current_page: z.number().int().gte(1).optional().default(1),
-  per_page: z.number().int().gte(1).lte(100).optional().default(100),
-  total_pages: z.number().int(),
-  total_items: z.number().int(),
-  items: z.array(zPublicEntryPreviewResponse),
-});
-
-export const zPublicViewResponse = z.object({
-  response_model: z.string().optional().default(""),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  id: z.string(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-  snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
-});
-
-export const zPublicEntryDetailsResponse = z.object({
-  response_model: z.string().optional().default(""),
-  id: z.string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string(), z.null()]).optional(),
-  is_public: z.boolean(),
-  views: z.array(zPublicViewResponse),
 });
 
 export const zShareLinkUpdateRequest = z.object({
@@ -117,13 +66,14 @@ export const zViewCreateRequest = z.object({
 });
 
 export const zViewResponse = z.object({
+  response_model: z.string().optional().default(""),
+  id: z.string(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-  id: z.string(),
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.union([z.string().max(2083), z.null()]).optional(),
-  snapshot_url: z.union([z.string().max(2083), z.null()]).optional(),
+  thumbnail_url: z.string().max(2083),
+  snapshot_url: z.string().max(2083),
 });
 
 export const zViewUpdateRequest = z.object({
@@ -132,40 +82,33 @@ export const zViewUpdateRequest = z.object({
 });
 
 export const zEntriesListEntriesResponse =
-  zPaginatedResponsePublicEntryPreviewResponse;
+  zPaginatedResponseEntryDetailsResponse;
 
-export const zEntriesCreateEntryResponse = zPrivateEntryDetailsResponse;
+export const zEntriesCreateEntryResponse = zEntryDetailsResponse;
 
 export const zEntriesListEntriesForUserResponse =
-  zPaginatedResponsePrivateEntryDetailsResponse;
+  zPaginatedResponseEntryDetailsResponse;
 
 export const zEntriesDeleteEntryResponse = z.string().uuid();
 
-export const zEntriesGetEntryResponse = z.union([
-  zPrivateEntryDetailsResponse,
-  zPublicEntryDetailsResponse,
-]);
+export const zEntriesGetEntryResponse = zEntryDetailsResponse;
 
-export const zEntriesUpdateEntryResponse = zPrivateEntryDetailsResponse;
+export const zEntriesUpdateEntryResponse = zEntryDetailsResponse;
 
-export const zEntriesGetEntryByShareLinkResponse = z.union([
-  zPrivateEntryDetailsResponse,
-  zPublicEntryDetailsResponse,
-]);
+export const zEntriesGetEntryShareLinkResponse = zShareLinkResponse;
 
-export const zViewsListViewsForEntryResponse = z.array(z.unknown());
+export const zEntriesGetEntryByShareLinkResponse = zEntryDetailsResponse;
 
-export const zViewsCreateViewResponse = zPrivateViewResponse;
+export const zViewsListViewsForEntryResponse = z.array(zViewResponse);
+
+export const zViewsCreateViewResponse = zViewResponse;
 
 export const zViewsDeleteViewResponse = z.string().uuid();
 
-export const zViewsGetViewResponse = z.union([
-  zPrivateViewResponse,
-  zPublicViewResponse,
-]);
+export const zViewsGetViewResponse = zViewResponse;
 
 export const zViewsUpdateViewResponse = zViewResponse;
 
-export const zShareLinksGetShareLinkResponse = zPrivateShareLinkResponse;
+export const zShareLinksGetShareLinkResponse = zShareLinkResponse;
 
-export const zShareLinksUpdateShareLinkResponse = zPrivateShareLinkResponse;
+export const zShareLinksUpdateShareLinkResponse = zShareLinkResponse;

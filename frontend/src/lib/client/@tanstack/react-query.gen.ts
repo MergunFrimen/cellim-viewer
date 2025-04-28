@@ -8,6 +8,7 @@ import {
   entriesDeleteEntry,
   entriesGetEntry,
   entriesUpdateEntry,
+  entriesGetEntryShareLink,
   entriesGetEntryByShareLink,
   viewsListViewsForEntry,
   viewsCreateView,
@@ -18,8 +19,10 @@ import {
   shareLinksUpdateShareLink,
   authLoginAdmin,
   authLoginUser,
+  authLogout,
   authReadUsersMe,
   authProtectedRoute,
+  authCheckAuth,
   testBackgroundTask,
 } from "../sdk.gen";
 import {
@@ -27,6 +30,7 @@ import {
   infiniteQueryOptions,
   type InfiniteData,
   type UseMutationOptions,
+  type DefaultError,
 } from "@tanstack/react-query";
 import type {
   EntriesListEntriesData,
@@ -45,6 +49,7 @@ import type {
   EntriesUpdateEntryData,
   EntriesUpdateEntryError,
   EntriesUpdateEntryResponse,
+  EntriesGetEntryShareLinkData,
   EntriesGetEntryByShareLinkData,
   ViewsListViewsForEntryData,
   ViewsCreateViewData,
@@ -63,8 +68,10 @@ import type {
   ShareLinksUpdateShareLinkResponse,
   AuthLoginAdminData,
   AuthLoginUserData,
+  AuthLogoutData,
   AuthReadUsersMeData,
   AuthProtectedRouteData,
+  AuthCheckAuthData,
   TestBackgroundTaskData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -389,6 +396,27 @@ export const entriesUpdateEntryMutation = (
   return mutationOptions;
 };
 
+export const entriesGetEntryShareLinkQueryKey = (
+  options: Options<EntriesGetEntryShareLinkData>,
+) => createQueryKey("entriesGetEntryShareLink", options);
+
+export const entriesGetEntryShareLinkOptions = (
+  options: Options<EntriesGetEntryShareLinkData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await entriesGetEntryShareLink({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: entriesGetEntryShareLinkQueryKey(options),
+  });
+};
+
 export const entriesGetEntryByShareLinkQueryKey = (
   options: Options<EntriesGetEntryByShareLinkData>,
 ) => createQueryKey("entriesGetEntryByShareLink", options);
@@ -607,6 +635,26 @@ export const authLoginAdminOptions = (
   });
 };
 
+export const authLoginAdminMutation = (
+  options?: Partial<Options<AuthLoginAdminData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AuthLoginAdminData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AuthLoginAdminData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await authLoginAdmin({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const authLoginUserQueryKey = (options?: Options<AuthLoginUserData>) =>
   createQueryKey("authLoginUser", options);
 
@@ -623,6 +671,64 @@ export const authLoginUserOptions = (options?: Options<AuthLoginUserData>) => {
     },
     queryKey: authLoginUserQueryKey(options),
   });
+};
+
+export const authLoginUserMutation = (
+  options?: Partial<Options<AuthLoginUserData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AuthLoginUserData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AuthLoginUserData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await authLoginUser({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const authLogoutQueryKey = (options?: Options<AuthLogoutData>) =>
+  createQueryKey("authLogout", options);
+
+export const authLogoutOptions = (options?: Options<AuthLogoutData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await authLogout({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: authLogoutQueryKey(options),
+  });
+};
+
+export const authLogoutMutation = (
+  options?: Partial<Options<AuthLogoutData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AuthLogoutData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AuthLogoutData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await authLogout({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
 };
 
 export const authReadUsersMeQueryKey = (
@@ -664,6 +770,24 @@ export const authProtectedRouteOptions = (
       return data;
     },
     queryKey: authProtectedRouteQueryKey(options),
+  });
+};
+
+export const authCheckAuthQueryKey = (options?: Options<AuthCheckAuthData>) =>
+  createQueryKey("authCheckAuth", options);
+
+export const authCheckAuthOptions = (options?: Options<AuthCheckAuthData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await authCheckAuth({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: authCheckAuthQueryKey(options),
   });
 };
 

@@ -6,6 +6,17 @@ export type EntryCreateRequest = {
   is_public?: boolean;
 };
 
+export type EntryDetailsResponse = {
+  response_model?: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  is_public: boolean;
+};
+
 export type EntryUpdateRequest = {
   name?: string | null;
   description?: string | null;
@@ -16,84 +27,22 @@ export type HttpValidationError = {
   detail?: Array<ValidationError>;
 };
 
-export type PaginatedResponsePrivateEntryDetailsResponse = {
+export type PaginatedResponseEntryDetailsResponse = {
+  response_model?: string;
   current_page?: number;
   per_page?: number;
   total_pages: number;
   total_items: number;
-  items: Array<PrivateEntryDetailsResponse>;
+  items: Array<EntryDetailsResponse>;
 };
 
-export type PaginatedResponsePublicEntryPreviewResponse = {
-  current_page?: number;
-  per_page?: number;
-  total_pages: number;
-  total_items: number;
-  items: Array<PublicEntryPreviewResponse>;
-};
-
-export type PrivateEntryDetailsResponse = {
+export type ShareLinkResponse = {
   response_model?: string;
   id: string;
   created_at: string;
   updated_at: string;
-  name: string;
-  description?: string | null;
-  thumbnail_url?: string | null;
-  is_public: boolean;
-  views: Array<PrivateViewResponse>;
-  link: PrivateShareLinkResponse;
-};
-
-export type PrivateShareLinkResponse = {
-  id: string;
   is_editable: boolean;
   is_active: boolean;
-};
-
-export type PrivateViewResponse = {
-  response_model?: string;
-  created_at: string;
-  updated_at: string;
-  id: string;
-  name: string;
-  description?: string | null;
-  thumbnail_url?: string | null;
-  snapshot_url?: string | null;
-};
-
-export type PublicEntryDetailsResponse = {
-  response_model?: string;
-  id: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  description?: string | null;
-  thumbnail_url?: string | null;
-  is_public: boolean;
-  views: Array<PublicViewResponse>;
-};
-
-export type PublicEntryPreviewResponse = {
-  response_model?: string;
-  id: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  description?: string | null;
-  thumbnail_url?: string | null;
-  is_public: boolean;
-};
-
-export type PublicViewResponse = {
-  response_model?: string;
-  created_at: string;
-  updated_at: string;
-  id: string;
-  name: string;
-  description?: string | null;
-  thumbnail_url?: string | null;
-  snapshot_url?: string | null;
 };
 
 export type ShareLinkUpdateRequest = {
@@ -121,13 +70,14 @@ export type ViewCreateRequest = {
 };
 
 export type ViewResponse = {
+  response_model?: string;
+  id: string;
   created_at: string;
   updated_at: string;
-  id: string;
   name: string;
   description?: string | null;
-  thumbnail_url?: string | null;
-  snapshot_url?: string | null;
+  thumbnail_url: string;
+  snapshot_url: string;
 };
 
 export type ViewUpdateRequest = {
@@ -163,7 +113,7 @@ export type EntriesListEntriesResponses = {
   /**
    * Successful Response
    */
-  200: PaginatedResponsePublicEntryPreviewResponse;
+  200: PaginatedResponseEntryDetailsResponse;
 };
 
 export type EntriesListEntriesResponse =
@@ -190,7 +140,7 @@ export type EntriesCreateEntryResponses = {
   /**
    * Successful Response
    */
-  201: PrivateEntryDetailsResponse;
+  201: EntryDetailsResponse;
 };
 
 export type EntriesCreateEntryResponse =
@@ -224,7 +174,7 @@ export type EntriesListEntriesForUserResponses = {
   /**
    * Successful Response
    */
-  200: PaginatedResponsePrivateEntryDetailsResponse;
+  200: PaginatedResponseEntryDetailsResponse;
 };
 
 export type EntriesListEntriesForUserResponse =
@@ -282,7 +232,7 @@ export type EntriesGetEntryResponses = {
   /**
    * Successful Response
    */
-  200: PrivateEntryDetailsResponse | PublicEntryDetailsResponse;
+  200: EntryDetailsResponse;
 };
 
 export type EntriesGetEntryResponse =
@@ -311,11 +261,40 @@ export type EntriesUpdateEntryResponses = {
   /**
    * Successful Response
    */
-  200: PrivateEntryDetailsResponse;
+  200: EntryDetailsResponse;
 };
 
 export type EntriesUpdateEntryResponse =
   EntriesUpdateEntryResponses[keyof EntriesUpdateEntryResponses];
+
+export type EntriesGetEntryShareLinkData = {
+  body?: never;
+  path: {
+    entry_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/share_link";
+};
+
+export type EntriesGetEntryShareLinkErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type EntriesGetEntryShareLinkError =
+  EntriesGetEntryShareLinkErrors[keyof EntriesGetEntryShareLinkErrors];
+
+export type EntriesGetEntryShareLinkResponses = {
+  /**
+   * Successful Response
+   */
+  200: ShareLinkResponse;
+};
+
+export type EntriesGetEntryShareLinkResponse =
+  EntriesGetEntryShareLinkResponses[keyof EntriesGetEntryShareLinkResponses];
 
 export type EntriesGetEntryByShareLinkData = {
   body?: never;
@@ -340,7 +319,7 @@ export type EntriesGetEntryByShareLinkResponses = {
   /**
    * Successful Response
    */
-  200: PrivateEntryDetailsResponse | PublicEntryDetailsResponse;
+  200: EntryDetailsResponse;
 };
 
 export type EntriesGetEntryByShareLinkResponse =
@@ -369,7 +348,7 @@ export type ViewsListViewsForEntryResponses = {
   /**
    * Successful Response
    */
-  200: Array<PrivateViewResponse | PublicViewResponse>;
+  200: Array<ViewResponse>;
 };
 
 export type ViewsListViewsForEntryResponse =
@@ -398,7 +377,7 @@ export type ViewsCreateViewResponses = {
   /**
    * Successful Response
    */
-  201: PrivateViewResponse;
+  201: ViewResponse;
 };
 
 export type ViewsCreateViewResponse =
@@ -455,7 +434,7 @@ export type ViewsGetViewResponses = {
   /**
    * Successful Response
    */
-  200: PrivateViewResponse | PublicViewResponse;
+  200: ViewResponse;
 };
 
 export type ViewsGetViewResponse =
@@ -513,7 +492,7 @@ export type ShareLinksGetShareLinkResponses = {
   /**
    * Successful Response
    */
-  200: PrivateShareLinkResponse;
+  200: ShareLinkResponse;
 };
 
 export type ShareLinksGetShareLinkResponse =
@@ -542,7 +521,7 @@ export type ShareLinksUpdateShareLinkResponses = {
   /**
    * Successful Response
    */
-  200: PrivateShareLinkResponse;
+  200: ShareLinkResponse;
 };
 
 export type ShareLinksUpdateShareLinkResponse =
@@ -570,6 +549,20 @@ export type AuthLoginUserData = {
 };
 
 export type AuthLoginUserResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
+export type AuthLogoutData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/logout";
+};
+
+export type AuthLogoutResponses = {
   /**
    * Successful Response
    */
@@ -611,6 +604,20 @@ export type AuthProtectedRouteError =
   AuthProtectedRouteErrors[keyof AuthProtectedRouteErrors];
 
 export type AuthProtectedRouteResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
+export type AuthCheckAuthData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/check-auth";
+};
+
+export type AuthCheckAuthResponses = {
   /**
    * Successful Response
    */
