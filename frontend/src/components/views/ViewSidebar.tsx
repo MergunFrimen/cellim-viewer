@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ViewResponse } from "@/lib/client";
+import { ViewResponse, ViewUpdateRequest } from "@/lib/client";
 import { cn } from "@/lib/utils";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";

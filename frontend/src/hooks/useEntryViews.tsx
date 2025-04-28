@@ -11,11 +11,13 @@ import {
   viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { useMolstar } from "@/contexts/MolstarProvider";
+import { ViewResponse, ViewUpdateRequest } from "@/lib/client";
 
 export function useEntryViews(entryId: string) {
   const { viewer } = useMolstar();
 
   const queryClient = useQueryClient();
+
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [viewToEdit, setViewToEdit] = useState(null);
   const [viewToDelete, setViewToDelete] = useState(null);
@@ -87,14 +89,10 @@ export function useEntryViews(entryId: string) {
     setShowSaveDialog(false);
   };
 
-  const handleEditView = (
-    viewId: string,
-    name: string,
-    description: string,
-  ) => {
+  const handleEditView = (view: ViewResponse) => {
     updateViewMutation.mutate({
-      path: { entry_id: entryId, view_id: viewId },
-      body: { name, description },
+      path: { entry_id: entryId, view_id: view.id },
+      body: { name: view.name, description: view.description },
     });
     setViewToEdit(null);
   };
