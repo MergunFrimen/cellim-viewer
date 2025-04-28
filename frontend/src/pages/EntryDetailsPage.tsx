@@ -13,7 +13,7 @@ import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
 import { EditViewDialog } from "@/components/views/ViewEditDialog";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { useViews } from "@/hooks/useViews";
+import { useViews, View } from "@/hooks/useViews";
 import { HttpValidationError } from "@/lib/client";
 import {
   entriesDeleteEntryMutation,

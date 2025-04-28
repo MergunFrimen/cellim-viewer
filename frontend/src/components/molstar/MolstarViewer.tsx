@@ -16,7 +16,7 @@ export function MolstarViewer() {
 
   if (isInitialized)
     return (
-      <div className="relative size-full">
+      <div className="relative size-full rounded-lg overflow-hidden">
         {isInitialized && <ViewerLayout viewer={viewer} />}
       </div>
     );
