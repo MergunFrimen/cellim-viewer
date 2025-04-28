@@ -8,10 +8,12 @@ import { ThemeProvider } from "./contexts/ThemeProvider.tsx";
 
 import "./index.css";
 import { AuthProvider } from "./contexts/AuthProvider.tsx";
+import { AuthService } from "./lib/auth-service.ts";
+import { client } from "./lib/client/client.gen.ts";
 
-// client.setConfig({
-//   auth: () => "TOKEN",
-// });
+client.setConfig({
+  auth: () => AuthService.getToken() ?? undefined,
+});
 
 const queryClient = new QueryClient();
 

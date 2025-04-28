@@ -1,10 +1,10 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Entry } from "@/types";
 import { ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { EntryDetailsResponse } from "@/lib/client";
 
-export function EntryPreview({ entry }: { entry: Entry }) {
+export function EntryPreview({ entry }: { entry: EntryDetailsResponse }) {
   return (
     <Card
       key={entry.id}

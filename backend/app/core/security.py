@@ -63,12 +63,12 @@ def decode_token(token: str) -> dict[str, Any]:
 
 @lru_cache
 def get_regular_user_token():
-    return create_access_token({"sub": get_regular_user_id()})
+    return create_access_token({"sub": get_regular_user_id()}, expires_delta=timedelta(hours=10))
 
 
 @lru_cache
 def get_admin_user_token():
-    return create_access_token({"sub": get_admin_user_id()})
+    return create_access_token({"sub": get_admin_user_id()}, expires_delta=timedelta(hours=10))
 
 
 def get_required_user(required_role: RoleEnum | None = None) -> User:

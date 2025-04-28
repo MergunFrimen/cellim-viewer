@@ -37,8 +37,8 @@ export const zHttpValidationError = z.object({
 
 export const zPaginatedResponseEntryDetailsResponse = z.object({
   response_model: z.string().optional().default(""),
-  current_page: z.number().int().gte(1).optional().default(1),
-  per_page: z.number().int().gte(1).lte(100).optional().default(100),
+  page: z.number().int().gte(1),
+  per_page: z.number().int().gte(1).lte(100),
   total_pages: z.number().int(),
   total_items: z.number().int(),
   items: z.array(zEntryDetailsResponse),

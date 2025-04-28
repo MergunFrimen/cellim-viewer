@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -22,26 +23,21 @@ import {
   EntriesCreateEntryResponse,
   EntryCreateRequest,
   zEntryCreateRequest,
+  EntriesCreateEntryError,
 } from "@/lib/client";
 import { entriesCreateEntryMutation } from "@/lib/client/@tanstack/react-query.gen";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { useState } from "react";
 
-interface EntryCreateDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function EntryCreateDialog({
-  open,
-  onOpenChange,
-}: EntryCreateDialogProps) {
+export function EntryCreateDialog() {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<EntryCreateRequest>({
     resolver: zodResolver(zEntryCreateRequest),
@@ -56,7 +52,7 @@ export function EntryCreateDialog({
     ...entriesCreateEntryMutation(),
     onSuccess: (entry: EntriesCreateEntryResponse) => {
       toast.success(`Entry "${entry.name}" created successfully`);
-      onOpenChange(false);
+      setIsOpen(false);
       navigate(`/entries/${entry.id}`);
     },
     onError: () => {
@@ -71,7 +67,14 @@ export function EntryCreateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" onClick={() => setIsOpen(true)}>
+          <PlusIcon className="h-4 w-4" />
+          Create Entry
+        </Button>
+      </DialogTrigger>
+
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Create New Entry</DialogTitle>
@@ -144,15 +147,23 @@ export function EntryCreateDialog({
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>
-                    {mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "An error occurred while creating the entry. Please try again."}
+                    {mutation.error.detail ? (
+                      Array.isArray(mutation.error.detail) ? (
+                        mutation.error.detail.map((error, index) => (
+                          <div key={index}>{error.msg}</div>
+                        ))
+                      ) : (
+                        <div>{mutation.error.detail}</div>
+                      )
+                    ) : (
+                      <div>An unknown error occurred</div>
+                    )}
                   </AlertDescription>
                 </Alert>
               )}
 
               <DialogFooter className="gap-2 pt-4">
-                <Button type="submit" disabled={mutation.isPending}>
+                <Button type="submit" disabled={!mutation.isIdle}>
                   {mutation.isPending ? "Creating..." : "Create Entry"}
                 </Button>
               </DialogFooter>

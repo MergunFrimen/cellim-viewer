@@ -29,8 +29,8 @@ export type HttpValidationError = {
 
 export type PaginatedResponseEntryDetailsResponse = {
   response_model?: string;
-  current_page?: number;
-  per_page?: number;
+  page: number;
+  per_page: number;
   total_pages: number;
   total_items: number;
   items: Array<EntryDetailsResponse>;
@@ -92,7 +92,7 @@ export type EntriesListEntriesData = {
     /**
      * Keywords to search by in entry titles and descriptions.
      */
-    search_term?: Array<string> | null;
+    search_term?: string | null;
     page?: number;
     per_page?: number;
   };
@@ -153,7 +153,7 @@ export type EntriesListEntriesForUserData = {
     /**
      * Keywords to search by in entry titles and descriptions.
      */
-    search_term?: Array<string> | null;
+    search_term?: string | null;
     page?: number;
     per_page?: number;
   };

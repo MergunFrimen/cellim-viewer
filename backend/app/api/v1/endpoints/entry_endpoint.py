@@ -53,14 +53,10 @@ async def list_entries(
     query = select(Entry).where(Entry.is_public == True)
 
     if search_query.search_term:
-        search_conditions = []
-        for term in search_query.search_term:
-            search_term = f"%{term}%"
-            search_conditions.append(
-                or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
-            )
-        if search_conditions:
-            query = query.filter(*search_conditions)
+        search_term = f"%{search_query.search_term}%"
+        query = query.filter(
+            or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
+        )
 
     count_query = select(func.count()).select_from(query.subquery())
     total_items = await session.scalar(count_query)

@@ -12,22 +12,18 @@ import { useSearchParams } from "react-router-dom";
 
 export function LandingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
 
-  // Get search parameters
-  const search = searchParams.get("search") || "";
+  const search_term = searchParams.get("search_term") || "";
   const page = parseInt(searchParams.get("page") || "1");
-  const perPage = parseInt(searchParams.get("per_page") || "10"); // Show fewer items on homepage
+  const perPage = parseInt(searchParams.get("per_page") || "12");
 
-  // Query for entries
   const { data, isLoading, error } = useQuery({
     ...entriesListEntriesOptions(),
   });
 
-  // Update search parameters
   const handleSearch = (searchTerm: string) => {
     setSearchParams({
-      search: searchTerm,
+      search_term: searchTerm,
       page: "1",
       per_page: perPage.toString(),
     });
@@ -35,14 +31,18 @@ export function LandingPage() {
 
   const handlePageChange = (newPage: number) => {
     setSearchParams({
-      search,
+      search_term: search_term,
       page: newPage.toString(),
       per_page: perPage.toString(),
     });
   };
 
   const handlePerPageChange = (newPerPage: number) => {
-    setSearchParams({ search, page: "1", per_page: newPerPage.toString() });
+    setSearchParams({
+      search_term: search_term,
+      page: "1",
+      per_page: newPerPage.toString(),
+    });
   };
 
   return (
@@ -56,26 +56,19 @@ export function LandingPage() {
         </p>
         <div className="max-w-lg mx-auto mt-8">
           <SearchBar
-            initialValue={search}
+            initialValue={search_term}
             onSearch={handleSearch}
             placeholder="Search by name or description..."
           />
         </div>
       </section>
 
-      {/* Entries/Visualizations Section */}
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">
-            {search
-              ? `Search Results for "${search}"`
-              : "Featured Visualizations"}
+            {search_term && `Search Results for "${search_term}"`}
           </h2>
-          <Button variant="secondary" onClick={() => setIsOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Create Entry
-          </Button>
-          <EntryCreateDialog open={isOpen} onOpenChange={setIsOpen} />
+          <EntryCreateDialog />
         </div>
 
         {isLoading && (
@@ -88,9 +81,9 @@ export function LandingPage() {
         )}
         {data?.items.length === 0 && (
           <div className="text-center py-12 bg-muted/30 rounded-lg">
-            {search && (
+            {search_term && (
               <div>
-                <p>No entries found matching "{search}"</p>
+                <p>No entries found matching "{search_term}"</p>
                 <Button variant="link" onClick={() => handleSearch("")}>
                   Clear search
                 </Button>
@@ -108,9 +101,9 @@ export function LandingPage() {
 
             {data && (
               <PaginationControls
-                currentPage={data.current_page}
                 totalPages={data.total_pages}
                 totalItems={data.total_items}
+                currentPage={data.page}
                 perPage={data.per_page}
                 onPageChange={handlePageChange}
                 onPerPageChange={handlePerPageChange}

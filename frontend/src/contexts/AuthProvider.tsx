@@ -5,7 +5,7 @@ import {
   useContext,
   ReactNode,
 } from "react";
-import { AuthService } from "../lib/auth";
+import { AuthService } from "../lib/auth-service";
 
 interface AuthProviderProps {
   children: ReactNode;

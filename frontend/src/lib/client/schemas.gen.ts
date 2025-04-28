@@ -141,16 +141,14 @@ export const PaginatedResponse_EntryDetailsResponse_Schema = {
       type: "string",
       default: "",
     },
-    current_page: {
+    page: {
       type: "integer",
       minimum: 1,
-      default: 1,
     },
     per_page: {
       type: "integer",
       maximum: 100,
       minimum: 1,
-      default: 100,
     },
     total_pages: {
       type: "integer",
@@ -166,7 +164,7 @@ export const PaginatedResponse_EntryDetailsResponse_Schema = {
     },
   },
   type: "object",
-  required: ["total_pages", "total_items", "items"],
+  required: ["page", "per_page", "total_pages", "total_items", "items"],
 } as const;
 
 export const ShareLinkResponseSchema = {
