@@ -1,18 +1,23 @@
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body, Depends, File, HTTPException, Path
+from fastapi import APIRouter, Body, File, HTTPException, Path
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from starlette import status
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
-from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
+from app.api.v1.dependencies import (
+    FileStorageDependency,
+    OptionalUser,
+    RequireUser,
+    SessionDependency,
+)
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
 from app.database.models.view_model import View
-from app.services.files.upload import FileStorage, get_file_storage
 
 router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 
@@ -27,7 +32,7 @@ async def create_view(
     request: Annotated[ViewCreateRequest, File()],
     session: SessionDependency,
     current_user: RequireUser,
-    file_storage: Annotated[FileStorage, Depends(get_file_storage)],
+    file_storage: FileStorageDependency,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
@@ -114,15 +119,24 @@ async def list_views_for_entry(
 
 
 @router.get(
-    "/{view_id}",
+    "/{view_id}/snapshot",
     status_code=status.HTTP_200_OK,
-    response_model=ViewResponse,
+    response_class=JSONResponse,
 )
-async def get_view(
+async def get_view_snapshot(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: SessionDependency,
     current_user: OptionalUser,
+    session: SessionDependency,
+    file_storage: FileStorageDependency,
 ):
+    entry: Entry | None = await session.get(Entry, entry_id)
+    if not entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Entry not found",
+        )
+
     view: View | None = await session.get(View, view_id)
     if not view:
         raise HTTPException(
@@ -130,21 +144,21 @@ async def get_view(
             detail="View not found",
         )
 
-    result: View | None = await session.execute(
-        select(View).where(View.id == view_id).options(selectinload(View.entry))
-    )
-    view = result.scalar()
-
-    if current_user is not None and view.entry.user_id == current_user.id:
-        return ViewResponse.model_validate(view)
-
-    if not view.entry.is_public:
+    if (
+        not (current_user is not None and view.entry.user_id == current_user.id)
+        or not entry.is_public
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Entry is not public",
         )
 
-    return ViewResponse.model_validate(view)
+    snapshot = await file_storage.get_snapshot(
+        entry_id=entry_id,
+        view_id=view_id,
+    )
+
+    return snapshot
 
 
 @router.put(

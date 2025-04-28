@@ -12,8 +12,8 @@ import {
   entriesGetEntryByShareLink,
   viewsListViewsForEntry,
   viewsCreateView,
+  viewsGetViewSnapshot,
   viewsDeleteView,
-  viewsGetView,
   viewsUpdateView,
   shareLinksGetShareLink,
   shareLinksUpdateShareLink,
@@ -55,10 +55,10 @@ import type {
   ViewsCreateViewData,
   ViewsCreateViewError,
   ViewsCreateViewResponse,
+  ViewsGetViewSnapshotData,
   ViewsDeleteViewData,
   ViewsDeleteViewError,
   ViewsDeleteViewResponse,
-  ViewsGetViewData,
   ViewsUpdateViewData,
   ViewsUpdateViewError,
   ViewsUpdateViewResponse,
@@ -504,6 +504,27 @@ export const viewsCreateViewMutation = (
   return mutationOptions;
 };
 
+export const viewsGetViewSnapshotQueryKey = (
+  options: Options<ViewsGetViewSnapshotData>,
+) => createQueryKey("viewsGetViewSnapshot", options);
+
+export const viewsGetViewSnapshotOptions = (
+  options: Options<ViewsGetViewSnapshotData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await viewsGetViewSnapshot({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: viewsGetViewSnapshotQueryKey(options),
+  });
+};
+
 export const viewsDeleteViewMutation = (
   options?: Partial<Options<ViewsDeleteViewData>>,
 ): UseMutationOptions<
@@ -526,24 +547,6 @@ export const viewsDeleteViewMutation = (
     },
   };
   return mutationOptions;
-};
-
-export const viewsGetViewQueryKey = (options: Options<ViewsGetViewData>) =>
-  createQueryKey("viewsGetView", options);
-
-export const viewsGetViewOptions = (options: Options<ViewsGetViewData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await viewsGetView({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: viewsGetViewQueryKey(options),
-  });
 };
 
 export const viewsUpdateViewMutation = (

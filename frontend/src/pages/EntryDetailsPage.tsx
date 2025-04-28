@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useParams } from "react-router-dom";
 
 import { DeleteDialog } from "@/components/common/DeleteDialog";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
@@ -86,9 +85,7 @@ export function EntryDetailsPage() {
       {/* Entry Description Section */}
       <EntryDescription description={entry.description} />
 
-      {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden gap-x-3">
-        {/* Views Sidebar */}
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
             views={views}
@@ -100,8 +97,6 @@ export function EntryDetailsPage() {
             onDeleteView={handleDeleteView}
           />
         </aside>
-
-        {/* Molstar Viewer */}
         <main className="flex-1 relative">
           <MolstarViewer />
         </main>

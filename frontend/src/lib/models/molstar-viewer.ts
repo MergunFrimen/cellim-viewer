@@ -23,8 +23,6 @@ export class MolstarViewerModel extends BaseReactiveModel {
   constructor() {
     super();
 
-    console.log("constructed");
-
     const defaultSpec = DefaultPluginUISpec();
     const spec: PluginUISpec = {
       ...defaultSpec,
@@ -50,7 +48,6 @@ export class MolstarViewerModel extends BaseReactiveModel {
   async init() {
     if (this.state.isInitialized.value !== "pending") return;
 
-    console.log("initializing");
     this.state.isInitialized.next("initializing");
     try {
       await this.plugin.init();

@@ -53,7 +53,20 @@ class FileStorage:
         file_path = f"entries/{entry_id}/views/{view_id}/snapshot.json"
         return await self.backend.save_file(file_content, file_path)
 
-    async def get_view_image(self, file_path: str) -> bytes:
+    async def get_view_image(
+        self,
+        entry_id: UUID,
+        view_id: UUID,
+    ) -> bytes:
+        file_path = f"entries/{entry_id}/views/{view_id}/thumbnail.json"
+        return await self.backend.get_file(file_path)
+
+    async def get_snapshot(
+        self,
+        entry_id: UUID,
+        view_id: UUID,
+    ) -> bytes:
+        file_path = f"entries/{entry_id}/views/{view_id}/snapshot.json"
         return await self.backend.get_file(file_path)
 
     async def delete_view_files(self, entry_id: UUID, view_id: UUID) -> bool:

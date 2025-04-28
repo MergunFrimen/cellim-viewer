@@ -37,12 +37,11 @@ import type {
   ViewsCreateViewData,
   ViewsCreateViewResponse,
   ViewsCreateViewError,
+  ViewsGetViewSnapshotData,
+  ViewsGetViewSnapshotError,
   ViewsDeleteViewData,
   ViewsDeleteViewResponse,
   ViewsDeleteViewError,
-  ViewsGetViewData,
-  ViewsGetViewResponse,
-  ViewsGetViewError,
   ViewsUpdateViewData,
   ViewsUpdateViewResponse,
   ViewsUpdateViewError,
@@ -73,7 +72,6 @@ import {
   zViewsListViewsForEntryResponse,
   zViewsCreateViewResponse,
   zViewsDeleteViewResponse,
-  zViewsGetViewResponse,
   zViewsUpdateViewResponse,
   zShareLinksGetShareLinkResponse,
   zShareLinksUpdateShareLinkResponse,
@@ -351,6 +349,28 @@ export const viewsCreateView = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Get View Snapshot
+ */
+export const viewsGetViewSnapshot = <ThrowOnError extends boolean = false>(
+  options: Options<ViewsGetViewSnapshotData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    ViewsGetViewSnapshotError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot",
+    ...options,
+  });
+};
+
+/**
  * Delete View
  */
 export const viewsDeleteView = <ThrowOnError extends boolean = false>(
@@ -369,31 +389,6 @@ export const viewsDeleteView = <ThrowOnError extends boolean = false>(
     ],
     responseValidator: async (data) => {
       return await zViewsDeleteViewResponse.parseAsync(data);
-    },
-    url: "/api/v1/entries/{entry_id}/views/{view_id}",
-    ...options,
-  });
-};
-
-/**
- * Get View
- */
-export const viewsGetView = <ThrowOnError extends boolean = false>(
-  options: Options<ViewsGetViewData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ViewsGetViewResponse,
-    ViewsGetViewError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    responseValidator: async (data) => {
-      return await zViewsGetViewResponse.parseAsync(data);
     },
     url: "/api/v1/entries/{entry_id}/views/{view_id}",
     ...options,
