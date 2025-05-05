@@ -96,6 +96,18 @@ services:
     networks:
       - cellim-network
 
+  onezone:
+    image: onedata/onezone:21.02.8
+    container_name: oz_demo
+    command: demo
+    ports:
+      - "8001:80"
+      - "8002:443"
+      - "8003:53"
+      - "8004:9443"
+    networks:
+      - cellim-network
+
 networks:
   cellim-network:
     driver: bridge
