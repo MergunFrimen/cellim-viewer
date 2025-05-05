@@ -61,7 +61,7 @@ services:
 
   api:
     container_name: cellim-viewer-api
-    build: .
+    build: ./backend/
     ports:
       - "8000:8000"
     develop:
