@@ -6,7 +6,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @router.post("")
-async def start_processing(seconds: int):
+def start_processing(seconds: int):
     process_large_dataset.delay(seconds)
 
     return "OK"

@@ -95,6 +95,9 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
+    restart: always
+    networks:
+      - cellim-network
 
   celery_worker:
     build: ./backend/
@@ -102,6 +105,8 @@ services:
     depends_on:
       - api
       - redis
+    networks:
+      - cellim-network
 
   flower:
     build: ./backend/
@@ -111,6 +116,8 @@ services:
     depends_on:
       - redis
       - celery_worker
+    networks:
+      - cellim-network
 
   # onezone:
   #   image: onedata/onezone:21.02.8

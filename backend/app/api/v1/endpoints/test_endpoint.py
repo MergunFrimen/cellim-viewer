@@ -28,8 +28,8 @@ def get_airport_service():
 
 @router.get("/background-task")
 async def background_task(background_tasks: BackgroundTasks):
-    await background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
-    await background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
-    await background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
-    await background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
+    background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
+    background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
+    background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
+    background_tasks.add_task(get_airport_service().get_airport_position, "ORD")
     return 123
