@@ -9,6 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { EntryDetailsPage } from "./pages/EntryDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { ResumableUploader } from "./components/upload/ResumableUploader";
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
           <Route path="/docs" element={<DocsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/upload" element={<ResumableUploader />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </MainLayout>
