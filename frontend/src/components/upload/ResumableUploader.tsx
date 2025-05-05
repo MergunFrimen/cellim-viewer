@@ -8,7 +8,7 @@ import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
 import "@uppy/progress-bar/dist/style.min.css";
 
-export function ResumableUploader() {
+export const ResumableUploader = () => {
   const [uppy, setUppy] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
@@ -27,14 +27,15 @@ export function ResumableUploader() {
 
     // Add Tus plugin for resumable uploads
     uppyInstance.use(Tus, {
-      endpoint: "http://localhost:8000/api/v1/uploads",
+      endpoint: "http://localhost:8000/uploads/",
       retryDelays: [0, 1000, 3000, 5000], // Retry delays in ms
       chunkSize: 5 * 1024 * 1024, // 5MB chunks
       removeFingerprintOnSuccess: true,
       headers: {
         "X-Requested-With": "XMLHttpRequest", // Add this header to identify AJAX requests
       },
-      overridePatchMethod: false, // Set to true if your server doesn't support PATCH
+      // By setting this to true, TUS client will use a custom header instead of relying on the Location response header
+      overridePatchMethod: true, // This helps with CORS issues related to PATCH requests
     });
 
     // Add event listeners
@@ -56,16 +57,24 @@ export function ResumableUploader() {
     uppyInstance.on("upload-error", (file, error, response) => {
       console.error("Upload error:", error);
       console.error("Response:", response);
-      alert(`Error uploading ${file.name}: ${error}`);
     });
 
     // Set uppy instance to state
     setUppy(uppyInstance);
+
+    // Cleanup function to close Uppy instance when component unmounts
   }, []);
 
+  const handleReset = () => {
+    if (uppy) {
+      uppy.reset();
+      setUploadedFiles([]);
+    }
+  };
+
   return (
-    <div className="resumable-uploader">
-      <h2>Resumable File Uploader</h2>
+    <div>
+      <h2 className="text-3xl">Resumable File Uploader</h2>
 
       {uppy && (
         <>
@@ -76,6 +85,10 @@ export function ResumableUploader() {
             height={350}
             showProgressDetails={true}
           />
+
+          <div className="uploader-controls">
+            <button onClick={handleReset}>Reset</button>
+          </div>
 
           {uploadedFiles.length > 0 && (
             <div className="uploaded-files">
@@ -100,4 +113,4 @@ export function ResumableUploader() {
       )}
     </div>
   );
-}
+};

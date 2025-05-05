@@ -1,3 +1,4 @@
+import logging
 import shutil
 import uuid
 from pathlib import Path
@@ -5,7 +6,12 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException, Request, Response
 
-router = APIRouter(prefix="/uploads", tags=["Uploads"])
+router = APIRouter(prefix="", tags=["Uploads"])
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 # Configuration
 UPLOAD_DIR = Path("./uploads")
@@ -21,20 +27,19 @@ TEMP_DIR.mkdir(exist_ok=True)
 upload_store: Dict[str, Dict[str, Any]] = {}
 
 
-@router.options("", status_code=204)
-@router.options("/{upload_id}", status_code=204)
+@router.options("/uploads/", status_code=204)
+@router.options("/uploads/{upload_id}", status_code=204)
 async def options_handler(request: Request, response: Response):
     # Handle OPTIONS request for CORS preflight
-    response.headers["Tus-Resumable"] = "1.0.0"
-    response.headers["Tus-Version"] = "1.0.0"
-    response.headers["Tus-Extension"] = "creation,termination,checksum,expiration"
-    response.headers["Tus-Max-Size"] = str(MAX_SIZE)
-
-    return Response(status_code=204, headers=dict(response.headers))
+    # No need to set TUS headers here as they'll be added by the middleware
+    return Response(status_code=204)
 
 
-@router.post("", status_code=201)
+@router.post("/uploads/", status_code=201)
 async def create_upload(request: Request, response: Response):
+    """Create a new upload resource"""
+    logger.info("Creating new upload")
+
     # Check for TUS protocol version
     if request.headers.get("Tus-Resumable") != "1.0.0":
         return Response(status_code=412, content="Unsupported TUS version")
@@ -84,11 +89,15 @@ async def create_upload(request: Request, response: Response):
     # Set response headers
     response.headers["Tus-Resumable"] = "1.0.0"
     response.headers["Location"] = f"/uploads/{upload_id}"
+    # Add a custom header with the same information that can be read by JS
+    response.headers["Upload-Location"] = f"/uploads/{upload_id}"
+    response.headers["Access-Control-Expose-Headers"] = "Location, Upload-Location"
 
+    logger.info(f"Created upload: {upload_id}, filename: {filename}")
     return Response(status_code=201, headers=dict(response.headers))
 
 
-@router.head("/{upload_id}", status_code=200)
+@router.head("/uploads/{upload_id}", status_code=200)
 async def head_upload(upload_id: str, response: Response):
     """Get upload offset"""
     if upload_id not in upload_store:
@@ -104,7 +113,10 @@ async def head_upload(upload_id: str, response: Response):
     return Response(status_code=200, headers=dict(response.headers))
 
 
-@router.patch("/{upload_id}", status_code=204)
+@router.patch("/uploads/{upload_id}", status_code=204)
+@router.post(
+    "/uploads/{upload_id}", status_code=204
+)  # Handle POST requests with X-HTTP-Method-Override header
 async def patch_upload(upload_id: str, request: Request, response: Response):
     """Handle chunk upload"""
     if upload_id not in upload_store:
@@ -115,6 +127,10 @@ async def patch_upload(upload_id: str, request: Request, response: Response):
     # Check headers
     if request.headers.get("Tus-Resumable") != "1.0.0":
         return Response(status_code=412, content="Unsupported TUS version")
+
+    # Handle X-HTTP-Method-Override for browsers that don't support PATCH
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "PATCH":
+        logger.info("Handling POST request with X-HTTP-Method-Override: PATCH")
 
     content_type = request.headers.get("Content-Type")
     if content_type != "application/offset+octet-stream":
@@ -167,6 +183,8 @@ async def patch_upload(upload_id: str, request: Request, response: Response):
         upload_info["final_path"] = str(final_path)
         upload_info["url"] = f"/files/{final_path.name}"
 
+        logger.info(f"Upload complete: {upload_id}, saved as: {final_path.name}")
+
     # Set response headers
     response.headers["Tus-Resumable"] = "1.0.0"
     response.headers["Upload-Offset"] = str(upload_info["offset"])
@@ -174,7 +192,7 @@ async def patch_upload(upload_id: str, request: Request, response: Response):
     return Response(status_code=204, headers=dict(response.headers))
 
 
-@router.delete("/{upload_id}", status_code=204)
+@router.delete("/uploads/{upload_id}", status_code=204)
 async def delete_upload(upload_id: str):
     """Terminate an upload"""
     if upload_id not in upload_store:
@@ -190,6 +208,7 @@ async def delete_upload(upload_id: str):
     # Remove from store
     del upload_store[upload_id]
 
+    logger.info(f"Upload terminated: {upload_id}")
     return Response(status_code=204)
 
 
@@ -229,3 +248,9 @@ def secure_filename(filename: str) -> str:
     """Create a secure version of a filename"""
     # Simple implementation - in production, use a more robust solution
     return "".join(c for c in filename if c.isalnum() or c in "._- ").strip()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
