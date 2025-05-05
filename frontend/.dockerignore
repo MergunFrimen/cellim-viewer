@@ -9,3 +9,4 @@ Dockerfile
 # Npm
 node_modules
 npm-debug.log
+dist

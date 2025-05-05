@@ -66,8 +66,14 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     POSTGRES_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379/0"
+
     model_config = SettingsConfigDict(
-        env_file=".env.example", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
+        env_file=".env.example",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
     )
 
 

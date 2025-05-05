@@ -67,12 +67,10 @@ services:
     develop:
       watch:
         - action: sync
-          path: .
-          target: /app
-          ignore:
-            - .venv/
+          path: ./backend/
+          target: /app/
         - action: rebuild
-          path: ./pyproject.toml
+          path: ./backend/pyproject.toml
     networks:
       - cellim-network
     depends_on:
@@ -87,14 +85,36 @@ services:
       watch:
         - action: sync
           path: ./frontend/
-          target: /app
-          ignore:
-            - node_modules/
-            - dist/
+          target: /app/
         - action: rebuild
           path: ./frontend/package.json
     networks:
       - cellim-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # celery_worker:
+  #   build: .
+  #   command: celery -A app.celery.celery_app worker --loglevel=info
+  #   depends_on:
+  #     - api
+  #     - redis
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379/0
+
+  # flower:
+  #   build: .
+  #   command: celery -A app.celery.celery_app flower --port=5555
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - redis
+  #     - celery_worker
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379/0
 
   # onezone:
   #   image: onedata/onezone:21.02.8

@@ -4,6 +4,7 @@ from app.api.v1.endpoints import (
     auth_endpoint,
     entry_endpoint,
     share_link_endpoint,
+    task_endpoint,
     test_endpoint,
     view_endpoint,
 )
@@ -16,3 +17,4 @@ v1_api_router.include_router(view_endpoint.router)
 v1_api_router.include_router(share_link_endpoint.router)
 v1_api_router.include_router(auth_endpoint.router)
 v1_api_router.include_router(test_endpoint.router)
+v1_api_router.include_router(task_endpoint.router)
