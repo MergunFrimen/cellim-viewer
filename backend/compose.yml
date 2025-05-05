@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: cellim_viewer
-    # volumes:
-    #   - postgres_data:/var/lib/postgresql/data/
     networks:
       - cellim-network
 
@@ -17,27 +15,25 @@ services:
     container_name: cellim-viewer-adminer
     image: adminer:latest
     restart: always
-    ports:
-      - "8080:8080"
     environment:
       ADMINER_DEFAULT_SERVER: db
       ADMINER_DESIGN: dracula
-    depends_on:
-      - db
+    ports:
+      - "8080:8080"
     networks:
       - cellim-network
+    depends_on:
+      - db
 
   minio:
     container_name: cellim-viewer-minio
     image: minio/minio:latest
     ports:
-      - "9000:9000"  # MinIO API
-      - "9001:9001"  # MinIO Console
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-    # volumes:
-    #   - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -50,8 +46,6 @@ services:
   createbuckets:
     container_name: cellim-viewer-createbuckets
     image: minio/mc:latest
-    depends_on:
-      - minio
     entrypoint: >
       /bin/sh -c "
       sleep 5;
@@ -62,9 +56,28 @@ services:
       "
     networks:
       - cellim-network
+    depends_on:
+      - minio
 
-# volumes:
-#  postgres_data:
+  api:
+    container_name: cellim-viewer-api
+    build: .
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+            - "**/**/__pycache__/"
+        - action: rebuild
+          path: ./pyproject.toml
+    networks:
+      - cellim-network
+    depends_on:
+      - db
 
 networks:
   cellim-network:

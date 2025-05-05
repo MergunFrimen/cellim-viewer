@@ -11,8 +11,8 @@ from rich.panel import Panel
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database.models.base_model import Base
-from app.database.seeding.seed_database import seed_database
 from app.database.session_manager import get_session_manager
+from tools.db_seeding.seed_database import seed_database
 
 # Create Typer app
 app = typer.Typer(help="CELLIM Viewer database management CLI")

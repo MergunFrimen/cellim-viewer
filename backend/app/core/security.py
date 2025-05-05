@@ -14,8 +14,17 @@ from app.core.settings import get_settings
 from app.database.models.mixins.timestamp_mixin import utcnow
 from app.database.models.role_model import RoleEnum
 from app.database.models.user_model import User
-from app.database.seeding.seed_database import get_admin_user_id, get_regular_user_id
 from app.database.session_manager import get_session_manager
+
+
+@lru_cache
+def get_admin_user_id():
+    return "11111111-1111-1111-1111-111111111111"
+
+
+@lru_cache
+def get_regular_user_id():
+    return "22222222-2222-2222-2222-222222222222"
 
 
 class Token(BaseModel):

@@ -1,29 +1,23 @@
 import random
+import sys
 from datetime import timedelta
-from functools import lru_cache
+from pathlib import Path
 
 from faker import Faker
 from faker.providers import internet
 from sqlalchemy import text
 
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
+from app.core.security import get_admin_user_id, get_regular_user_id
 from app.database.models import Entry, ShareLink, User, View
 from app.database.models.role_model import Role, RoleEnum
-from app.database.seeding.faker_provider import CellimProvider
 from app.database.session_manager import get_session_manager
+from tools.db_seeding.faker_provider import CellimProvider
 
 fake = Faker()
 fake.add_provider(internet)
 fake.add_provider(CellimProvider)
-
-
-@lru_cache
-def get_admin_user_id():
-    return "11111111-1111-1111-1111-111111111111"
-
-
-@lru_cache
-def get_regular_user_id():
-    return "22222222-2222-2222-2222-222222222222"
 
 
 async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
