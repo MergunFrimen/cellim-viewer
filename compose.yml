@@ -78,6 +78,24 @@ services:
     depends_on:
       - db
 
+  frontend:
+    container_name: cellim-viewer-frontend
+    build: ./frontend/
+    ports:
+      - "5173:5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/
+          target: /app
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./frontend/package.json
+    networks:
+      - cellim-network
+
 networks:
   cellim-network:
     driver: bridge

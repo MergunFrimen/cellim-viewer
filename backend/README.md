@@ -65,21 +65,8 @@ uvx pre-commit install
 
 ## Database
 
-### Docker
-
-```shell
-cd docker
-docker-compose up --build
-```
-
-### Init
-
-```shell
-typer tools/db_cli.py run init
-```
-
 ### Seed
 
 ```shell
-typer tools/db_cli.py run seed
+docker exec -it  cellim-viewer-api uv run tools/db_cli.py reset
 ```

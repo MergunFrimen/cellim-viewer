@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: list[str] = [
         APP_URL,  # for OpenAPI docs
-        "http://localhost:3000",  # for frontend
+        "http://localhost:5173",  # for frontend
         "http://localhost:6006",  # for storybook
     ]
 
