@@ -71,7 +71,6 @@ services:
           target: /app
           ignore:
             - .venv/
-            - "**/**/__pycache__/"
         - action: rebuild
           path: ./pyproject.toml
     networks:
