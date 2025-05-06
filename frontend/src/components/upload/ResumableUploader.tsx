@@ -65,51 +65,18 @@ export const ResumableUploader = () => {
     // Cleanup function to close Uppy instance when component unmounts
   }, []);
 
-  const handleReset = () => {
-    if (uppy) {
-      uppy.reset();
-      setUploadedFiles([]);
-    }
-  };
-
   return (
     <div>
-      <h2 className="text-3xl">Resumable File Uploader</h2>
+      <h2 className="text-3xl">File Uploader</h2>
 
       {uppy && (
-        <>
-          <Dashboard
-            uppy={uppy}
-            plugins={["Webcam"]}
-            width="100%"
-            height={350}
-            showProgressDetails={true}
-          />
-
-          <div className="uploader-controls">
-            <button onClick={handleReset}>Reset</button>
-          </div>
-
-          {uploadedFiles.length > 0 && (
-            <div className="uploaded-files">
-              <h3>Uploaded Files:</h3>
-              <ul>
-                {uploadedFiles.map((file) => (
-                  <li key={file.id}>
-                    {file.name} -{" "}
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View File
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
+        <Dashboard
+          uppy={uppy}
+          plugins={["Webcam"]}
+          width="100%"
+          height={350}
+          showProgressDetails={true}
+        />
       )}
     </div>
   );
