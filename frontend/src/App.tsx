@@ -10,6 +10,7 @@ import { EntryDetailsPage } from "./pages/EntryDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ResumableUploader } from "./components/upload/ResumableUploader";
+import TaskProgressComponent from "./components/TaskRunner";
 
 export function App() {
   return (
@@ -25,6 +26,7 @@ export function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/upload" element={<ResumableUploader />} />
+          <Route path="/tasks" element={<TaskProgressComponent />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </MainLayout>
