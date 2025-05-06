@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://redis:6379/0"
 
+    # Local file storage
+    FILE_STORAGE_BASE_PATH: str = "/temp"
+
     model_config = SettingsConfigDict(
         env_file=".env.example",
         env_file_encoding="utf-8",

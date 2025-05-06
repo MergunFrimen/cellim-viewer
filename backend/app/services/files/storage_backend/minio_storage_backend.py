@@ -4,7 +4,7 @@ from minio import Minio
 from minio.error import S3Error
 
 
-class MinioBackend:
+class MinioStorageBackend:
     def __init__(
         self,
         endpoint: str,

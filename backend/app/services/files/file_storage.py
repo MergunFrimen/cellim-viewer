@@ -1,35 +1,12 @@
-from abc import abstractmethod
-from functools import lru_cache
-from typing import BinaryIO, Protocol
+from typing import BinaryIO
 from uuid import UUID
 
 from app.core.settings import get_settings
-from app.services.files.minio import MinioBackend
-
-
-class StorageBackend(Protocol):
-    """Protocol defining storage operations."""
-
-    @abstractmethod
-    async def save_file(self, file_content: BinaryIO, file_path: str) -> str:
-        """Save file to storage and return the path."""
-        pass
-
-    @abstractmethod
-    async def get_file(self, file_path: str) -> bytes:
-        """Get file content from storage."""
-        pass
-
-    @abstractmethod
-    async def delete_file(self, file_path: str) -> bool:
-        """Delete file from storage."""
-        pass
+from app.services.files.storage_backend.base_storage_backend import BaseStorageBackend
 
 
 class FileStorage:
-    """Service for handling file storage operations."""
-
-    def __init__(self, backend: StorageBackend):
+    def __init__(self, backend: BaseStorageBackend):
         self.backend = backend
 
     def _generate_url(self, file_path: str):
@@ -132,16 +109,3 @@ class FileStorage:
             return True
         except FileNotFoundError:
             return False
-
-
-@lru_cache
-def get_file_storage():
-    return FileStorage(
-        MinioBackend(
-            endpoint=get_settings().MINIO_ENDPOINT,
-            access_key=get_settings().MINIO_ACCESS_KEY,
-            secret_key=get_settings().MINIO_SECRET_KEY,
-            bucket=get_settings().MINIO_BUCKET,
-            secure=get_settings().MINIO_SECURE,
-        )
-    )
