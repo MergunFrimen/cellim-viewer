@@ -4,7 +4,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, Request, Response
 
 router = APIRouter(prefix="", tags=["Uploads"])
 
@@ -22,8 +22,7 @@ MAX_SIZE = 1024 * 1024 * 1024  # 1GB
 UPLOAD_DIR.mkdir(exist_ok=True)
 TEMP_DIR.mkdir(exist_ok=True)
 
-# In-memory storage for upload metadata
-# In a production environment, use a database
+# todo: use db or redis
 upload_store: Dict[str, Dict[str, Any]] = {}
 
 
@@ -154,6 +153,7 @@ async def patch_upload(upload_id: str, request: Request, response: Response):
         return Response(status_code=413, content="Upload would exceed declared size")
 
     # Write chunk to file
+    # todo: send chunk to onedata
     temp_path = Path(upload_info["temp_path"])
     with open(temp_path, "ab") as f:
         f.write(chunk)
@@ -212,32 +212,6 @@ async def delete_upload(upload_id: str):
     return Response(status_code=204)
 
 
-@router.get("/files/{filename}")
-async def get_file(filename: str):
-    """Get uploaded file"""
-    file_path = UPLOAD_DIR / filename
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-
-    # In a real app, you might want to stream the file instead
-    return {"file_url": f"/download/{filename}"}
-
-
-@router.get("/download/{filename}")
-async def download_file(filename: str, response: Response):
-    """Download file endpoint"""
-    file_path = UPLOAD_DIR / filename
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-
-    # Read file and return
-    with open(file_path, "rb") as f:
-        content = f.read()
-
-    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
-    return Response(content=content, media_type="application/octet-stream")
-
-
 @router.get("/uploads/status")
 async def get_uploads_status():
     """Get status of all uploads"""
@@ -248,9 +222,3 @@ def secure_filename(filename: str) -> str:
     """Create a secure version of a filename"""
     # Simple implementation - in production, use a more robust solution
     return "".join(c for c in filename if c.isalnum() or c in "._- ").strip()
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
