@@ -25,6 +25,38 @@ services:
     depends_on:
       - db
 
+  api:
+    container_name: cellim-viewer-api
+    build: ./backend/
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - action: sync
+          path: ./backend/
+          target: /app/
+        - action: rebuild
+          path: ./backend/pyproject.toml
+    networks:
+      - cellim-network
+    depends_on:
+      - db
+
+  frontend:
+    container_name: cellim-viewer-frontend
+    build: ./frontend/
+    ports:
+      - "5173:5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/
+          target: /app/
+        - action: rebuild
+          path: ./frontend/package.json
+    networks:
+      - cellim-network
+
   # minio:
   #   container_name: cellim-viewer-minio
   #   image: minio/minio:latest
@@ -58,38 +90,6 @@ services:
   #     - cellim-network
   #   depends_on:
   #     - minio
-
-  api:
-    container_name: cellim-viewer-api
-    build: ./backend/
-    ports:
-      - "8000:8000"
-    develop:
-      watch:
-        - action: sync
-          path: ./backend/
-          target: /app/
-        - action: rebuild
-          path: ./backend/pyproject.toml
-    networks:
-      - cellim-network
-    depends_on:
-      - db
-
-  frontend:
-    container_name: cellim-viewer-frontend
-    build: ./frontend/
-    ports:
-      - "5173:5173"
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend/
-          target: /app/
-        - action: rebuild
-          path: ./frontend/package.json
-    networks:
-      - cellim-network
 
   # redis:
   #   image: redis:alpine
