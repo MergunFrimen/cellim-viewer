@@ -39,6 +39,8 @@ services:
           path: ./backend/pyproject.toml
     networks:
       - cellim-network
+    volumes:
+      - ./backend/temp:/app/temp
     depends_on:
       - db
 

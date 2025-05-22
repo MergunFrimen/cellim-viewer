@@ -126,7 +126,6 @@ dependencies = [
     { name = "asyncpg" },
     { name = "celery", extra = ["redis"] },
     { name = "fastapi", extra = ["standard"] },
-    { name = "flower" },
     { name = "httpx" },
     { name = "minio" },
     { name = "pydantic", extra = ["email"] },
@@ -141,6 +140,7 @@ dependencies = [
 dev = [
     { name = "coverage" },
     { name = "faker" },
+    { name = "flower" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -153,7 +153,6 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "celery", extras = ["redis"], specifier = ">=5.5.2" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
-    { name = "flower", specifier = ">=2.0.1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "minio", specifier = ">=7.2.15" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.6" },
@@ -168,6 +167,7 @@ requires-dist = [
 dev = [
     { name = "coverage", specifier = ">=7.8.0" },
     { name = "faker", specifier = ">=37.1.0" },
+    { name = "flower", specifier = ">=2.0.1" },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pytest", specifier = ">=8.3.5" },
