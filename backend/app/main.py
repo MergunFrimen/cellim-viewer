@@ -1,13 +1,10 @@
-import shutil
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, logger
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 
 from app.api.v1.api import v1_api_router
-from app.api.v1.endpoints import upload_endpoint
-from app.api.v1.endpoints.upload_endpoint import MAX_SIZE, TEMP_DIR
 from app.api.v1.tags import v1_tags_metadata
 from app.core.settings import ModeEnum, get_settings
 from app.database.models.role_model import RoleEnum
@@ -42,55 +39,17 @@ app = FastAPI(
 
 # routes
 app.include_router(v1_api_router)
-app.include_router(upload_endpoint.router)
 
 # middleware
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=get_settings().CORS_ORIGINS,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=get_settings().CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=[
-        "Location",
-        "Upload-Offset",
-        "Upload-Length",
-        "Tus-Resumable",
-        "Tus-Version",
-        "Tus-Extension",
-        "Tus-Max-Size",
-        "X-Requested-With",
-        "Upload-Metadata",
-    ],
 )
 app.add_middleware(
     TestAuthMiddleware,
     role=RoleEnum.user,
     enabled=get_settings().MODE != ModeEnum.production,
 )
-
-
-@app.middleware("http")
-async def add_tus_headers(request: Request, call_next):
-    # Process the request
-    response = await call_next(request)
-
-    # Add TUS headers to all responses from the uploads endpoint
-    if request.url.path.startswith("/uploads"):
-        response.headers["Tus-Resumable"] = "1.0.0"
-        response.headers["Tus-Version"] = "1.0.0"
-        response.headers["Tus-Extension"] = "creation,termination,checksum,expiration"
-        response.headers["Tus-Max-Size"] = str(MAX_SIZE)
-        # Ensure CORS headers are properly set
-        response.headers["Access-Control-Expose-Headers"] = (
-            "Location, Upload-Location, Upload-Offset, Upload-Length, Tus-Resumable, Tus-Version, Tus-Extension, Tus-Max-Size"
-        )
-
-    return response
