@@ -1,19 +1,24 @@
-from abc import abstractmethod
-from typing import BinaryIO, Protocol
+from abc import ABC, abstractmethod
+from typing import BinaryIO
 
 
-class BaseStorageBackend(Protocol):
+class StorageBackend(ABC):
     @abstractmethod
-    async def save_file(self, file_content: BinaryIO, file_path: str) -> str:
-        """Save file to storage and return the path."""
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_file(self, file_path: str) -> bytes:
-        """Get file content from storage."""
-        raise NotImplementedError
+    async def save(self, file_path: str, file_data: BinaryIO) -> None:
+        pass
 
     @abstractmethod
-    async def delete_file(self, file_path: str) -> bool:
-        """Delete file from storage."""
-        raise NotImplementedError
+    async def delete(self, file_path: str) -> None:
+        pass
+
+    @abstractmethod
+    async def get(self, file_path: str) -> BinaryIO:
+        pass
+
+    @abstractmethod
+    async def list(self, prefix: str | None = "") -> list[str]:
+        pass
+
+    @abstractmethod
+    async def exists(self, file_path: str) -> bool:
+        pass

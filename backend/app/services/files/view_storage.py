@@ -2,11 +2,11 @@ from typing import BinaryIO
 from uuid import UUID
 
 from app.core.settings import get_settings
-from app.services.files.storage_backend.base_storage_backend import BaseStorageBackend
+from app.services.files.storage_backend.base_storage_backend import StorageBackend
 
 
-class FileStorage:
-    def __init__(self, backend: BaseStorageBackend):
+class FileService:
+    def __init__(self, backend: StorageBackend):
         self.backend = backend
 
     def _generate_url(self, file_path: str):

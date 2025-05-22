@@ -9,7 +9,6 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { EntryDetailsPage } from "./pages/EntryDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
-import { ResumableUploader } from "./components/upload/ResumableUploader";
 import TaskProgressComponent from "./components/TaskRunner";
 import FileUpload from "./components/upload/FileUpload";
 

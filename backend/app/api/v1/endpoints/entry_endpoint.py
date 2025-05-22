@@ -15,7 +15,7 @@ from app.api.v1.contracts.responses.entry_responses import (
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import OptionalUser, RequireUser, SessionDependency
+from app.api.v1.dependencies import DbSession, OptionalUser, RequireUser
 from app.api.v1.tags import Tags
 from app.database.models import Entry
 from app.database.models.share_link_model import ShareLink
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 )
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     new_link = ShareLink()
@@ -48,7 +48,7 @@ async def create_entry(
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
-    session: SessionDependency,
+    session: DbSession,
 ):
     query = select(Entry).where(Entry.is_public == True)
 
@@ -84,7 +84,7 @@ async def list_entries(
 )
 async def list_entries_for_user(
     search_query: Annotated[SearchQueryParams, Query()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     query = select(Entry).where(Entry.user_id == current_user.id)
@@ -126,7 +126,7 @@ async def list_entries_for_user(
 )
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: OptionalUser,
 ):
     entry: Entry | None = await session.get(Entry, entry_id)
@@ -163,7 +163,7 @@ async def get_entry(
 )
 async def get_entry_share_link(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     result: Entry | None = await session.execute(
@@ -191,7 +191,7 @@ async def get_entry_share_link(
 )
 async def get_entry_by_share_link(
     share_link_id: Annotated[UUID, Path(title="Share Link")],
-    session: SessionDependency,
+    session: DbSession,
 ):
     share_link = await session.get(ShareLink, share_link_id)
     if not share_link:
@@ -223,7 +223,7 @@ async def get_entry_by_share_link(
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     entry = await session.get(Entry, entry_id)
@@ -252,7 +252,7 @@ async def update_entry(
 )
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     entry = await session.get(Entry, entry_id)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.share_link_requests import ShareLinkUpdateRequest
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import RequireUser, SessionDependency
+from app.api.v1.dependencies import DbSession, RequireUser
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
 from app.database.models.share_link_model import ShareLink
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/share_links", tags=[Tags.share_links])
 )
 async def get_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     result: ShareLink | None = await session.execute(
@@ -56,7 +56,7 @@ async def get_share_link(
 async def update_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ShareLinkUpdateRequest, Body()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     result: ShareLink | None = await session.execute(

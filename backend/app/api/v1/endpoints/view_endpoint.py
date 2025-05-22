@@ -3,7 +3,7 @@ from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body, File, HTTPException, Path, Response
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from starlette import status
@@ -11,10 +11,10 @@ from starlette import status
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
 from app.api.v1.dependencies import (
-    FileStorageDependency,
+    DbSession,
     OptionalUser,
     RequireUser,
-    SessionDependency,
+    ViewStorage,
 )
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
@@ -31,9 +31,9 @@ router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 async def create_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ViewCreateRequest, File()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
-    file_storage: FileStorageDependency,
+    file_storage: ViewStorage,
 ):
     entry = await session.get(Entry, entry_id)
     if not entry:
@@ -51,10 +51,10 @@ async def create_view(
     # save snapshot
     if request.snapshot_json:
         try:
-            snapshot_url = await file_storage.save_view_snapshot(
-                entry_id=entry_id,
-                view_id=view_id,
-                file_content=request.snapshot_json.file,
+            file_path = f"/entries/{entry_id}/views/{view_id}/snapshot.json"
+            snapshot_url = await file_storage.upload_file(
+                file_path=file_path,
+                file_data=request.snapshot_json.file,
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error saving JSON snapshot: {str(e)}")
@@ -92,7 +92,7 @@ async def create_view(
 )
 async def list_views_for_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: OptionalUser,
 ):
     entry: Entry | None = await session.get(Entry, entry_id)
@@ -125,7 +125,7 @@ async def list_views_for_entry(
 )
 async def get_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: SessionDependency,
+    session: DbSession,
     current_user: OptionalUser,
 ):
     view: View | None = await session.get(View, view_id)
@@ -153,7 +153,7 @@ async def get_view(
 
 
 @router.get(
-    "/{view_id}/snapshot.json",
+    "/{view_id}/snapshot",
     status_code=status.HTTP_200_OK,
     response_class=JSONResponse,
 )
@@ -161,8 +161,8 @@ async def get_view_snapshot(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     current_user: OptionalUser,
-    session: SessionDependency,
-    file_storage: FileStorageDependency,
+    session: DbSession,
+    file_storage: ViewStorage,
 ):
     entry: Entry | None = await session.get(Entry, entry_id)
     if not entry:
@@ -178,10 +178,7 @@ async def get_view_snapshot(
             detail="View not found",
         )
 
-    if (
-        not (current_user is not None and view.entry.user_id == current_user.id)
-        or not entry.is_public
-    ):
+    if entry.is_public or current_user is not None and view.entry.user_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Entry is not public",
@@ -204,8 +201,8 @@ async def get_view_thumbnail_image(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     current_user: OptionalUser,
-    session: SessionDependency,
-    file_storage: FileStorageDependency,
+    session: DbSession,
+    file_storage: ViewStorage,
 ):
     entry: Entry | None = await session.get(Entry, entry_id)
     if not entry:
@@ -235,7 +232,10 @@ async def get_view_thumbnail_image(
         view_id=view_id,
     )
 
-    return Response(content=thumbnail_image, media_type="image/png")
+    return Response(
+        content=thumbnail_image,
+        media_type="image/png",
+    )
 
 
 @router.put(
@@ -247,7 +247,7 @@ async def update_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
-    session: SessionDependency,
+    session: DbSession,
     current_user: RequireUser,
 ):
     entry = await session.get(Entry, entry_id)
@@ -284,7 +284,7 @@ async def update_view(
 )
 async def delete_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: SessionDependency,
+    session: DbSession,
     _: RequireUser,
 ):
     view = await session.get(View, view_id)

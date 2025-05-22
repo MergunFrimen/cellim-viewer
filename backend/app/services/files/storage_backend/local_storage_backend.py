@@ -1,38 +1,37 @@
 import os
-import shutil
-from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, List, Optional
+
+from app.services.files.storage_backend.base_storage_backend import StorageBackend
 
 
-class LocalStorageBackend:
+class LocalStorageBackend(StorageBackend):
     def __init__(self, base_path: str):
-        self.base_path = Path(base_path)
-        os.makedirs(self.base_path, exist_ok=True)
+        self.base_path = base_path
+        os.makedirs(base_path, exist_ok=True)
 
-    async def save_file(self, file_content: BinaryIO, file_path: str) -> str:
-        full_path = self.base_path / file_path
+    def _full_path(self, file_path: str) -> str:
+        return os.path.join(self.base_path, file_path)
 
+    def save(self, file_path: str, file_data: BinaryIO) -> None:
+        full_path = self._full_path(file_path)
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as out_file:
+            out_file.write(file_data.read())
 
-        with open(full_path, "wb") as f:
-            shutil.copyfileobj(file_content, f)
+    def delete(self, file_path: str) -> None:
+        os.remove(self._full_path(file_path))
 
-        return file_path
+    def get(self, file_path: str) -> BinaryIO:
+        return open(self._full_path(file_path), "rb")
 
-    async def get_file(self, file_path: str) -> bytes:
-        full_path = self.base_path / file_path
+    def list(self, prefix: Optional[str] = "") -> List[str]:
+        base = os.path.join(self.base_path, prefix)
+        file_list = []
+        for root, _, files in os.walk(base):
+            for file in files:
+                relative_path = os.path.relpath(os.path.join(root, file), self.base_path)
+                file_list.append(relative_path)
+        return file_list
 
-        if not os.path.exists(full_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
-
-        with open(full_path, "rb") as f:
-            return f.read()
-
-    async def delete_file(self, file_path: str) -> bool:
-        full_path = self.base_path / file_path
-
-        if not os.path.exists(full_path):
-            return False
-
-        os.remove(full_path)
-        return True
+    def exists(self, file_path: str) -> bool:
+        return os.path.exists(self._full_path(file_path))

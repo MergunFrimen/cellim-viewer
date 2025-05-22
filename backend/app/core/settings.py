@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379/0"
 
     # Local file storage
-    FILE_STORAGE_BASE_PATH: str = "/temp"
+    FILE_STORAGE_BASE_PATH: str = "./temp"
 
     model_config = SettingsConfigDict(
         env_file=".env.example",

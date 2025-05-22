@@ -20,19 +20,18 @@ class MinioStorageBackend:
         if not self.client.bucket_exists(bucket):
             self.client.make_bucket(bucket)
 
-    async def save_file(self, file_content: BinaryIO, file_path: str) -> str:
-        """Save file to MinIO storage."""
+    async def save(self, file_path: str, file_data: BinaryIO) -> str:
         try:
             # Get file size
-            file_content.seek(0, 2)  # Seek to the end
-            file_size = file_content.tell()  # Get current position (file size)
-            file_content.seek(0)  # Reset to beginning
+            file_data.seek(0, 2)  # Seek to the end
+            file_size = file_data.tell()  # Get current position (file size)
+            file_data.seek(0)  # Reset to beginning
 
             # Upload file
             self.client.put_object(
                 self.bucket,
                 file_path,
-                file_content,
+                file_data,
                 file_size,
                 content_type="application/octet-stream",  # Default content type
             )
@@ -41,8 +40,7 @@ class MinioStorageBackend:
         except S3Error as e:
             raise Exception(f"Error saving file to MinIO: {str(e)}")
 
-    async def get_file(self, file_path: str) -> bytes:
-        """Get file from MinIO storage."""
+    async def get(self, file_path: str) -> bytes:
         try:
             response = self.client.get_object(self.bucket, file_path)
             data = response.read()
@@ -54,8 +52,7 @@ class MinioStorageBackend:
                 raise FileNotFoundError(f"File not found: {file_path}")
             raise Exception(f"Error getting file from MinIO: {str(e)}")
 
-    async def delete_file(self, file_path: str) -> bool:
-        """Delete file from MinIO storage."""
+    async def delete(self, file_path: str) -> bool:
         try:
             self.client.remove_object(self.bucket, file_path)
             return True
@@ -63,3 +60,9 @@ class MinioStorageBackend:
             if "NoSuchKey" in str(e):
                 return False
             raise Exception(f"Error deleting file from MinIO: {str(e)}")
+
+    async def list(self, prefix: str | None = "") -> list[str]:
+        pass
+
+    async def exists(self, file_path: str) -> bool:
+        pass
