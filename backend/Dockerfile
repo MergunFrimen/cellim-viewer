@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Switch to the non-root user
-USER appuser
+# USER appuser
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []

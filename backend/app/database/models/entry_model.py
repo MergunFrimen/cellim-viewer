@@ -16,14 +16,14 @@ class Entry(Base, UuidMixin, TimestampMixin):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
-    user: Mapped["User"] = relationship(
+    user: Mapped["User"] = relationship( # type: ignore
         back_populates="entries",
     )
-    views: Mapped[list["View"]] = relationship(
+    views: Mapped[list["View"]] = relationship( # type: ignore
         back_populates="entry",
         cascade="all, delete-orphan",
     )
-    link: Mapped["ShareLink"] = relationship(
+    link: Mapped["ShareLink"] = relationship( # type: ignore
         back_populates="entry",
         cascade="all, delete-orphan",
         uselist=False,  # For one-to-one relationship

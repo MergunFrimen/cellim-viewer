@@ -15,7 +15,7 @@ from app.api.v1.contracts.responses.entry_responses import (
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import DbSession, OptionalUser, RequireUser
+from app.api.v1.dependencies import DbSession, EntryServiceDep, OptionalUser, RequireUser
 from app.api.v1.tags import Tags
 from app.database.models import Entry
 from app.database.models.share_link_model import ShareLink
@@ -128,20 +128,12 @@ async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: DbSession,
     current_user: OptionalUser,
+    entry_service: EntryServiceDep,
 ):
-    entry: Entry | None = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-
-    result: Entry | None = await session.execute(
-        select(Entry)
-        .where(Entry.id == entry_id)
-        .options(selectinload(Entry.views), selectinload(Entry.link))
-    )
-    entry = result.scalar()
+    entry: Entry = await entry_service.get_entry_by_id(entry_id)
+    
+    # Load in relationships
+    await session.refresh(entry, ["views", "link"])
 
     # Allow owner to always get their own entry
     if current_user is not None and entry.user_id == current_user.id:
