@@ -17,4 +17,7 @@ class View(Base, UuidMixin, TimestampMixin):
 
     entry_id: Mapped[UUID] = mapped_column(ForeignKey("entries.id", ondelete="CASCADE"))
 
-    entry: Mapped["Entry"] = relationship(back_populates="views")
+    entry: Mapped["Entry"] = relationship(back_populates="views")  # type: ignore
+
+    def has_owner(self, user_id: UUID) -> bool:
+        return self.entry.user_id == user_id

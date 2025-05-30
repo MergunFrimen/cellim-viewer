@@ -16,15 +16,18 @@ class Entry(Base, UuidMixin, TimestampMixin):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
-    user: Mapped["User"] = relationship( # type: ignore
+    user: Mapped["User"] = relationship(  # type: ignore
         back_populates="entries",
     )
-    views: Mapped[list["View"]] = relationship( # type: ignore
+    views: Mapped[list["View"]] = relationship(  # type: ignore
         back_populates="entry",
         cascade="all, delete-orphan",
     )
-    link: Mapped["ShareLink"] = relationship( # type: ignore
+    link: Mapped["ShareLink"] = relationship(  # type: ignore
         back_populates="entry",
         cascade="all, delete-orphan",
         uselist=False,  # For one-to-one relationship
     )
+
+    def has_owner(self, user_id: UUID) -> bool:
+        return self.user_id == user_id

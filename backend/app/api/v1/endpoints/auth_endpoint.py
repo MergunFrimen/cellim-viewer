@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Header, status
 
-from app.api.v1.dependencies import RequireUser
+from app.api.v1.dependencies import RequireUserDep
 from app.api.v1.tags import Tags
 from app.core.security import get_admin_user_token, get_regular_user_token
 from app.database.models.role_model import RoleEnum
@@ -24,14 +24,14 @@ async def login_user():
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(
-    current_user: RequireUser,
+    current_user: RequireUserDep,
 ):
     return current_user.id
 
 
 @router.get("/get_current_user")
 async def read_users_me(
-    current_user: RequireUser,
+    current_user: RequireUserDep,
 ):
     return current_user
 
@@ -48,6 +48,6 @@ async def protected_route(
 
 @router.get("/check-auth")
 async def check_auth(
-    current_user: RequireUser,
+    current_user: RequireUserDep,
 ):
     return {"authenticated": True}

@@ -9,15 +9,19 @@ from app.database.models.user_model import User
 from app.database.session_manager import get_async_session
 from app.services.entry_service import EntryService, get_entry_service
 from app.services.files.dependency import FileService, get_view_storage, get_volseg_storage
+from app.services.share_link_service import ShareLinkService, get_share_link_service
 from app.services.user_service import UserService, get_user_service
+from app.services.view_service import ViewService, get_view_service
 
-DbSession = Annotated[AsyncSession, Depends(get_async_session)]
+DbSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
-ViewStorage = Annotated[FileService, Depends(get_view_storage)]
-VolsegStorage = Annotated[FileService, Depends(get_volseg_storage)]
+ViewStorageDep = Annotated[FileService, Depends(get_view_storage)]
+VolsegStorageDep = Annotated[FileService, Depends(get_volseg_storage)]
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 EntryServiceDep = Annotated[EntryService, Depends(get_entry_service)]
+ViewServiceDep = Annotated[ViewService, Depends(get_view_service)]
 
-RequireUser = Annotated[User, Depends(get_required_user(required_role=RoleEnum.user))]
-OptionalUser = Annotated[User | None, Depends(get_optional_user(required_role=RoleEnum.user))]
+ShareLinkServiceDep = Annotated[ShareLinkService, Depends(get_share_link_service)]
+RequireUserDep = Annotated[User, Depends(get_required_user(required_role=RoleEnum.user))]
+OptionalUserDep = Annotated[User | None, Depends(get_optional_user(required_role=RoleEnum.user))]

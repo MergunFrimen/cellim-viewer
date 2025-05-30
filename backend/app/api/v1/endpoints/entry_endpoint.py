@@ -2,8 +2,6 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query, status
-from sqlalchemy import func, or_, select
-from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.entry_requests import (
     EntryCreateRequest,
@@ -15,7 +13,13 @@ from app.api.v1.contracts.responses.entry_responses import (
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import DbSession, EntryServiceDep, OptionalUser, RequireUser
+from app.api.v1.dependencies import (
+    DbSessionDep,
+    EntryServiceDep,
+    OptionalUserDep,
+    RequireUserDep,
+    ShareLinkServiceDep,
+)
 from app.api.v1.tags import Tags
 from app.database.models import Entry
 from app.database.models.share_link_model import ShareLink
@@ -30,15 +34,13 @@ router = APIRouter(prefix="/entries", tags=[Tags.entries])
 )
 async def create_entry(
     request: Annotated[EntryCreateRequest, Body()],
-    session: DbSession,
-    current_user: RequireUser,
+    current_user: RequireUserDep,
+    entry_service: EntryServiceDep,
 ):
-    new_link = ShareLink()
-    new_entry = Entry(user=current_user, link=new_link, views=[], **request.model_dump())
-    session.add(new_entry)
-    await session.commit()
-
-    return new_entry
+    return await entry_service.create(
+        user=current_user,
+        entry=request,
+    )
 
 
 @router.get(
@@ -48,32 +50,10 @@ async def create_entry(
 )
 async def list_entries(
     search_query: Annotated[SearchQueryParams, Query()],
-    session: DbSession,
+    entry_service: EntryServiceDep,
 ):
-    query = select(Entry).where(Entry.is_public == True)
-
-    if search_query.search_term:
-        search_term = f"%{search_query.search_term}%"
-        query = query.filter(
-            or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
-        )
-
-    count_query = select(func.count()).select_from(query.subquery())
-    total_items = await session.scalar(count_query)
-    query = query.order_by(Entry.created_at.desc())
-    query = query.offset((search_query.page - 1) * search_query.per_page).limit(
-        search_query.per_page
-    )
-    result = await session.execute(query)
-    entries = result.scalars().all()
-    total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
-
-    return PaginatedResponse(
-        items=entries,
-        total_items=total_items,
-        page=search_query.page,
-        per_page=search_query.per_page,
-        total_pages=total_pages,
+    return await entry_service.list_public_entries(
+        search_query=search_query,
     )
 
 
@@ -84,38 +64,12 @@ async def list_entries(
 )
 async def list_entries_for_user(
     search_query: Annotated[SearchQueryParams, Query()],
-    session: DbSession,
-    current_user: RequireUser,
+    entry_service: EntryServiceDep,
+    current_user: RequireUserDep,
 ):
-    query = select(Entry).where(Entry.user_id == current_user.id)
-
-    if search_query.search_term:
-        search_conditions = []
-        for term in search_query.search_term:
-            search_term = f"%{term}%"
-            search_conditions.append(
-                or_(Entry.name.ilike(search_term), Entry.description.ilike(search_term))
-            )
-        if search_conditions:
-            query = query.filter(*search_conditions)
-
-    count_query = select(func.count()).select_from(query.subquery())
-    total_items = await session.scalar(count_query)
-    query = query.order_by(Entry.created_at.desc())
-    query = query.offset((search_query.page - 1) * search_query.per_page).limit(
-        search_query.per_page
-    )
-    query = query.options(selectinload(Entry.views), selectinload(Entry.link))
-    result = await session.execute(query)
-    entries = result.scalars().all()
-    total_pages = (total_items + search_query.per_page - 1) // search_query.per_page
-
-    return PaginatedResponse(
-        items=entries,
-        total_items=total_items,
-        page=search_query.page,
-        per_page=search_query.per_page,
-        total_pages=total_pages,
+    return await entry_service.list_user_entries(
+        search_query=search_query,
+        user_id=current_user.id,
     )
 
 
@@ -126,26 +80,23 @@ async def list_entries_for_user(
 )
 async def get_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSession,
-    current_user: OptionalUser,
+    session: DbSessionDep,
+    current_user: OptionalUserDep,
     entry_service: EntryServiceDep,
 ):
     entry: Entry = await entry_service.get_entry_by_id(entry_id)
-    
+
     # Load in relationships
     await session.refresh(entry, ["views", "link"])
 
     # Allow owner to always get their own entry
-    if current_user is not None and entry.user_id == current_user.id:
+    if entry.is_public or (current_user is not None and entry.has_owner(current_user.id)):
         return EntryDetailsResponse.model_validate(entry)
 
-    if not entry.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Entry is not public",
-        )
-
-    return EntryDetailsResponse.model_validate(entry)
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Entry is not public",
+    )
 
 
 @router.get(
@@ -155,20 +106,14 @@ async def get_entry(
 )
 async def get_entry_share_link(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSession,
-    current_user: RequireUser,
+    session: DbSessionDep,
+    current_user: RequireUserDep,
+    entry_service: EntryServiceDep,
 ):
-    result: Entry | None = await session.execute(
-        select(Entry).where(Entry.id == entry_id).options(selectinload(Entry.link))
-    )
-    entry = result.scalar()
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
+    entry: Entry = await entry_service.get_entry_by_id(entry_id)
+    await session.refresh(entry, ["views", "link"])
 
-    if entry.user_id != current_user.id:
+    if not entry.has_owner(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
         )
@@ -183,26 +128,20 @@ async def get_entry_share_link(
 )
 async def get_entry_by_share_link(
     share_link_id: Annotated[UUID, Path(title="Share Link")],
-    session: DbSession,
+    session: DbSessionDep,
+    share_link_service: ShareLinkServiceDep,
+    entry_service: EntryServiceDep,
 ):
-    share_link = await session.get(ShareLink, share_link_id)
-    if not share_link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Link not found",
-        )
+    share_link: ShareLink = await share_link_service.get_share_link_by_id(share_link_id)
     if not share_link.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Link is not active",
         )
 
-    result: Entry | None = await session.execute(
-        select(Entry)
-        .where(Entry.id == share_link.entry_id)
-        .options(selectinload(Entry.views), selectinload(Entry.link))
-    )
-    entry = result.scalar()
+    # Get the shared entry
+    entry: Entry = await entry_service.get_entry_by_id(share_link.entry_id)
+    await session.refresh(entry, ["views", "link"])
 
     return EntryDetailsResponse.model_validate(entry)
 
@@ -215,26 +154,22 @@ async def get_entry_by_share_link(
 async def update_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[EntryUpdateRequest, Body()],
-    session: DbSession,
-    current_user: RequireUser,
+    entry_service: EntryServiceDep,
+    current_user: RequireUserDep,
 ):
-    entry = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
+    entry: Entry = await entry_service.get_entry_by_id(entry_id)
 
-    if entry.user_id != current_user.id:
+    if not entry.has_owner(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
-    for key, value in request.model_dump(exclude_unset=True).items():
-        setattr(entry, key, value)
-    await session.commit()
+    updated_entry: Entry = await entry_service.update(
+        entry=entry,
+        updates=request,
+    )
 
-    return EntryDetailsResponse.model_validate(entry)
+    return EntryDetailsResponse.model_validate(updated_entry)
 
 
 @router.delete(
@@ -244,20 +179,16 @@ async def update_entry(
 )
 async def delete_entry(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSession,
-    current_user: RequireUser,
+    entry_service: EntryServiceDep,
+    current_user: RequireUserDep,
 ):
-    entry = await session.get(Entry, entry_id)
-    if not entry:
+    entry: Entry = await entry_service.get_entry_by_id(entry_id)
+
+    if entry.has_owner(current_user.id):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
+            status_code=status.HTTP_403_FORBIDDEN,
         )
 
-    if entry.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-    await session.delete(entry)
-    await session.commit()
+    await entry_service.delete(entry)
 
     return entry_id

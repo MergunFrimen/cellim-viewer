@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, File, HTTPException, status
 
 from app.api.v1.contracts.requests.volseg_requests import VolsegUploadDataset
-from app.api.v1.dependencies import VolsegStorage
+from app.api.v1.dependencies import VolsegStorageDep
 
 router = APIRouter(prefix="/volseg", tags=["volseg"])
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/volseg", tags=["volseg"])
 @router.post("", status_code=status.HTTP_200_OK)
 async def upload_volseg_entry(
     request: Annotated[VolsegUploadDataset, File()],
-    file_storage: VolsegStorage,
+    file_storage: VolsegStorageDep,
 ):
     if request.annotations:
         try:

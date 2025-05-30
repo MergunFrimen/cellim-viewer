@@ -1,23 +1,19 @@
-import json
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import APIRouter, Body, File, HTTPException, Path, Response
 from fastapi.responses import JSONResponse
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from starlette import status
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
 from app.api.v1.dependencies import (
-    DbSession,
-    OptionalUser,
-    RequireUser,
-    ViewStorage,
+    DbSessionDep,
+    OptionalUserDep,
+    RequireUserDep,
+    ViewServiceDep,
 )
 from app.api.v1.tags import Tags
-from app.database.models.entry_model import Entry
 from app.database.models.view_model import View
 
 router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
@@ -31,91 +27,14 @@ router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 async def create_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ViewCreateRequest, File()],
-    session: DbSession,
-    current_user: RequireUser,
-    file_storage: ViewStorage,
+    view_service: ViewServiceDep,
+    current_user: RequireUserDep,
 ):
-    entry = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
-
-    if entry.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="entry.user_id != current_user"
-        )
-
-    view_id = uuid4()
-    thumbnail_url: str | None = None
-    snapshot_url: str | None = None
-
-    # save snapshot
-    if request.snapshot_json:
-        try:
-            file_path = f"/entries/{entry_id}/views/{view_id}/snapshot.json"
-            snapshot_url = await file_storage.upload_file(
-                file_path=file_path,
-                file_data=request.snapshot_json.file,
-            )
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error saving JSON snapshot: {str(e)}")
-
-    # save image
-    if request.thumbnail_image:
-        try:
-            thumbnail_url = await file_storage.save_view_image(
-                entry_id=entry_id,
-                view_id=view_id,
-                file_content=request.thumbnail_image.file,
-            )
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error saving image: {str(e)}")
-
-    new_view = View(
-        id=view_id,
-        name=request.name,
-        description=request.description,
-        snapshot_url=snapshot_url,
-        thumbnail_url=thumbnail_url,
-        entry=entry,
+    return await view_service.create(
+        user=current_user,
+        entry_id=entry_id,
+        request=request,
     )
-
-    session.add(new_view)
-    await session.commit()
-
-    return new_view
-
-
-@router.get(
-    "",
-    status_code=status.HTTP_200_OK,
-    response_model=list[ViewResponse],
-)
-async def list_views_for_entry(
-    entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSession,
-    current_user: OptionalUser,
-):
-    entry: Entry | None = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-
-    result = await session.execute(
-        select(View).where(View.entry_id == entry_id),
-    )
-    views: list[View] = result.scalars().all()
-
-    if current_user is not None and entry.user_id == current_user.id:
-        return (ViewResponse.model_validate(view) for view in views)
-
-    if not entry.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-
-    return (ViewResponse.model_validate(view) for view in views)
 
 
 @router.get(
@@ -125,31 +44,20 @@ async def list_views_for_entry(
 )
 async def get_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: DbSession,
-    current_user: OptionalUser,
+    view_service: ViewServiceDep,
+    session: DbSessionDep,
+    current_user: OptionalUserDep,
 ):
-    view: View | None = await session.get(View, view_id)
-    if not view:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="View not found",
-        )
+    view: View = await view_service.get_view(view_id)
+    await session.refresh(view, ["entry"])
 
-    result: View | None = await session.execute(
-        select(View).where(View.id == view_id).options(selectinload(View.entry))
-    )
-    view = result.scalar()
-
-    if current_user is not None and view.entry.user_id == current_user.id:
+    if view.entry.is_public or (current_user is not None and view.has_owner(current_user.id)):
         return ViewResponse.model_validate(view)
 
-    if not view.entry.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Entry is not public",
-        )
-
-    return ViewResponse.model_validate(view)
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Entry is not public",
+    )
 
 
 @router.get(
@@ -160,36 +68,14 @@ async def get_view(
 async def get_view_snapshot(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
-    current_user: OptionalUser,
-    session: DbSession,
-    file_storage: ViewStorage,
+    current_user: OptionalUserDep,
+    view_service: ViewServiceDep,
 ):
-    entry: Entry | None = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-
-    view: View | None = await session.get(View, view_id)
-    if not view:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="View not found",
-        )
-
-    if entry.is_public or current_user is not None and view.entry.user_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Entry is not public",
-        )
-
-    snapshot = await file_storage.get_snapshot(
+    return await view_service.get_view_snapshot(
+        user=current_user,
         entry_id=entry_id,
         view_id=view_id,
     )
-
-    return json.loads(snapshot)
 
 
 @router.get(
@@ -200,41 +86,29 @@ async def get_view_snapshot(
 async def get_view_thumbnail_image(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
-    current_user: OptionalUser,
-    session: DbSession,
-    file_storage: ViewStorage,
+    current_user: OptionalUserDep,
+    view_service: ViewServiceDep,
 ):
-    entry: Entry | None = await session.get(Entry, entry_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-
-    view: View | None = await session.get(View, view_id)
-    if not view:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="View not found",
-        )
-
-    if (
-        not (current_user is not None and view.entry.user_id == current_user.id)
-        or not entry.is_public
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Entry is not public",
-        )
-
-    thumbnail_image = await file_storage.get_view_image(
+    return await view_service.get_view_thumbnail(
+        user=current_user,
         entry_id=entry_id,
         view_id=view_id,
     )
 
-    return Response(
-        content=thumbnail_image,
-        media_type="image/png",
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=list[ViewResponse],
+)
+async def list_views_for_entry(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
+    view_service: ViewServiceDep,
+    current_user: OptionalUserDep,
+):
+    return await view_service.list_views_for_entry(
+        user=current_user,
+        entry_id=entry_id,
     )
 
 
@@ -247,34 +121,15 @@ async def update_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     request: Annotated[ViewUpdateRequest, Body()],
-    session: DbSession,
-    current_user: RequireUser,
+    view_service: ViewServiceDep,
+    current_user: RequireUserDep,
 ):
-    entry = await session.get(Entry, entry_id)
-    view = await session.get(View, view_id)
-
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-    if not view:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="View not found",
-        )
-
-    if entry.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-
-    view.update(request.model_dump(exclude_unset=True))
-    session.add(view)
-
-    await session.commit()
-
-    return ViewResponse.model_validate(view)
+    return await view_service.update(
+        entry_id=entry_id,
+        view_id=view_id,
+        updates=request,
+        user=current_user,
+    )
 
 
 @router.delete(
@@ -284,12 +139,10 @@ async def update_view(
 )
 async def delete_view(
     view_id: Annotated[UUID, Path(title="View ID")],
-    session: DbSession,
-    _: RequireUser,
+    view_service: ViewServiceDep,
+    current_user: OptionalUserDep,
 ):
-    view = await session.get(View, view_id)
-    if not view:
-        raise HTTPException(status_code=404, detail="Entry not found")
-    await session.delete(view)
-    await session.commit()
-    return view_id
+    return await view_service.delete(
+        view_id=view_id,
+        user=current_user,
+    )
