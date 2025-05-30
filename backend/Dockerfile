@@ -1,7 +1,10 @@
 # Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
-# Install the project into `/app`
+# Add a non-root user and group
+RUN addgroup --system appuser && \
+    adduser --system --ingroup appuser appuser
+
 WORKDIR /app
 
 # Enable bytecode compilation
@@ -19,16 +22,18 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
+RUN chown -R appuser:appuser /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+# Switch to the non-root user
+USER appuser
+
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
 
 # Run the FastAPI application by default
-# Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
-# Uses `--host 0.0.0.0` to allow access from outside the container
 CMD ["fastapi", "dev", "--host", "0.0.0.0"]
