@@ -15,4 +15,4 @@ class ShareLink(Base, UuidMixin, TimestampMixin):
 
     entry_id: Mapped[UUID] = mapped_column(ForeignKey("entries.id", ondelete="CASCADE"))
 
-    entry: Mapped["Entry"] = relationship(back_populates="link") # type: ignore
+    entry: Mapped["Entry"] = relationship(back_populates="link")  # type: ignore

@@ -15,10 +15,9 @@ async def upload_volseg_entry(
 ):
     if request.annotations:
         try:
-            file_path = f"volseg/{}"
+            file_path = f"volseg/{'something'}"
             snapshot_url = await file_storage.upload_file(
                 file_path=file_path,
-                file_data=file_data,
                 file_content=request.annotations.file,
             )
         except Exception as e:

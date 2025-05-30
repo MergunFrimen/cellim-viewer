@@ -10,4 +10,3 @@ class VolsegEntry(Base, UuidMixin, TimestampMixin):
 
     db_name: Mapped[str] = mapped_column(String(255))
     entry_id: Mapped[str] = mapped_column(String(255))
-    
