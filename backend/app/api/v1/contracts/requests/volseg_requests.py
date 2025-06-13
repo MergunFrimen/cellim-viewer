@@ -1,13 +1,13 @@
-from fastapi import File, UploadFile
-from pydantic import BaseModel, Field
+from fastapi import File, Form, UploadFile
+from pydantic import BaseModel
 
 
-class VolsegUploadDataset(BaseModel):
-    # ? DB name can just be a namespace for the user like {userId}
-    # ? eg. {userId}/{entryId}
-    # db_name: str = Field(min_length=1, max_length=255, examples=["Volseg Database Name"])
-    
-    entry_id: str = Field(min_length=1, max_length=255, examples=["Volseg Entry Id"])
+class VolsegUploadEntry(BaseModel):
+    db_name: str = Form(min_length=1, max_length=255, examples=["emdb"])
+    entry_id: str = Form(min_length=1, max_length=255, examples=["emd-1832"])
+    is_public: bool | None = Form(default=False)
+
+    # data
     annotations: UploadFile = File(description="Entry annotations")
     metadata: UploadFile = File(description="Entry metadata")
     data: UploadFile = File(description="Entry data (zip)")

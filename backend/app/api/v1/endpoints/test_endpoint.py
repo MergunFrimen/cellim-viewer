@@ -4,10 +4,11 @@ from uuid import uuid4
 from fastapi import APIRouter, File, UploadFile
 from pydantic import BaseModel
 
+from app.api.v1.tags import Tags
 from app.core.settings import get_settings
-from app.services.files.storage_backend.minio_storage_backend import MinioStorageBackend
+from app.services.files.minio_storage import MinioStorage
 
-router = APIRouter(prefix="/test", tags=["Testing"])
+router = APIRouter(prefix="/test", tags=[Tags.test])
 
 
 class UploadFileRequest(BaseModel):
@@ -22,7 +23,7 @@ async def upload_file(
 ):
     settings = get_settings()
     print(settings.MINIO_ENDPOINT)
-    storage = MinioStorageBackend(
+    storage = MinioStorage(
         endpoint=settings.MINIO_ENDPOINT,
         bucket=settings.MINIO_BUCKET,
         access_key=settings.MINIO_ACCESS_KEY,

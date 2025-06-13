@@ -2,6 +2,7 @@ import json
 from uuid import UUID, uuid4
 
 from fastapi import Depends, HTTPException, Response, status
+from fastapi.responses import JSONResponse
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,15 +13,14 @@ from app.database.models.user_model import User
 from app.database.models.view_model import View
 from app.database.session_manager import get_async_session
 from app.services.entry_service import EntryService, get_entry_service
-from app.services.files.dependency import get_view_storage
-from app.services.files.file_service import FileService
+from app.services.files.minio_storage import MinioStorage, get_minio_storage
 
 
 class ViewService:
     def __init__(
         self,
         session: AsyncSession,
-        storage: FileService,
+        storage: MinioStorage,
         entry_service: EntryService,
     ):
         self.session = session
@@ -47,7 +47,7 @@ class ViewService:
             print("FILENAME", request.snapshot_json.filename)
             try:
                 file_path = f"/entries/{entry_id}/views/{view_id}/snapshot.json"
-                snapshot_url = await self.storage.upload_file(
+                snapshot_url = await self.storage.save(
                     file_path=file_path,
                     file_data=request.snapshot_json.file,
                 )
@@ -61,7 +61,7 @@ class ViewService:
         if request.thumbnail_image:
             try:
                 file_path = f"/entries/{entry_id}/views/{view_id}/thumbnail.png"
-                thumbnail_url = await self.storage.upload_file(
+                thumbnail_url = await self.storage.save(
                     file_path=file_path,
                     file_data=request.thumbnail_image.file,
                 )
@@ -86,7 +86,7 @@ class ViewService:
         return ViewResponse.model_validate(new_view)
 
     async def get_view(self, user: User, view_id: UUID) -> ViewResponse:
-        view: View = self._get_view_by_id(view_id)
+        view: View = await self._get_view_by_id(view_id)
 
         # Load in relationships
         await self.session.refresh(view, ["entry"])
@@ -105,11 +105,16 @@ class ViewService:
 
         return ViewResponse.model_validate(view)
 
-    async def get_view_snapshot(self, user: User | None, entry_id: UUID, view_id: UUID) -> UUID:
-        view: View = await self.get_view(view_id)
+    async def get_view_snapshot(
+        self, user: User | None, entry_id: UUID, view_id: UUID
+    ) -> JSONResponse:
+        view: View = await self._get_view_by_id(view_id)
+
+        # Load in relationships
+        await self.session.refresh(view, ["entry"])
 
         # Check valid query params
-        if view.entry_id != entry_id:
+        if view.entry.id != entry_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Entry '{entry_id}' does not have a view '{view_id}'",
@@ -127,28 +132,48 @@ class ViewService:
                 detail="Entry is not public",
             )
 
-        snapshot = await self.storage.get_snapshot(
-            entry_id=entry_id,
-            view_id=view_id,
+        snapshot = await self.storage.get(
+            file_path=view.snapshot_url,
         )
 
         return json.loads(snapshot)
 
     async def get_view_thumbnail(self, user: User, entry_id: UUID, view_id: UUID) -> UUID:
-        entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
-        view: View = await self.get_view(view_id)
+        view: View = await self._get_view_by_id(view_id)
 
         # Check permissions
-        if entry.is_public or (user is not None and view.entry.user_id == user.id):
+        if user is None and not view.entry.is_public:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Entry is not public",
+            )
+        if user is not None and not self._check_permissions(view, user):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Entry is not public",
             )
 
-        thumbnail_image = await self.storage.get_view_image(
-            entry_id=entry_id,
-            view_id=view_id,
-        )
+        if not view.thumbnail_url:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="View doesn't have a thumbnail",
+            )
+
+        file_path = f"/entries/{entry_id}/views/{view_id}/thumbnail.png"
+        try:
+            thumbnail_image = await self.storage.get(
+                file_path=file_path,
+            )
+        except FileNotFoundError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thumbnail not found",
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"{e}",
+            )
 
         return Response(
             content=thumbnail_image,
@@ -179,7 +204,7 @@ class ViewService:
         updates: ViewUpdateRequest,
     ) -> View:
         # Get view
-        view: View = await self.get_view(view_id)
+        view: View = await self._get_view_by_id(view_id)
 
         # Check valid query params
         if view.entry_id != entry_id:
@@ -189,10 +214,20 @@ class ViewService:
             )
 
         # Load in relationships
-        await self.createsession.refresh(view, ["entry"])
+        await self.session.refresh(view, ["entry"])
 
         # Check permissions
         self._check_permissions(view, user)
+
+        # Delete associated files
+        if view.snapshot_url:
+            await self.storage.delete(
+                file_path=view.snapshot_url,
+            )
+        if view.thumbnail_url:
+            await self.storage.delete(
+                file_path=view.thumbnail_url,
+            )
 
         # Update view
         view.update(updates.model_dump(exclude_unset=True))
@@ -203,10 +238,10 @@ class ViewService:
 
     async def delete(self, user: User, view_id: UUID) -> UUID:
         # Get view
-        view = await self.get_view(view_id)
+        view = await self._get_view_by_id(view_id)
 
         # Load in relationships
-        await self.createsession.refresh(view, ["entry"])
+        await self.session.refresh(view, ["entry"])
 
         # Check permissions
         self._check_permissions(view, user)
@@ -235,10 +270,10 @@ class ViewService:
 async def get_view_service(
     session: AsyncSession = Depends(get_async_session),
     entry_service: EntryService = Depends(get_entry_service),
-    view_storage: FileService = Depends(get_view_storage),
+    storage: MinioStorage = Depends(get_minio_storage),
 ) -> ViewService:
     return ViewService(
         session=session,
         entry_service=entry_service,
-        storage=view_storage,
+        storage=storage,
     )

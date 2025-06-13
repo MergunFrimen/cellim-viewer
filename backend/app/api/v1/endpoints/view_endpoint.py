@@ -22,7 +22,7 @@ router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    # response_model=ViewResponse,
+    response_model=ViewResponse,
 )
 async def create_view(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
@@ -43,6 +43,7 @@ async def create_view(
     response_model=ViewResponse,
 )
 async def get_view_by_id(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     view_service: ViewServiceDep,
     session: DbSessionDep,

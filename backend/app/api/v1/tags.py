@@ -7,6 +7,7 @@ class Tags(Enum):
     share_links = "Share Links"
     views = "Views"
     test = "Test"
+    volseg = "Volseg Entries"
 
     def __str__(self):
         return super().value.lower()

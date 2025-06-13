@@ -1,10 +1,13 @@
+from functools import lru_cache
 from typing import BinaryIO
 
 from minio import Minio
 from minio.error import S3Error
 
+from app.core.settings import get_settings
 
-class MinioStorageBackend:
+
+class MinioStorage:
     def __init__(
         self,
         endpoint: str,
@@ -40,7 +43,7 @@ class MinioStorageBackend:
         except S3Error as e:
             raise Exception(f"Error saving file to MinIO: {str(e)}")
 
-    async def get(self, file_path: str) -> BinaryIO:
+    async def get(self, file_path: str) -> bytes:
         try:
             response = self.client.get_object(self.bucket, file_path)
             data = response.read()
@@ -66,3 +69,16 @@ class MinioStorageBackend:
 
     async def exists(self, file_path: str) -> bool:
         pass
+
+
+@lru_cache
+def get_minio_storage():
+    settings = get_settings()
+    storage = MinioStorage(
+        endpoint=settings.MINIO_ENDPOINT,
+        bucket=settings.MINIO_BUCKET,
+        access_key=settings.MINIO_ACCESS_KEY,
+        secret_key=settings.MINIO_SECRET_KEY,
+        secure=settings.MINIO_SECURE,
+    )
+    return storage
