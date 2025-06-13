@@ -188,12 +188,19 @@ class ViewService:
         )
         views: list[View] = result.scalars().all()
 
-        if not entry.is_public or (user is not None and entry.user_id == user.id):
-            return (ViewResponse.model_validate(view) for view in views)
+        # Check permissions
+        if user is None and not entry.is_public:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Entry is not public",
+            )
+        if user is not None and entry.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Entry is not public",
+            )
 
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+        return [ViewResponse.model_validate(view) for view in views]
 
     async def update(
         self,

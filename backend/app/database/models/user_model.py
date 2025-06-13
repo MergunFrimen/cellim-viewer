@@ -21,7 +21,7 @@ class User(Base, UuidMixin, TimestampMixin):
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    volseg_entries: Mapped[VolsegEntry] = relationship(  # type: ignore
+    volseg_entries: Mapped[list[VolsegEntry]] = relationship(  # type: ignore
         back_populates="user",
         cascade="all, delete-orphan",
     )

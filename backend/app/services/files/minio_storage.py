@@ -64,8 +64,23 @@ class MinioStorage:
                 return False
             raise Exception(f"Error deleting file from MinIO: {str(e)}")
 
-    async def list(self, prefix: str | None = "") -> list[str]:
-        pass
+    async def delete_directory(self, prefix: str) -> int:
+        try:
+            objects_to_delete = self.client.list_objects(self.bucket, prefix=prefix, recursive=True)
+            print(prefix, list(objects_to_delete))
+            deleted_count = 0
+            for obj in objects_to_delete:
+                self.client.remove_object(self.bucket, obj.object_name)
+                deleted_count += 1
+            return deleted_count
+        except S3Error as e:
+            raise Exception(f"Error deleting directory from MinIO: {str(e)}")
+
+    async def list_directory(self, prefix: str) -> list[str]:
+        return [
+            obj.object_name
+            for obj in self.client.list_objects(self.bucket, prefix=prefix, recursive=True)
+        ]
 
     async def exists(self, file_path: str) -> bool:
         pass
