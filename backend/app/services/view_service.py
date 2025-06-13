@@ -59,10 +59,10 @@ class ViewService:
         # Save image
         if request.thumbnail_image:
             try:
-                thumbnail_url = await self.storage.save_view_image(
-                    entry_id=entry_id,
-                    view_id=view_id,
-                    file_content=request.thumbnail_image.file,
+                file_path = f"/entries/{entry_id}/views/{view_id}/thumbnail.png"
+                thumbnail_url = await self.storage.upload_file(
+                    file_path=file_path,
+                    file_data=request.thumbnail_image.file,
                 )
             except Exception as e:
                 raise HTTPException(

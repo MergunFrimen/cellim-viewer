@@ -51,7 +51,10 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
     # MinIO
-    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT")
+    MINIO_HOST: str = os.getenv("MINIO_HOST")
+    print(MINIO_HOST)
+    MINIO_PORT: str = os.getenv("MINIO_PORT")
+    MINIO_ENDPOINT: str = f"{MINIO_HOST}:{MINIO_PORT}"
     MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY")
     MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY")
     MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")

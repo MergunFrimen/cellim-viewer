@@ -77,21 +77,21 @@ services:
     networks:
       - cellim-network
 
-  createbuckets:
-    container_name: cellim-viewer-mc
-    image: minio/mc:latest
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb myminio/cellim-viewer;
-      /usr/bin/mc policy set public myminio/cellim-viewer;
-      exit 0;
-      "
-    networks:
-      - cellim-network
-    depends_on:
-      - minio
+  # createbuckets:
+  #   container_name: cellim-viewer-mc
+  #   image: minio/mc:latest
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #     sleep 5;
+  #     /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+  #     /usr/bin/mc mb myminio/cellim-viewer;
+  #     /usr/bin/mc policy set public myminio/cellim-viewer;
+  #     exit 0;
+  #     "
+  #   networks:
+  #     - cellim-network
+  #   depends_on:
+  #     - minio
 
   # redis:
   #   image: redis:alpine
