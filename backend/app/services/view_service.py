@@ -44,6 +44,7 @@ class ViewService:
 
         # Save snapshot
         if request.snapshot_json:
+            print("FILENAME", request.snapshot_json.filename)
             try:
                 file_path = f"/entries/{entry_id}/views/{view_id}/snapshot.json"
                 snapshot_url = await self.storage.upload_file(

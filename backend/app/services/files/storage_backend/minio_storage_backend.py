@@ -40,7 +40,7 @@ class MinioStorageBackend:
         except S3Error as e:
             raise Exception(f"Error saving file to MinIO: {str(e)}")
 
-    async def get(self, file_path: str) -> bytes:
+    async def get(self, file_path: str) -> BinaryIO:
         try:
             response = self.client.get_object(self.bucket, file_path)
             data = response.read()

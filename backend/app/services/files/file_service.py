@@ -7,10 +7,10 @@ class FileService:
     def __init__(self, backend: StorageBackend):
         self.backend = backend
 
-    async def upload_file(self, file_path: str, file_data: BinaryIO) -> None:
-        await self.backend.save(file_path, file_data)
+    async def upload_file(self, file_path: str, file_data: BinaryIO) -> str:
+        return await self.backend.save(file_path, file_data)
 
-    async def delete_file(self, file_path: str) -> None:
+    async def delete_file(self, file_path: str) -> bool:
         await self.backend.delete(file_path)
 
     async def get_file(self, file_path: str) -> BinaryIO:
