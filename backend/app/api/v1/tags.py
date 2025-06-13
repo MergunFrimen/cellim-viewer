@@ -12,7 +12,7 @@ class Tags(Enum):
         return super().value.lower()
 
 
-v1_tags_metadata = [
+v1_api_tags_metadata = [
     # {
     #     "name": Tags.auth,
     #     "description": "Auth",

@@ -29,6 +29,15 @@ class ShareLinkService:
             )
         return share_link
 
+    async def get_share_link_by_entry(self, share_link_id: UUID) -> ShareLink:
+        share_link: ShareLink | None = await self.session.get(ShareLink, share_link_id)
+        if share_link is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share link not found",
+            )
+        return share_link
+
 
 async def get_share_link_service(
     session: AsyncSession = Depends(get_async_session),

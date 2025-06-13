@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Header, status
 
-from app.api.v1.dependencies import RequireUserDep
+from app.api.v1.deps import RequireUserDep
 from app.api.v1.tags import Tags
 from app.core.security import get_admin_user_token, get_regular_user_token
 from app.database.models.role_model import RoleEnum

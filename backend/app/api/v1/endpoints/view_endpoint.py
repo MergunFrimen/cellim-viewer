@@ -7,7 +7,7 @@ from starlette import status
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
-from app.api.v1.dependencies import (
+from app.api.v1.deps import (
     DbSessionDep,
     OptionalUserDep,
     RequireUserDep,
@@ -42,7 +42,7 @@ async def create_view(
     status_code=status.HTTP_200_OK,
     response_model=ViewResponse,
 )
-async def get_view(
+async def get_view_by_id(
     view_id: Annotated[UUID, Path(title="View ID")],
     view_service: ViewServiceDep,
     session: DbSessionDep,
@@ -79,7 +79,7 @@ async def get_view_snapshot(
 
 
 @router.get(
-    "/{view_id}/thumbnail.png",
+    "/{view_id}/thumbnail",
     status_code=status.HTTP_200_OK,
     response_class=Response,
 )

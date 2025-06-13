@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.share_link_requests import ShareLinkUpdateRequest
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import DbSessionDep, RequireUserDep
+from app.api.v1.deps import DbSessionDep, RequireUserDep
 from app.api.v1.tags import Tags
 from app.database.models.entry_model import Entry
 from app.database.models.share_link_model import ShareLink

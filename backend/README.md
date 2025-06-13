@@ -68,5 +68,5 @@ uvx pre-commit install
 ### Seed
 
 ```shell
-docker exec -it  cellim-viewer-api uv run tools/db_cli.py reset
+docker exec -it cellim-viewer-api uv run tools/db_cli.py reset
 ```

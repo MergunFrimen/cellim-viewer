@@ -13,7 +13,7 @@ from app.api.v1.contracts.responses.entry_responses import (
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.dependencies import (
+from app.api.v1.deps import (
     DbSessionDep,
     EntryServiceDep,
     OptionalUserDep,
@@ -44,41 +44,11 @@ async def create_entry(
 
 
 @router.get(
-    "",
-    status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[EntryDetailsResponse],
-)
-async def list_entries(
-    search_query: Annotated[SearchQueryParams, Query()],
-    entry_service: EntryServiceDep,
-):
-    return await entry_service.list_public_entries(
-        search_query=search_query,
-    )
-
-
-@router.get(
-    "/user",
-    status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[EntryDetailsResponse],
-)
-async def list_entries_for_user(
-    search_query: Annotated[SearchQueryParams, Query()],
-    entry_service: EntryServiceDep,
-    current_user: RequireUserDep,
-):
-    return await entry_service.list_user_entries(
-        search_query=search_query,
-        user_id=current_user.id,
-    )
-
-
-@router.get(
     "/{entry_id}",
     status_code=status.HTTP_200_OK,
     response_model=EntryDetailsResponse,
 )
-async def get_entry(
+async def get_entry_by_id(
     entry_id: Annotated[UUID, Path(title="Entry ID")],
     session: DbSessionDep,
     current_user: OptionalUserDep,
@@ -97,28 +67,6 @@ async def get_entry(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Entry is not public",
     )
-
-
-@router.get(
-    "/{entry_id}/share_link",
-    status_code=status.HTTP_200_OK,
-    response_model=ShareLinkResponse,
-)
-async def get_entry_share_link(
-    entry_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSessionDep,
-    current_user: RequireUserDep,
-    entry_service: EntryServiceDep,
-):
-    entry: Entry = await entry_service.get_entry_by_id(entry_id)
-    await session.refresh(entry, ["views", "link"])
-
-    if not entry.has_owner(current_user.id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-
-    return ShareLinkResponse.model_validate(entry.link)
 
 
 @router.get(
@@ -144,6 +92,43 @@ async def get_entry_by_share_link(
     await session.refresh(entry, ["views", "link"])
 
     return EntryDetailsResponse.model_validate(entry)
+
+
+@router.get(
+    "/{entry_id}/share_link",
+    status_code=status.HTTP_200_OK,
+    response_model=ShareLinkResponse,
+)
+async def get_entry_share_link(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
+    session: DbSessionDep,
+    current_user: RequireUserDep,
+    entry_service: EntryServiceDep,
+):
+    entry: Entry = await entry_service.get_entry_by_id(entry_id)
+    await session.refresh(entry, ["link"])
+
+    # check authorization
+    if not entry.has_owner(current_user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    return ShareLinkResponse.model_validate(entry.link)
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[EntryDetailsResponse],
+)
+async def list_public_entries(
+    search_query: Annotated[SearchQueryParams, Query()],
+    entry_service: EntryServiceDep,
+):
+    return await entry_service.list_public_entries(
+        search_query=search_query,
+    )
 
 
 @router.put(
@@ -184,7 +169,7 @@ async def delete_entry(
 ):
     entry: Entry = await entry_service.get_entry_by_id(entry_id)
 
-    if entry.has_owner(current_user.id):
+    if not entry.has_owner(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
         )

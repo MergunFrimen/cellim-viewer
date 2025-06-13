@@ -7,19 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
-from app.api.v1.dependencies import ViewStorageDep
 from app.database.models.entry_model import Entry
 from app.database.models.user_model import User
 from app.database.models.view_model import View
 from app.database.session_manager import get_async_session
 from app.services.entry_service import EntryService, get_entry_service
+from app.services.files.dependency import get_view_storage
+from app.services.files.file_service import FileService
 
 
 class ViewService:
     def __init__(
         self,
         session: AsyncSession,
-        storage: ViewStorageDep,
+        storage: FileService,
         entry_service: EntryService,
     ):
         self.session = session
@@ -231,8 +232,10 @@ class ViewService:
 async def get_view_service(
     session: AsyncSession = Depends(get_async_session),
     entry_service: EntryService = Depends(get_entry_service),
+    view_storage: FileService = Depends(get_view_storage),
 ) -> ViewService:
     return ViewService(
         session=session,
         entry_service=entry_service,
+        storage=view_storage,
     )

@@ -10,5 +10,5 @@ class ViewCreateRequest(BaseModel):
 
 
 class ViewUpdateRequest(BaseModel):
-    name: str = Field(max_length=255, examples=["View Name"])
+    name: str | None = Field(default=None, max_length=255, examples=["View Name"])
     description: str | None = Field(default=None, max_length=255, examples=["View Description"])
