@@ -11,3 +11,5 @@ class VolsegUploadDataset(BaseModel):
     annotations: UploadFile = File(description="Entry annotations")
     metadata: UploadFile = File(description="Entry metadata")
     data: UploadFile = File(description="Entry data (zip)")
+
+    model_config = {"extra": "forbid"}

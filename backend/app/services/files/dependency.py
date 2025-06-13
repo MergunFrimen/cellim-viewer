@@ -3,21 +3,18 @@ from functools import lru_cache
 from app.core.settings import get_settings
 from app.services.files.file_service import FileService
 from app.services.files.storage_backend.local_storage_backend import LocalStorageBackend
+from app.services.files.storage_backend.minio_storage_backend import MinioStorageBackend
 
 
 @lru_cache
 def get_view_storage():
+    settings = get_settings()
     return FileService(
-        LocalStorageBackend(
-            base_path=get_settings().FILE_STORAGE_BASE_PATH,
-        )
-    )
-
-
-@lru_cache
-def get_volseg_storage():
-    return FileService(
-        LocalStorageBackend(
-            base_path=get_settings().FILE_STORAGE_BASE_PATH,
+        MinioStorageBackend(
+            endpoint=settings.MINIO_ENDPOINT,
+            bucket=settings.MINIO_BUCKET,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+            secure=settings.MINIO_SECURE,
         )
     )

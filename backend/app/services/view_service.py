@@ -30,6 +30,8 @@ class ViewService:
     async def create(self, user: User, entry_id: UUID, request: ViewCreateRequest) -> ViewResponse:
         entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
 
+        print(entry.id, user.id)
+
         # Check permissions
         if not entry.has_owner(user.id):
             raise HTTPException(

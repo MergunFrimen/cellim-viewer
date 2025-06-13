@@ -5,12 +5,16 @@ class EntryCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     is_public: bool | None = Field(default=False)
+    
+    model_config = {"extra": "forbid"}
 
 
 class EntryUpdateRequest(BaseModel):
     name: str | None = Field(default=None, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     is_public: bool | None = Field(default=None)
+
+    model_config = {"extra": "forbid"}
 
 
 class SearchQueryParams(BaseModel):
@@ -20,3 +24,5 @@ class SearchQueryParams(BaseModel):
     )
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=10, ge=1, le=100)
+
+    model_config = {"extra": "forbid"}
