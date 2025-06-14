@@ -1,5 +1,6 @@
 import { useBehavior } from "@/hooks/useBehavior";
 import { MolstarViewerModel } from "@/lib/models/molstar-viewer";
+import { cn } from "@/lib/utils";
 import { LeftPanelControls } from "molstar/lib/commonjs/mol-plugin-ui/left-panel";
 import {
   ControlsWrapper,
@@ -20,67 +21,36 @@ export function ViewerLayout({ viewer }: { viewer: MolstarViewerModel }) {
 
   return (
     <div
-      style={{
-        position: isExpanded ? "fixed" : "relative",
-        inset: isExpanded ? 0 : "auto",
-        width: "100%",
-        height: "100%",
-        zIndex: isExpanded ? 9999 : "auto",
-      }}
+      className={cn(
+        "size-full",
+        isExpanded ? "fixed" : "relative",
+        isExpanded ? 0 : "auto",
+        isExpanded ? 9999 : "auto",
+      )}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "100%",
-          width: "100%",
-        }}
-      >
+      <div className="flex flex-row size-full">
         {showControls && (
-          <div
-            style={{
-              position: "relative",
-              maxWidth: "330px",
-              height: "100%",
-              flex: 1,
-            }}
-          >
+          <div className="relative flex-1 max-h-[330px] h-full">
             <MolstarLeftPanelControlsView viewer={viewer} />
           </div>
         )}
 
-        <div
-          style={{
-            display: "flex",
-            flex: 1,
-            flexDirection: "column",
-            height: "100%",
-            width: "100%",
-          }}
-        >
+        <div className="relative flex flex-col flex-1 size-full">
           <div
-            style={{
-              position: "relative",
-              height: isExpanded ? "100px" : "80px",
-              width: "100%",
-            }}
+            className={cn(
+              "relative w-full",
+              isExpanded ? "h-[100px]" : "h-[80px]",
+            )}
           >
             <MolstarSequence viewer={viewer} />
           </div>
-          <div style={{ position: "relative", flex: 1 }}>
+          <div className="relative flex-1">
             <MolstarViewport viewer={viewer} />
           </div>
         </div>
 
         {showControls && (
-          <div
-            style={{
-              position: "relative",
-              maxWidth: "300px",
-              height: "100%",
-              flex: 1,
-            }}
-          >
+          <div className="relative flex-1 max-w-[300px] h-full">
             <MolstarControlsView viewer={viewer} />
           </div>
         )}

@@ -18,15 +18,6 @@ export function Header() {
         <Button variant="link" asChild>
           <Link to="/">Home</Link>
         </Button>
-        <Button variant="link" asChild>
-          <Link to="/about">About</Link>
-        </Button>
-        <Button variant="link" asChild>
-          <Link to="/docs">Docs</Link>
-        </Button>
-        <Button variant="link" asChild>
-          <Link to="/docs">Docs</Link>
-        </Button>
         {isAuthenticated && (
           <Button variant="link" asChild>
             <Link to="/dashboard">Dashboard</Link>

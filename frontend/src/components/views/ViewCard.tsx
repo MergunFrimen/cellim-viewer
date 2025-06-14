@@ -47,7 +47,6 @@ export function ViewCard({
 
   const handleLoadView = async () => {
     const { data } = await viewSnapshot.refetch();
-    console.log(data);
     await viewer.loadSnapshot(data);
   };
 

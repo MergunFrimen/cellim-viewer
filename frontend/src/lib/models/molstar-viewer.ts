@@ -5,7 +5,6 @@ import {
   PluginUISpec,
 } from "molstar/lib/commonjs/mol-plugin-ui/spec";
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
-import { PluginCommands } from "molstar/lib/commonjs/mol-plugin/commands";
 import { BehaviorSubject } from "rxjs";
 import { BaseReactiveModel } from "./base-model";
 
