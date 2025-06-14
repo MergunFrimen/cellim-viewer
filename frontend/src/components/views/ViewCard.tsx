@@ -13,14 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { ViewResponse, viewsGetViewSnapshot } from "@/lib/client";
-import {
-  viewsGetViewSnapshotOptions,
-  viewsGetViewSnapshotQueryKey,
-} from "@/lib/client/@tanstack/react-query.gen";
+import { ViewResponse } from "@/lib/client";
+import { viewsGetViewSnapshotOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
-import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
 
 interface ViewCardProps {
   entryId: string;
@@ -39,16 +35,20 @@ export function ViewCard({
 }: ViewCardProps) {
   const { viewer } = useMolstar();
 
+  const viewSnapshot = useQuery({
+    ...viewsGetViewSnapshotOptions({
+      path: {
+        entry_id: entryId!,
+        view_id: view.id!,
+      },
+    }),
+    enabled: false, // don't run on mount
+  });
+
   const handleLoadView = async () => {
-    const response = await fetch(
-      `http://localhost:8000/api/v1/entries/${entryId}/views/${view.id}/snapshot`,
-    );
-    if (!response.ok)
-      throw new Error(`Failed to fetch snapshot: ${response.statusText}`);
-
-    const snapshot: PluginState.Snapshot = await response.json();
-
-    await viewer.loadSnapshot(snapshot);
+    const { data } = await viewSnapshot.refetch();
+    console.log(data);
+    await viewer.loadSnapshot(data);
   };
 
   return (
@@ -92,8 +92,8 @@ export function ViewCard({
         <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
           {view.thumbnail_url ? (
             <img
-              src={view.thumbnail_url}
-              alt={`Preview of ${view.name}`}
+              src={`http://localhost:8000/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
+              alt={`${view.name} thumbnail`}
               className="w-full h-full object-cover"
             />
           ) : (
