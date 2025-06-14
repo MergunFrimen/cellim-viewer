@@ -91,17 +91,11 @@ export class MolstarViewerModel extends BaseReactiveModel {
     return this.plugin.state.getSnapshot({ image: true });
   }
 
-  async loadSnapshot(url: string) {
+  async loadSnapshot(snapshot: PluginState.Snapshot) {
     if (this.state.isLoading.value) return;
 
     this.state.isLoading.next(true);
     try {
-      const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`Failed to fetch snapshot: ${response.statusText}`);
-
-      const snapshot: PluginState.Snapshot = await response.json();
-
       await this.plugin.state.setSnapshot(snapshot);
     } catch (error) {
       console.error("Error loading snapshot:", error);

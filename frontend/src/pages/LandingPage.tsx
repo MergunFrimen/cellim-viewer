@@ -3,7 +3,7 @@ import { SearchBar } from "@/components/common/SearchBar";
 import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { EntryPreview } from "@/components/entries/EntryPreview";
 import { Button } from "@/components/ui/button";
-import { entriesListEntriesOptions } from "@/lib/client/@tanstack/react-query.gen";
+import { entriesListPublicEntriesOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
@@ -15,7 +15,7 @@ export function LandingPage() {
   const perPage = parseInt(searchParams.get("per_page") || "12");
 
   const { data, isLoading, error } = useQuery({
-    ...entriesListEntriesOptions(),
+    ...entriesListPublicEntriesOptions(),
   });
 
   const handleSearch = (searchTerm: string) => {

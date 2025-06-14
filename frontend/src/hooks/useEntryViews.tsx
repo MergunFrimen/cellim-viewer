@@ -5,7 +5,7 @@ import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
 import {
   viewsCreateViewMutation,
   viewsDeleteViewMutation,
-  viewsGetViewQueryKey,
+  viewsGetViewByIdQueryKey,
   viewsListViewsForEntryOptions,
   viewsListViewsForEntryQueryKey,
   viewsUpdateViewMutation,
@@ -49,7 +49,9 @@ export function useEntryViews(entryId: string) {
     onSuccess: (updatedView) => {
       toast.success(`View "${updatedView.name}" updated successfully`);
       queryClient.invalidateQueries({
-        queryKey: viewsGetViewQueryKey({ path: { view_id: updatedView.id } }),
+        queryKey: viewsGetViewByIdQueryKey({
+          path: { entry_id: entryId, view_id: updatedView.id },
+        }),
       });
     },
   });
@@ -59,7 +61,9 @@ export function useEntryViews(entryId: string) {
     onSuccess: (deletedViewId) => {
       toast.success("View deleted successfully");
       queryClient.invalidateQueries({
-        queryKey: viewsGetViewQueryKey({ path: { view_id: deletedViewId } }),
+        queryKey: viewsGetViewByIdQueryKey({
+          path: { entry_id: entryId, view_id: deletedViewId },
+        }),
       });
       queryClient.invalidateQueries({
         queryKey: viewsListViewsForEntryQueryKey({

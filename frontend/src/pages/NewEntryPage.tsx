@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   EntryCreateRequest,
   HttpValidationError,
-  PrivateEntryDetailsResponse,
+  EntryDetailsResponse,
   zEntryCreateRequest,
 } from "@/lib/client";
 import { entriesCreateEntryMutation } from "@/lib/client/@tanstack/react-query.gen";
@@ -49,7 +49,7 @@ export function NewEntryPage() {
 
   const mutation = useMutation({
     ...entriesCreateEntryMutation(),
-    onSuccess: (createdEntry: PrivateEntryDetailsResponse) => {
+    onSuccess: (createdEntry: EntryDetailsResponse) => {
       toast.success("Entry created successfully!");
       navigate(`/entries/${createdEntry.id}`);
     },

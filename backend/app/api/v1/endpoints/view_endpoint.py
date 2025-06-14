@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, File, HTTPException, Path, Response
+from fastapi import APIRouter, Body, File, Path, Response
 from fastapi.responses import JSONResponse
 from starlette import status
 
@@ -14,7 +14,6 @@ from app.api.v1.deps import (
     ViewServiceDep,
 )
 from app.api.v1.tags import Tags
-from app.database.models.view_model import View
 
 router = APIRouter(prefix="/entries/{entry_id}/views", tags=[Tags.views])
 
@@ -49,15 +48,9 @@ async def get_view_by_id(
     session: DbSessionDep,
     current_user: OptionalUserDep,
 ):
-    view: View = await view_service.get_view(view_id)
-    await session.refresh(view, ["entry"])
-
-    if view.entry.is_public or (current_user is not None and view.has_owner(current_user.id)):
-        return ViewResponse.model_validate(view)
-
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Entry is not public",
+    return await view_service.get_view(
+        user=current_user,
+        view_id=view_id,
     )
 
 

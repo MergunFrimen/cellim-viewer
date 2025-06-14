@@ -20,10 +20,18 @@ export const EntryCreateRequestSchema = {
       examples: ["Markdown description."],
     },
     is_public: {
-      type: "boolean",
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
       default: false,
     },
   },
+  additionalProperties: false,
   type: "object",
   required: ["name"],
 } as const;
@@ -120,6 +128,7 @@ export const EntryUpdateRequestSchema = {
       ],
     },
   },
+  additionalProperties: false,
   type: "object",
 } as const;
 
@@ -222,7 +231,20 @@ export const ShareLinkUpdateRequestSchema = {
       ],
     },
   },
+  additionalProperties: false,
   type: "object",
+} as const;
+
+export const UploadFileRequestSchema = {
+  properties: {
+    file: {
+      type: "string",
+      format: "binary",
+    },
+  },
+  additionalProperties: false,
+  type: "object",
+  required: ["file"],
 } as const;
 
 export const ValidationErrorSchema = {
@@ -286,6 +308,7 @@ export const ViewCreateRequestSchema = {
       ],
     },
   },
+  additionalProperties: false,
   type: "object",
   required: ["name", "snapshot_json"],
 } as const;
@@ -326,8 +349,15 @@ export const ViewResponseSchema = {
       ],
     },
     thumbnail_url: {
-      type: "string",
-      maxLength: 2083,
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 2083,
+        },
+        {
+          type: "null",
+        },
+      ],
     },
     snapshot_url: {
       type: "string",
@@ -348,8 +378,15 @@ export const ViewResponseSchema = {
 export const ViewUpdateRequestSchema = {
   properties: {
     name: {
-      type: "string",
-      maxLength: 255,
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
       examples: ["View Name"],
     },
     description: {
@@ -365,6 +402,97 @@ export const ViewUpdateRequestSchema = {
       examples: ["View Description"],
     },
   },
+  additionalProperties: false,
   type: "object",
-  required: ["name"],
+} as const;
+
+export const VolsegEntryResponseSchema = {
+  properties: {
+    response_model: {
+      type: "string",
+      default: "",
+    },
+    id: {
+      type: "string",
+      format: "uuid4",
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
+    },
+    db_name: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      examples: ["emdb"],
+    },
+    entry_id: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      examples: ["emd-1832"],
+    },
+    is_public: {
+      type: "boolean",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "created_at",
+    "updated_at",
+    "db_name",
+    "entry_id",
+    "is_public",
+  ],
+} as const;
+
+export const VolsegUploadEntrySchema = {
+  properties: {
+    db_name: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      examples: ["emdb"],
+    },
+    entry_id: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      examples: ["emd-1832"],
+    },
+    is_public: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      default: false,
+    },
+    annotations: {
+      type: "string",
+      format: "binary",
+    },
+    metadata: {
+      type: "string",
+      format: "binary",
+    },
+    data: {
+      type: "string",
+      format: "binary",
+    },
+  },
+  additionalProperties: false,
+  type: "object",
+  required: ["db_name", "entry_id", "annotations", "metadata", "data"],
 } as const;

@@ -2,21 +2,21 @@
 
 import {
   type Options,
-  entriesListEntries,
+  entriesListPublicEntries,
   entriesCreateEntry,
-  entriesListEntriesForUser,
   entriesDeleteEntry,
-  entriesGetEntry,
+  entriesGetEntryById,
   entriesUpdateEntry,
-  entriesGetEntryShareLink,
   entriesGetEntryByShareLink,
+  entriesGetEntryShareLink,
   viewsListViewsForEntry,
   viewsCreateView,
   viewsDeleteView,
-  viewsGetView,
+  viewsGetViewById,
   viewsUpdateView,
   viewsGetViewSnapshot,
   viewsGetViewThumbnailImage,
+  entriesListEntriesForUser,
   shareLinksGetShareLink,
   shareLinksUpdateShareLink,
   authLoginAdmin,
@@ -25,7 +25,12 @@ import {
   authReadUsersMe,
   authProtectedRoute,
   authCheckAuth,
-  testBackgroundTask,
+  testUploadFile,
+  volsegEntriesListEntries,
+  volsegEntriesUploadEntry,
+  volsegEntriesDeleteView,
+  volsegEntriesGetEntryById,
+  volsegEntriesListPublicEntries,
 } from "../sdk.gen";
 import {
   queryOptions,
@@ -35,24 +40,21 @@ import {
   type DefaultError,
 } from "@tanstack/react-query";
 import type {
-  EntriesListEntriesData,
-  EntriesListEntriesError,
-  EntriesListEntriesResponse,
+  EntriesListPublicEntriesData,
+  EntriesListPublicEntriesError,
+  EntriesListPublicEntriesResponse,
   EntriesCreateEntryData,
   EntriesCreateEntryError,
   EntriesCreateEntryResponse,
-  EntriesListEntriesForUserData,
-  EntriesListEntriesForUserError,
-  EntriesListEntriesForUserResponse,
   EntriesDeleteEntryData,
   EntriesDeleteEntryError,
   EntriesDeleteEntryResponse,
-  EntriesGetEntryData,
+  EntriesGetEntryByIdData,
   EntriesUpdateEntryData,
   EntriesUpdateEntryError,
   EntriesUpdateEntryResponse,
-  EntriesGetEntryShareLinkData,
   EntriesGetEntryByShareLinkData,
+  EntriesGetEntryShareLinkData,
   ViewsListViewsForEntryData,
   ViewsCreateViewData,
   ViewsCreateViewError,
@@ -60,12 +62,15 @@ import type {
   ViewsDeleteViewData,
   ViewsDeleteViewError,
   ViewsDeleteViewResponse,
-  ViewsGetViewData,
+  ViewsGetViewByIdData,
   ViewsUpdateViewData,
   ViewsUpdateViewError,
   ViewsUpdateViewResponse,
   ViewsGetViewSnapshotData,
   ViewsGetViewThumbnailImageData,
+  EntriesListEntriesForUserData,
+  EntriesListEntriesForUserError,
+  EntriesListEntriesForUserResponse,
   ShareLinksGetShareLinkData,
   ShareLinksUpdateShareLinkData,
   ShareLinksUpdateShareLinkError,
@@ -76,7 +81,17 @@ import type {
   AuthReadUsersMeData,
   AuthProtectedRouteData,
   AuthCheckAuthData,
-  TestBackgroundTaskData,
+  TestUploadFileData,
+  TestUploadFileError,
+  VolsegEntriesListEntriesData,
+  VolsegEntriesUploadEntryData,
+  VolsegEntriesUploadEntryError,
+  VolsegEntriesUploadEntryResponse,
+  VolsegEntriesDeleteViewData,
+  VolsegEntriesDeleteViewError,
+  VolsegEntriesDeleteViewResponse,
+  VolsegEntriesGetEntryByIdData,
+  VolsegEntriesListPublicEntriesData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
 
@@ -114,16 +129,16 @@ const createQueryKey = <TOptions extends Options>(
   return [params];
 };
 
-export const entriesListEntriesQueryKey = (
-  options?: Options<EntriesListEntriesData>,
-) => createQueryKey("entriesListEntries", options);
+export const entriesListPublicEntriesQueryKey = (
+  options?: Options<EntriesListPublicEntriesData>,
+) => createQueryKey("entriesListPublicEntries", options);
 
-export const entriesListEntriesOptions = (
-  options?: Options<EntriesListEntriesData>,
+export const entriesListPublicEntriesOptions = (
+  options?: Options<EntriesListPublicEntriesData>,
 ) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await entriesListEntries({
+      const { data } = await entriesListPublicEntries({
         ...options,
         ...queryKey[0],
         signal,
@@ -131,7 +146,7 @@ export const entriesListEntriesOptions = (
       });
       return data;
     },
-    queryKey: entriesListEntriesQueryKey(options),
+    queryKey: entriesListPublicEntriesQueryKey(options),
   });
 };
 
@@ -169,22 +184,22 @@ const createInfiniteParams = <
   return params as unknown as typeof page;
 };
 
-export const entriesListEntriesInfiniteQueryKey = (
-  options?: Options<EntriesListEntriesData>,
-): QueryKey<Options<EntriesListEntriesData>> =>
-  createQueryKey("entriesListEntries", options, true);
+export const entriesListPublicEntriesInfiniteQueryKey = (
+  options?: Options<EntriesListPublicEntriesData>,
+): QueryKey<Options<EntriesListPublicEntriesData>> =>
+  createQueryKey("entriesListPublicEntries", options, true);
 
-export const entriesListEntriesInfiniteOptions = (
-  options?: Options<EntriesListEntriesData>,
+export const entriesListPublicEntriesInfiniteOptions = (
+  options?: Options<EntriesListPublicEntriesData>,
 ) => {
   return infiniteQueryOptions<
-    EntriesListEntriesResponse,
-    EntriesListEntriesError,
-    InfiniteData<EntriesListEntriesResponse>,
-    QueryKey<Options<EntriesListEntriesData>>,
+    EntriesListPublicEntriesResponse,
+    EntriesListPublicEntriesError,
+    InfiniteData<EntriesListPublicEntriesResponse>,
+    QueryKey<Options<EntriesListPublicEntriesData>>,
     | number
     | Pick<
-        QueryKey<Options<EntriesListEntriesData>>[0],
+        QueryKey<Options<EntriesListPublicEntriesData>>[0],
         "body" | "headers" | "path" | "query"
       >
   >(
@@ -193,7 +208,7 @@ export const entriesListEntriesInfiniteOptions = (
       queryFn: async ({ pageParam, queryKey, signal }) => {
         // @ts-ignore
         const page: Pick<
-          QueryKey<Options<EntriesListEntriesData>>[0],
+          QueryKey<Options<EntriesListPublicEntriesData>>[0],
           "body" | "headers" | "path" | "query"
         > =
           typeof pageParam === "object"
@@ -204,7 +219,7 @@ export const entriesListEntriesInfiniteOptions = (
                 },
               };
         const params = createInfiniteParams(queryKey, page);
-        const { data } = await entriesListEntries({
+        const { data } = await entriesListPublicEntries({
           ...options,
           ...params,
           signal,
@@ -212,7 +227,7 @@ export const entriesListEntriesInfiniteOptions = (
         });
         return data;
       },
-      queryKey: entriesListEntriesInfiniteQueryKey(options),
+      queryKey: entriesListPublicEntriesInfiniteQueryKey(options),
     },
   );
 };
@@ -262,75 +277,6 @@ export const entriesCreateEntryMutation = (
   return mutationOptions;
 };
 
-export const entriesListEntriesForUserQueryKey = (
-  options?: Options<EntriesListEntriesForUserData>,
-) => createQueryKey("entriesListEntriesForUser", options);
-
-export const entriesListEntriesForUserOptions = (
-  options?: Options<EntriesListEntriesForUserData>,
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await entriesListEntriesForUser({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: entriesListEntriesForUserQueryKey(options),
-  });
-};
-
-export const entriesListEntriesForUserInfiniteQueryKey = (
-  options?: Options<EntriesListEntriesForUserData>,
-): QueryKey<Options<EntriesListEntriesForUserData>> =>
-  createQueryKey("entriesListEntriesForUser", options, true);
-
-export const entriesListEntriesForUserInfiniteOptions = (
-  options?: Options<EntriesListEntriesForUserData>,
-) => {
-  return infiniteQueryOptions<
-    EntriesListEntriesForUserResponse,
-    EntriesListEntriesForUserError,
-    InfiniteData<EntriesListEntriesForUserResponse>,
-    QueryKey<Options<EntriesListEntriesForUserData>>,
-    | number
-    | Pick<
-        QueryKey<Options<EntriesListEntriesForUserData>>[0],
-        "body" | "headers" | "path" | "query"
-      >
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<EntriesListEntriesForUserData>>[0],
-          "body" | "headers" | "path" | "query"
-        > =
-          typeof pageParam === "object"
-            ? pageParam
-            : {
-                query: {
-                  page: pageParam,
-                },
-              };
-        const params = createInfiniteParams(queryKey, page);
-        const { data } = await entriesListEntriesForUser({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true,
-        });
-        return data;
-      },
-      queryKey: entriesListEntriesForUserInfiniteQueryKey(options),
-    },
-  );
-};
-
 export const entriesDeleteEntryMutation = (
   options?: Partial<Options<EntriesDeleteEntryData>>,
 ): UseMutationOptions<
@@ -355,16 +301,16 @@ export const entriesDeleteEntryMutation = (
   return mutationOptions;
 };
 
-export const entriesGetEntryQueryKey = (
-  options: Options<EntriesGetEntryData>,
-) => createQueryKey("entriesGetEntry", options);
+export const entriesGetEntryByIdQueryKey = (
+  options: Options<EntriesGetEntryByIdData>,
+) => createQueryKey("entriesGetEntryById", options);
 
-export const entriesGetEntryOptions = (
-  options: Options<EntriesGetEntryData>,
+export const entriesGetEntryByIdOptions = (
+  options: Options<EntriesGetEntryByIdData>,
 ) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await entriesGetEntry({
+      const { data } = await entriesGetEntryById({
         ...options,
         ...queryKey[0],
         signal,
@@ -372,7 +318,7 @@ export const entriesGetEntryOptions = (
       });
       return data;
     },
-    queryKey: entriesGetEntryQueryKey(options),
+    queryKey: entriesGetEntryByIdQueryKey(options),
   });
 };
 
@@ -400,27 +346,6 @@ export const entriesUpdateEntryMutation = (
   return mutationOptions;
 };
 
-export const entriesGetEntryShareLinkQueryKey = (
-  options: Options<EntriesGetEntryShareLinkData>,
-) => createQueryKey("entriesGetEntryShareLink", options);
-
-export const entriesGetEntryShareLinkOptions = (
-  options: Options<EntriesGetEntryShareLinkData>,
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await entriesGetEntryShareLink({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: entriesGetEntryShareLinkQueryKey(options),
-  });
-};
-
 export const entriesGetEntryByShareLinkQueryKey = (
   options: Options<EntriesGetEntryByShareLinkData>,
 ) => createQueryKey("entriesGetEntryByShareLink", options);
@@ -439,6 +364,27 @@ export const entriesGetEntryByShareLinkOptions = (
       return data;
     },
     queryKey: entriesGetEntryByShareLinkQueryKey(options),
+  });
+};
+
+export const entriesGetEntryShareLinkQueryKey = (
+  options: Options<EntriesGetEntryShareLinkData>,
+) => createQueryKey("entriesGetEntryShareLink", options);
+
+export const entriesGetEntryShareLinkOptions = (
+  options: Options<EntriesGetEntryShareLinkData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await entriesGetEntryShareLink({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: entriesGetEntryShareLinkQueryKey(options),
   });
 };
 
@@ -532,13 +478,16 @@ export const viewsDeleteViewMutation = (
   return mutationOptions;
 };
 
-export const viewsGetViewQueryKey = (options: Options<ViewsGetViewData>) =>
-  createQueryKey("viewsGetView", options);
+export const viewsGetViewByIdQueryKey = (
+  options: Options<ViewsGetViewByIdData>,
+) => createQueryKey("viewsGetViewById", options);
 
-export const viewsGetViewOptions = (options: Options<ViewsGetViewData>) => {
+export const viewsGetViewByIdOptions = (
+  options: Options<ViewsGetViewByIdData>,
+) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await viewsGetView({
+      const { data } = await viewsGetViewById({
         ...options,
         ...queryKey[0],
         signal,
@@ -546,7 +495,7 @@ export const viewsGetViewOptions = (options: Options<ViewsGetViewData>) => {
       });
       return data;
     },
-    queryKey: viewsGetViewQueryKey(options),
+    queryKey: viewsGetViewByIdQueryKey(options),
   });
 };
 
@@ -614,6 +563,75 @@ export const viewsGetViewThumbnailImageOptions = (
     },
     queryKey: viewsGetViewThumbnailImageQueryKey(options),
   });
+};
+
+export const entriesListEntriesForUserQueryKey = (
+  options?: Options<EntriesListEntriesForUserData>,
+) => createQueryKey("entriesListEntriesForUser", options);
+
+export const entriesListEntriesForUserOptions = (
+  options?: Options<EntriesListEntriesForUserData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await entriesListEntriesForUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: entriesListEntriesForUserQueryKey(options),
+  });
+};
+
+export const entriesListEntriesForUserInfiniteQueryKey = (
+  options?: Options<EntriesListEntriesForUserData>,
+): QueryKey<Options<EntriesListEntriesForUserData>> =>
+  createQueryKey("entriesListEntriesForUser", options, true);
+
+export const entriesListEntriesForUserInfiniteOptions = (
+  options?: Options<EntriesListEntriesForUserData>,
+) => {
+  return infiniteQueryOptions<
+    EntriesListEntriesForUserResponse,
+    EntriesListEntriesForUserError,
+    InfiniteData<EntriesListEntriesForUserResponse>,
+    QueryKey<Options<EntriesListEntriesForUserData>>,
+    | number
+    | Pick<
+        QueryKey<Options<EntriesListEntriesForUserData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<EntriesListEntriesForUserData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await entriesListEntriesForUser({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: entriesListEntriesForUserInfiniteQueryKey(options),
+    },
+  );
 };
 
 export const shareLinksGetShareLinkQueryKey = (
@@ -837,16 +855,13 @@ export const authCheckAuthOptions = (options?: Options<AuthCheckAuthData>) => {
   });
 };
 
-export const testBackgroundTaskQueryKey = (
-  options?: Options<TestBackgroundTaskData>,
-) => createQueryKey("testBackgroundTask", options);
+export const testUploadFileQueryKey = (options: Options<TestUploadFileData>) =>
+  createQueryKey("testUploadFile", options);
 
-export const testBackgroundTaskOptions = (
-  options?: Options<TestBackgroundTaskData>,
-) => {
+export const testUploadFileOptions = (options: Options<TestUploadFileData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await testBackgroundTask({
+      const { data } = await testUploadFile({
         ...options,
         ...queryKey[0],
         signal,
@@ -854,6 +869,162 @@ export const testBackgroundTaskOptions = (
       });
       return data;
     },
-    queryKey: testBackgroundTaskQueryKey(options),
+    queryKey: testUploadFileQueryKey(options),
+  });
+};
+
+export const testUploadFileMutation = (
+  options?: Partial<Options<TestUploadFileData>>,
+): UseMutationOptions<
+  unknown,
+  TestUploadFileError,
+  Options<TestUploadFileData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    TestUploadFileError,
+    Options<TestUploadFileData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await testUploadFile({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const volsegEntriesListEntriesQueryKey = (
+  options?: Options<VolsegEntriesListEntriesData>,
+) => createQueryKey("volsegEntriesListEntries", options);
+
+export const volsegEntriesListEntriesOptions = (
+  options?: Options<VolsegEntriesListEntriesData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await volsegEntriesListEntries({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: volsegEntriesListEntriesQueryKey(options),
+  });
+};
+
+export const volsegEntriesUploadEntryQueryKey = (
+  options: Options<VolsegEntriesUploadEntryData>,
+) => createQueryKey("volsegEntriesUploadEntry", options);
+
+export const volsegEntriesUploadEntryOptions = (
+  options: Options<VolsegEntriesUploadEntryData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await volsegEntriesUploadEntry({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: volsegEntriesUploadEntryQueryKey(options),
+  });
+};
+
+export const volsegEntriesUploadEntryMutation = (
+  options?: Partial<Options<VolsegEntriesUploadEntryData>>,
+): UseMutationOptions<
+  VolsegEntriesUploadEntryResponse,
+  VolsegEntriesUploadEntryError,
+  Options<VolsegEntriesUploadEntryData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VolsegEntriesUploadEntryResponse,
+    VolsegEntriesUploadEntryError,
+    Options<VolsegEntriesUploadEntryData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await volsegEntriesUploadEntry({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const volsegEntriesDeleteViewMutation = (
+  options?: Partial<Options<VolsegEntriesDeleteViewData>>,
+): UseMutationOptions<
+  VolsegEntriesDeleteViewResponse,
+  VolsegEntriesDeleteViewError,
+  Options<VolsegEntriesDeleteViewData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VolsegEntriesDeleteViewResponse,
+    VolsegEntriesDeleteViewError,
+    Options<VolsegEntriesDeleteViewData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await volsegEntriesDeleteView({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const volsegEntriesGetEntryByIdQueryKey = (
+  options: Options<VolsegEntriesGetEntryByIdData>,
+) => createQueryKey("volsegEntriesGetEntryById", options);
+
+export const volsegEntriesGetEntryByIdOptions = (
+  options: Options<VolsegEntriesGetEntryByIdData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await volsegEntriesGetEntryById({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: volsegEntriesGetEntryByIdQueryKey(options),
+  });
+};
+
+export const volsegEntriesListPublicEntriesQueryKey = (
+  options?: Options<VolsegEntriesListPublicEntriesData>,
+) => createQueryKey("volsegEntriesListPublicEntries", options);
+
+export const volsegEntriesListPublicEntriesOptions = (
+  options?: Options<VolsegEntriesListPublicEntriesData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await volsegEntriesListPublicEntries({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: volsegEntriesListPublicEntriesQueryKey(options),
   });
 };

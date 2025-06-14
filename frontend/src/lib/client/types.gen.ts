@@ -3,7 +3,7 @@
 export type EntryCreateRequest = {
   name: string;
   description?: string | null;
-  is_public?: boolean;
+  is_public?: boolean | null;
 };
 
 export type EntryDetailsResponse = {
@@ -50,6 +50,10 @@ export type ShareLinkUpdateRequest = {
   is_active?: boolean | null;
 };
 
+export type UploadFileRequest = {
+  file: Blob | File;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -76,16 +80,44 @@ export type ViewResponse = {
   updated_at: string;
   name: string;
   description?: string | null;
-  thumbnail_url: string;
+  thumbnail_url: string | null;
   snapshot_url: string;
 };
 
 export type ViewUpdateRequest = {
-  name: string;
+  name?: string | null;
   description?: string | null;
 };
 
-export type EntriesListEntriesData = {
+export type VolsegEntryResponse = {
+  response_model?: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  db_name: string;
+  entry_id: string;
+  is_public: boolean;
+};
+
+export type VolsegUploadEntry = {
+  db_name: string;
+  entry_id: string;
+  is_public?: boolean | null;
+  /**
+   * Entry annotations
+   */
+  annotations: Blob | File;
+  /**
+   * Entry metadata
+   */
+  metadata: Blob | File;
+  /**
+   * Entry data (zip)
+   */
+  data: Blob | File;
+};
+
+export type EntriesListPublicEntriesData = {
   body?: never;
   path?: never;
   query?: {
@@ -99,25 +131,25 @@ export type EntriesListEntriesData = {
   url: "/api/v1/entries";
 };
 
-export type EntriesListEntriesErrors = {
+export type EntriesListPublicEntriesErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type EntriesListEntriesError =
-  EntriesListEntriesErrors[keyof EntriesListEntriesErrors];
+export type EntriesListPublicEntriesError =
+  EntriesListPublicEntriesErrors[keyof EntriesListPublicEntriesErrors];
 
-export type EntriesListEntriesResponses = {
+export type EntriesListPublicEntriesResponses = {
   /**
    * Successful Response
    */
   200: PaginatedResponseEntryDetailsResponse;
 };
 
-export type EntriesListEntriesResponse =
-  EntriesListEntriesResponses[keyof EntriesListEntriesResponses];
+export type EntriesListPublicEntriesResponse =
+  EntriesListPublicEntriesResponses[keyof EntriesListPublicEntriesResponses];
 
 export type EntriesCreateEntryData = {
   body: EntryCreateRequest;
@@ -145,40 +177,6 @@ export type EntriesCreateEntryResponses = {
 
 export type EntriesCreateEntryResponse =
   EntriesCreateEntryResponses[keyof EntriesCreateEntryResponses];
-
-export type EntriesListEntriesForUserData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Keywords to search by in entry titles and descriptions.
-     */
-    search_term?: string | null;
-    page?: number;
-    per_page?: number;
-  };
-  url: "/api/v1/entries/user";
-};
-
-export type EntriesListEntriesForUserErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type EntriesListEntriesForUserError =
-  EntriesListEntriesForUserErrors[keyof EntriesListEntriesForUserErrors];
-
-export type EntriesListEntriesForUserResponses = {
-  /**
-   * Successful Response
-   */
-  200: PaginatedResponseEntryDetailsResponse;
-};
-
-export type EntriesListEntriesForUserResponse =
-  EntriesListEntriesForUserResponses[keyof EntriesListEntriesForUserResponses];
 
 export type EntriesDeleteEntryData = {
   body?: never;
@@ -209,7 +207,7 @@ export type EntriesDeleteEntryResponses = {
 export type EntriesDeleteEntryResponse =
   EntriesDeleteEntryResponses[keyof EntriesDeleteEntryResponses];
 
-export type EntriesGetEntryData = {
+export type EntriesGetEntryByIdData = {
   body?: never;
   path: {
     entry_id: string;
@@ -218,25 +216,25 @@ export type EntriesGetEntryData = {
   url: "/api/v1/entries/{entry_id}";
 };
 
-export type EntriesGetEntryErrors = {
+export type EntriesGetEntryByIdErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type EntriesGetEntryError =
-  EntriesGetEntryErrors[keyof EntriesGetEntryErrors];
+export type EntriesGetEntryByIdError =
+  EntriesGetEntryByIdErrors[keyof EntriesGetEntryByIdErrors];
 
-export type EntriesGetEntryResponses = {
+export type EntriesGetEntryByIdResponses = {
   /**
    * Successful Response
    */
   200: EntryDetailsResponse;
 };
 
-export type EntriesGetEntryResponse =
-  EntriesGetEntryResponses[keyof EntriesGetEntryResponses];
+export type EntriesGetEntryByIdResponse =
+  EntriesGetEntryByIdResponses[keyof EntriesGetEntryByIdResponses];
 
 export type EntriesUpdateEntryData = {
   body: EntryUpdateRequest;
@@ -267,35 +265,6 @@ export type EntriesUpdateEntryResponses = {
 export type EntriesUpdateEntryResponse =
   EntriesUpdateEntryResponses[keyof EntriesUpdateEntryResponses];
 
-export type EntriesGetEntryShareLinkData = {
-  body?: never;
-  path: {
-    entry_id: string;
-  };
-  query?: never;
-  url: "/api/v1/entries/{entry_id}/share_link";
-};
-
-export type EntriesGetEntryShareLinkErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type EntriesGetEntryShareLinkError =
-  EntriesGetEntryShareLinkErrors[keyof EntriesGetEntryShareLinkErrors];
-
-export type EntriesGetEntryShareLinkResponses = {
-  /**
-   * Successful Response
-   */
-  200: ShareLinkResponse;
-};
-
-export type EntriesGetEntryShareLinkResponse =
-  EntriesGetEntryShareLinkResponses[keyof EntriesGetEntryShareLinkResponses];
-
 export type EntriesGetEntryByShareLinkData = {
   body?: never;
   path: {
@@ -324,6 +293,35 @@ export type EntriesGetEntryByShareLinkResponses = {
 
 export type EntriesGetEntryByShareLinkResponse =
   EntriesGetEntryByShareLinkResponses[keyof EntriesGetEntryByShareLinkResponses];
+
+export type EntriesGetEntryShareLinkData = {
+  body?: never;
+  path: {
+    entry_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/share_link";
+};
+
+export type EntriesGetEntryShareLinkErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type EntriesGetEntryShareLinkError =
+  EntriesGetEntryShareLinkErrors[keyof EntriesGetEntryShareLinkErrors];
+
+export type EntriesGetEntryShareLinkResponses = {
+  /**
+   * Successful Response
+   */
+  200: ShareLinkResponse;
+};
+
+export type EntriesGetEntryShareLinkResponse =
+  EntriesGetEntryShareLinkResponses[keyof EntriesGetEntryShareLinkResponses];
 
 export type ViewsListViewsForEntryData = {
   body?: never;
@@ -412,33 +410,35 @@ export type ViewsDeleteViewResponses = {
 export type ViewsDeleteViewResponse =
   ViewsDeleteViewResponses[keyof ViewsDeleteViewResponses];
 
-export type ViewsGetViewData = {
+export type ViewsGetViewByIdData = {
   body?: never;
   path: {
+    entry_id: string;
     view_id: string;
   };
   query?: never;
   url: "/api/v1/entries/{entry_id}/views/{view_id}";
 };
 
-export type ViewsGetViewErrors = {
+export type ViewsGetViewByIdErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ViewsGetViewError = ViewsGetViewErrors[keyof ViewsGetViewErrors];
+export type ViewsGetViewByIdError =
+  ViewsGetViewByIdErrors[keyof ViewsGetViewByIdErrors];
 
-export type ViewsGetViewResponses = {
+export type ViewsGetViewByIdResponses = {
   /**
    * Successful Response
    */
   200: ViewResponse;
 };
 
-export type ViewsGetViewResponse =
-  ViewsGetViewResponses[keyof ViewsGetViewResponses];
+export type ViewsGetViewByIdResponse =
+  ViewsGetViewByIdResponses[keyof ViewsGetViewByIdResponses];
 
 export type ViewsUpdateViewData = {
   body: ViewUpdateRequest;
@@ -477,7 +477,7 @@ export type ViewsGetViewSnapshotData = {
     view_id: string;
   };
   query?: never;
-  url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot.json";
+  url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot";
 };
 
 export type ViewsGetViewSnapshotErrors = {
@@ -504,7 +504,7 @@ export type ViewsGetViewThumbnailImageData = {
     view_id: string;
   };
   query?: never;
-  url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail.png";
+  url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail";
 };
 
 export type ViewsGetViewThumbnailImageErrors = {
@@ -523,6 +523,40 @@ export type ViewsGetViewThumbnailImageResponses = {
    */
   200: unknown;
 };
+
+export type EntriesListEntriesForUserData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Keywords to search by in entry titles and descriptions.
+     */
+    search_term?: string | null;
+    page?: number;
+    per_page?: number;
+  };
+  url: "/api/v1/me/entries";
+};
+
+export type EntriesListEntriesForUserErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type EntriesListEntriesForUserError =
+  EntriesListEntriesForUserErrors[keyof EntriesListEntriesForUserErrors];
+
+export type EntriesListEntriesForUserResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedResponseEntryDetailsResponse;
+};
+
+export type EntriesListEntriesForUserResponse =
+  EntriesListEntriesForUserResponses[keyof EntriesListEntriesForUserResponses];
 
 export type ShareLinksGetShareLinkData = {
   body?: never;
@@ -679,19 +713,148 @@ export type AuthCheckAuthResponses = {
   200: unknown;
 };
 
-export type TestBackgroundTaskData = {
-  body?: never;
+export type TestUploadFileData = {
+  body: UploadFileRequest;
   path?: never;
   query?: never;
-  url: "/api/v1/test/background-task";
+  url: "/api/v1/test/upload";
 };
 
-export type TestBackgroundTaskResponses = {
+export type TestUploadFileErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TestUploadFileError =
+  TestUploadFileErrors[keyof TestUploadFileErrors];
+
+export type TestUploadFileResponses = {
   /**
    * Successful Response
    */
   200: unknown;
 };
+
+export type VolsegEntriesListEntriesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/volseg";
+};
+
+export type VolsegEntriesListEntriesResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<VolsegEntryResponse>;
+};
+
+export type VolsegEntriesListEntriesResponse =
+  VolsegEntriesListEntriesResponses[keyof VolsegEntriesListEntriesResponses];
+
+export type VolsegEntriesUploadEntryData = {
+  body: VolsegUploadEntry;
+  path?: never;
+  query?: never;
+  url: "/api/v1/volseg";
+};
+
+export type VolsegEntriesUploadEntryErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type VolsegEntriesUploadEntryError =
+  VolsegEntriesUploadEntryErrors[keyof VolsegEntriesUploadEntryErrors];
+
+export type VolsegEntriesUploadEntryResponses = {
+  /**
+   * Successful Response
+   */
+  200: VolsegEntryResponse;
+};
+
+export type VolsegEntriesUploadEntryResponse =
+  VolsegEntriesUploadEntryResponses[keyof VolsegEntriesUploadEntryResponses];
+
+export type VolsegEntriesDeleteViewData = {
+  body?: never;
+  path: {
+    volseg_entry_id: string;
+  };
+  query?: never;
+  url: "/api/v1/volseg/{volseg_entry_id}";
+};
+
+export type VolsegEntriesDeleteViewErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type VolsegEntriesDeleteViewError =
+  VolsegEntriesDeleteViewErrors[keyof VolsegEntriesDeleteViewErrors];
+
+export type VolsegEntriesDeleteViewResponses = {
+  /**
+   * Successful Response
+   */
+  200: string;
+};
+
+export type VolsegEntriesDeleteViewResponse =
+  VolsegEntriesDeleteViewResponses[keyof VolsegEntriesDeleteViewResponses];
+
+export type VolsegEntriesGetEntryByIdData = {
+  body?: never;
+  path: {
+    volseg_entry_id: string;
+  };
+  query?: never;
+  url: "/api/v1/volseg/{volseg_entry_id}";
+};
+
+export type VolsegEntriesGetEntryByIdErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type VolsegEntriesGetEntryByIdError =
+  VolsegEntriesGetEntryByIdErrors[keyof VolsegEntriesGetEntryByIdErrors];
+
+export type VolsegEntriesGetEntryByIdResponses = {
+  /**
+   * Successful Response
+   */
+  200: VolsegEntryResponse;
+};
+
+export type VolsegEntriesGetEntryByIdResponse =
+  VolsegEntriesGetEntryByIdResponses[keyof VolsegEntriesGetEntryByIdResponses];
+
+export type VolsegEntriesListPublicEntriesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/volseg/public";
+};
+
+export type VolsegEntriesListPublicEntriesResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<VolsegEntryResponse>;
+};
+
+export type VolsegEntriesListPublicEntriesResponse =
+  VolsegEntriesListPublicEntriesResponses[keyof VolsegEntriesListPublicEntriesResponses];
 
 export type ClientOptions = {
   baseUrl: "http://127.0.0.1:8000" | (string & {});

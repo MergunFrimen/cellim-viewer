@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   entriesDeleteEntryMutation,
-  entriesGetEntryOptions,
+  entriesGetEntryByIdOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
 
 export function useEntryDetails(entryId: string) {
   const navigate = useNavigate();
 
   const entryQuery = useQuery({
-    ...entriesGetEntryOptions({
+    ...entriesGetEntryByIdOptions({
       path: {
         entry_id: entryId!,
       },

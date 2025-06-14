@@ -7,30 +7,27 @@ import {
   formDataBodySerializer,
 } from "@hey-api/client-fetch";
 import type {
-  EntriesListEntriesData,
-  EntriesListEntriesResponse,
-  EntriesListEntriesError,
+  EntriesListPublicEntriesData,
+  EntriesListPublicEntriesResponse,
+  EntriesListPublicEntriesError,
   EntriesCreateEntryData,
   EntriesCreateEntryResponse,
   EntriesCreateEntryError,
-  EntriesListEntriesForUserData,
-  EntriesListEntriesForUserResponse,
-  EntriesListEntriesForUserError,
   EntriesDeleteEntryData,
   EntriesDeleteEntryResponse,
   EntriesDeleteEntryError,
-  EntriesGetEntryData,
-  EntriesGetEntryResponse,
-  EntriesGetEntryError,
+  EntriesGetEntryByIdData,
+  EntriesGetEntryByIdResponse,
+  EntriesGetEntryByIdError,
   EntriesUpdateEntryData,
   EntriesUpdateEntryResponse,
   EntriesUpdateEntryError,
-  EntriesGetEntryShareLinkData,
-  EntriesGetEntryShareLinkResponse,
-  EntriesGetEntryShareLinkError,
   EntriesGetEntryByShareLinkData,
   EntriesGetEntryByShareLinkResponse,
   EntriesGetEntryByShareLinkError,
+  EntriesGetEntryShareLinkData,
+  EntriesGetEntryShareLinkResponse,
+  EntriesGetEntryShareLinkError,
   ViewsListViewsForEntryData,
   ViewsListViewsForEntryResponse,
   ViewsListViewsForEntryError,
@@ -40,9 +37,9 @@ import type {
   ViewsDeleteViewData,
   ViewsDeleteViewResponse,
   ViewsDeleteViewError,
-  ViewsGetViewData,
-  ViewsGetViewResponse,
-  ViewsGetViewError,
+  ViewsGetViewByIdData,
+  ViewsGetViewByIdResponse,
+  ViewsGetViewByIdError,
   ViewsUpdateViewData,
   ViewsUpdateViewResponse,
   ViewsUpdateViewError,
@@ -50,6 +47,9 @@ import type {
   ViewsGetViewSnapshotError,
   ViewsGetViewThumbnailImageData,
   ViewsGetViewThumbnailImageError,
+  EntriesListEntriesForUserData,
+  EntriesListEntriesForUserResponse,
+  EntriesListEntriesForUserError,
   ShareLinksGetShareLinkData,
   ShareLinksGetShareLinkResponse,
   ShareLinksGetShareLinkError,
@@ -63,24 +63,43 @@ import type {
   AuthProtectedRouteData,
   AuthProtectedRouteError,
   AuthCheckAuthData,
-  TestBackgroundTaskData,
+  TestUploadFileData,
+  TestUploadFileError,
+  VolsegEntriesListEntriesData,
+  VolsegEntriesListEntriesResponse,
+  VolsegEntriesUploadEntryData,
+  VolsegEntriesUploadEntryResponse,
+  VolsegEntriesUploadEntryError,
+  VolsegEntriesDeleteViewData,
+  VolsegEntriesDeleteViewResponse,
+  VolsegEntriesDeleteViewError,
+  VolsegEntriesGetEntryByIdData,
+  VolsegEntriesGetEntryByIdResponse,
+  VolsegEntriesGetEntryByIdError,
+  VolsegEntriesListPublicEntriesData,
+  VolsegEntriesListPublicEntriesResponse,
 } from "./types.gen";
 import {
-  zEntriesListEntriesResponse,
+  zEntriesListPublicEntriesResponse,
   zEntriesCreateEntryResponse,
-  zEntriesListEntriesForUserResponse,
   zEntriesDeleteEntryResponse,
-  zEntriesGetEntryResponse,
+  zEntriesGetEntryByIdResponse,
   zEntriesUpdateEntryResponse,
-  zEntriesGetEntryShareLinkResponse,
   zEntriesGetEntryByShareLinkResponse,
+  zEntriesGetEntryShareLinkResponse,
   zViewsListViewsForEntryResponse,
   zViewsCreateViewResponse,
   zViewsDeleteViewResponse,
-  zViewsGetViewResponse,
+  zViewsGetViewByIdResponse,
   zViewsUpdateViewResponse,
+  zEntriesListEntriesForUserResponse,
   zShareLinksGetShareLinkResponse,
   zShareLinksUpdateShareLinkResponse,
+  zVolsegEntriesListEntriesResponse,
+  zVolsegEntriesUploadEntryResponse,
+  zVolsegEntriesDeleteViewResponse,
+  zVolsegEntriesGetEntryByIdResponse,
+  zVolsegEntriesListPublicEntriesResponse,
 } from "./zod.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -102,18 +121,18 @@ export type Options<
 };
 
 /**
- * List Entries
+ * List Public Entries
  */
-export const entriesListEntries = <ThrowOnError extends boolean = false>(
-  options?: Options<EntriesListEntriesData, ThrowOnError>,
+export const entriesListPublicEntries = <ThrowOnError extends boolean = false>(
+  options?: Options<EntriesListPublicEntriesData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    EntriesListEntriesResponse,
-    EntriesListEntriesError,
+    EntriesListPublicEntriesResponse,
+    EntriesListPublicEntriesError,
     ThrowOnError
   >({
     responseValidator: async (data) => {
-      return await zEntriesListEntriesResponse.parseAsync(data);
+      return await zEntriesListPublicEntriesResponse.parseAsync(data);
     },
     url: "/api/v1/entries",
     ...options,
@@ -150,31 +169,6 @@ export const entriesCreateEntry = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List Entries For User
- */
-export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
-  options?: Options<EntriesListEntriesForUserData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    EntriesListEntriesForUserResponse,
-    EntriesListEntriesForUserError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    responseValidator: async (data) => {
-      return await zEntriesListEntriesForUserResponse.parseAsync(data);
-    },
-    url: "/api/v1/entries/user",
-    ...options,
-  });
-};
-
-/**
  * Delete Entry
  */
 export const entriesDeleteEntry = <ThrowOnError extends boolean = false>(
@@ -200,14 +194,14 @@ export const entriesDeleteEntry = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get Entry
+ * Get Entry By Id
  */
-export const entriesGetEntry = <ThrowOnError extends boolean = false>(
-  options: Options<EntriesGetEntryData, ThrowOnError>,
+export const entriesGetEntryById = <ThrowOnError extends boolean = false>(
+  options: Options<EntriesGetEntryByIdData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    EntriesGetEntryResponse,
-    EntriesGetEntryError,
+    EntriesGetEntryByIdResponse,
+    EntriesGetEntryByIdError,
     ThrowOnError
   >({
     security: [
@@ -217,7 +211,7 @@ export const entriesGetEntry = <ThrowOnError extends boolean = false>(
       },
     ],
     responseValidator: async (data) => {
-      return await zEntriesGetEntryResponse.parseAsync(data);
+      return await zEntriesGetEntryByIdResponse.parseAsync(data);
     },
     url: "/api/v1/entries/{entry_id}",
     ...options,
@@ -254,6 +248,27 @@ export const entriesUpdateEntry = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Get Entry By Share Link
+ */
+export const entriesGetEntryByShareLink = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<EntriesGetEntryByShareLinkData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    EntriesGetEntryByShareLinkResponse,
+    EntriesGetEntryByShareLinkError,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zEntriesGetEntryByShareLinkResponse.parseAsync(data);
+    },
+    url: "/api/v1/entries/share/{share_link_id}",
+    ...options,
+  });
+};
+
+/**
  * Get Entry Share Link
  */
 export const entriesGetEntryShareLink = <ThrowOnError extends boolean = false>(
@@ -274,27 +289,6 @@ export const entriesGetEntryShareLink = <ThrowOnError extends boolean = false>(
       return await zEntriesGetEntryShareLinkResponse.parseAsync(data);
     },
     url: "/api/v1/entries/{entry_id}/share_link",
-    ...options,
-  });
-};
-
-/**
- * Get Entry By Share Link
- */
-export const entriesGetEntryByShareLink = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<EntriesGetEntryByShareLinkData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    EntriesGetEntryByShareLinkResponse,
-    EntriesGetEntryByShareLinkError,
-    ThrowOnError
-  >({
-    responseValidator: async (data) => {
-      return await zEntriesGetEntryByShareLinkResponse.parseAsync(data);
-    },
-    url: "/api/v1/entries/share/{share_link_id}",
     ...options,
   });
 };
@@ -380,14 +374,14 @@ export const viewsDeleteView = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get View
+ * Get View By Id
  */
-export const viewsGetView = <ThrowOnError extends boolean = false>(
-  options: Options<ViewsGetViewData, ThrowOnError>,
+export const viewsGetViewById = <ThrowOnError extends boolean = false>(
+  options: Options<ViewsGetViewByIdData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    ViewsGetViewResponse,
-    ViewsGetViewError,
+    ViewsGetViewByIdResponse,
+    ViewsGetViewByIdError,
     ThrowOnError
   >({
     security: [
@@ -397,7 +391,7 @@ export const viewsGetView = <ThrowOnError extends boolean = false>(
       },
     ],
     responseValidator: async (data) => {
-      return await zViewsGetViewResponse.parseAsync(data);
+      return await zViewsGetViewByIdResponse.parseAsync(data);
     },
     url: "/api/v1/entries/{entry_id}/views/{view_id}",
     ...options,
@@ -450,7 +444,7 @@ export const viewsGetViewSnapshot = <ThrowOnError extends boolean = false>(
         type: "http",
       },
     ],
-    url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot.json",
+    url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot",
     ...options,
   });
 };
@@ -474,7 +468,32 @@ export const viewsGetViewThumbnailImage = <
         type: "http",
       },
     ],
-    url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail.png",
+    url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail",
+    ...options,
+  });
+};
+
+/**
+ * List Entries For User
+ */
+export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
+  options?: Options<EntriesListEntriesForUserData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    EntriesListEntriesForUserResponse,
+    EntriesListEntriesForUserError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zEntriesListEntriesForUserResponse.parseAsync(data);
+    },
+    url: "/api/v1/me/entries",
     ...options,
   });
 };
@@ -644,15 +663,148 @@ export const authCheckAuth = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Background Task
+ * Upload File
  */
-export const testBackgroundTask = <ThrowOnError extends boolean = false>(
-  options?: Options<TestBackgroundTaskData, ThrowOnError>,
+export const testUploadFile = <ThrowOnError extends boolean = false>(
+  options: Options<TestUploadFileData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
-    {
-      url: "/api/v1/test/background-task",
-      ...options,
+  return (options.client ?? _heyApiClient).post<
+    unknown,
+    TestUploadFileError,
+    ThrowOnError
+  >({
+    ...formDataBodySerializer,
+    url: "/api/v1/test/upload",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options?.headers,
     },
-  );
+  });
+};
+
+/**
+ * List Entries
+ */
+export const volsegEntriesListEntries = <ThrowOnError extends boolean = false>(
+  options?: Options<VolsegEntriesListEntriesData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    VolsegEntriesListEntriesResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zVolsegEntriesListEntriesResponse.parseAsync(data);
+    },
+    url: "/api/v1/volseg",
+    ...options,
+  });
+};
+
+/**
+ * Upload Entry
+ */
+export const volsegEntriesUploadEntry = <ThrowOnError extends boolean = false>(
+  options: Options<VolsegEntriesUploadEntryData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    VolsegEntriesUploadEntryResponse,
+    VolsegEntriesUploadEntryError,
+    ThrowOnError
+  >({
+    ...formDataBodySerializer,
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zVolsegEntriesUploadEntryResponse.parseAsync(data);
+    },
+    url: "/api/v1/volseg",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Delete View
+ */
+export const volsegEntriesDeleteView = <ThrowOnError extends boolean = false>(
+  options: Options<VolsegEntriesDeleteViewData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    VolsegEntriesDeleteViewResponse,
+    VolsegEntriesDeleteViewError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zVolsegEntriesDeleteViewResponse.parseAsync(data);
+    },
+    url: "/api/v1/volseg/{volseg_entry_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Entry By Id
+ */
+export const volsegEntriesGetEntryById = <ThrowOnError extends boolean = false>(
+  options: Options<VolsegEntriesGetEntryByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    VolsegEntriesGetEntryByIdResponse,
+    VolsegEntriesGetEntryByIdError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zVolsegEntriesGetEntryByIdResponse.parseAsync(data);
+    },
+    url: "/api/v1/volseg/{volseg_entry_id}",
+    ...options,
+  });
+};
+
+/**
+ * List Public Entries
+ */
+export const volsegEntriesListPublicEntries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<VolsegEntriesListPublicEntriesData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    VolsegEntriesListPublicEntriesResponse,
+    unknown,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zVolsegEntriesListPublicEntriesResponse.parseAsync(data);
+    },
+    url: "/api/v1/volseg/public",
+    ...options,
+  });
 };

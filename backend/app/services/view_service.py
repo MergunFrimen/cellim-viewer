@@ -191,7 +191,7 @@ class ViewService:
         # Check permissions
         if user is None and not entry.is_public:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="Entry is not public",
             )
         if user is not None and entry.user_id != user.id:
@@ -237,7 +237,9 @@ class ViewService:
             )
 
         # Update view
-        view.update(updates.model_dump(exclude_unset=True))
+        for key, value in updates.model_dump(exclude_unset=True).items():
+            setattr(view, key, value)
+
         self.session.add(view)
         await self.session.commit()
 

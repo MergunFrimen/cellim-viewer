@@ -13,8 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { ViewResponse } from "@/lib/client";
+import { ViewResponse, viewsGetViewSnapshot } from "@/lib/client";
+import {
+  viewsGetViewSnapshotOptions,
+  viewsGetViewSnapshotQueryKey,
+} from "@/lib/client/@tanstack/react-query.gen";
+import { useQuery } from "@tanstack/react-query";
 import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
+import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
 
 interface ViewCardProps {
   entryId: string;
@@ -34,7 +40,15 @@ export function ViewCard({
   const { viewer } = useMolstar();
 
   const handleLoadView = async () => {
-    await viewer.loadSnapshot(view.snapshot_url);
+    const response = await fetch(
+      `http://localhost:8000/api/v1/entries/${entryId}/views/${view.id}/snapshot`,
+    );
+    if (!response.ok)
+      throw new Error(`Failed to fetch snapshot: ${response.statusText}`);
+
+    const snapshot: PluginState.Snapshot = await response.json();
+
+    await viewer.loadSnapshot(snapshot);
   };
 
   return (

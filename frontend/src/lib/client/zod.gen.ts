@@ -5,7 +5,7 @@ import { z } from "zod";
 export const zEntryCreateRequest = z.object({
   name: z.string().min(1).max(255),
   description: z.union([z.string(), z.null()]).optional(),
-  is_public: z.boolean().optional().default(false),
+  is_public: z.union([z.boolean(), z.null()]).optional(),
 });
 
 export const zEntryDetailsResponse = z.object({
@@ -58,6 +58,10 @@ export const zShareLinkUpdateRequest = z.object({
   is_active: z.union([z.boolean(), z.null()]).optional(),
 });
 
+export const zUploadFileRequest = z.object({
+  file: z.string(),
+});
+
 export const zViewCreateRequest = z.object({
   name: z.string().max(255),
   description: z.union([z.string().max(255), z.null()]).optional(),
@@ -72,32 +76,48 @@ export const zViewResponse = z.object({
   updated_at: z.string().datetime(),
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]).optional(),
-  thumbnail_url: z.string().max(2083),
+  thumbnail_url: z.union([z.string().max(2083), z.null()]),
   snapshot_url: z.string().max(2083),
 });
 
 export const zViewUpdateRequest = z.object({
-  name: z.string().max(255),
+  name: z.union([z.string().max(255), z.null()]).optional(),
   description: z.union([z.string().max(255), z.null()]).optional(),
 });
 
-export const zEntriesListEntriesResponse =
+export const zVolsegEntryResponse = z.object({
+  response_model: z.string().optional().default(""),
+  id: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  db_name: z.string().min(1).max(255),
+  entry_id: z.string().min(1).max(255),
+  is_public: z.boolean(),
+});
+
+export const zVolsegUploadEntry = z.object({
+  db_name: z.string().min(1).max(255),
+  entry_id: z.string().min(1).max(255),
+  is_public: z.union([z.boolean(), z.null()]).optional(),
+  annotations: z.string(),
+  metadata: z.string(),
+  data: z.string(),
+});
+
+export const zEntriesListPublicEntriesResponse =
   zPaginatedResponseEntryDetailsResponse;
 
 export const zEntriesCreateEntryResponse = zEntryDetailsResponse;
 
-export const zEntriesListEntriesForUserResponse =
-  zPaginatedResponseEntryDetailsResponse;
-
 export const zEntriesDeleteEntryResponse = z.string().uuid();
 
-export const zEntriesGetEntryResponse = zEntryDetailsResponse;
+export const zEntriesGetEntryByIdResponse = zEntryDetailsResponse;
 
 export const zEntriesUpdateEntryResponse = zEntryDetailsResponse;
 
-export const zEntriesGetEntryShareLinkResponse = zShareLinkResponse;
-
 export const zEntriesGetEntryByShareLinkResponse = zEntryDetailsResponse;
+
+export const zEntriesGetEntryShareLinkResponse = zShareLinkResponse;
 
 export const zViewsListViewsForEntryResponse = z.array(zViewResponse);
 
@@ -105,10 +125,24 @@ export const zViewsCreateViewResponse = zViewResponse;
 
 export const zViewsDeleteViewResponse = z.string().uuid();
 
-export const zViewsGetViewResponse = zViewResponse;
+export const zViewsGetViewByIdResponse = zViewResponse;
 
 export const zViewsUpdateViewResponse = zViewResponse;
+
+export const zEntriesListEntriesForUserResponse =
+  zPaginatedResponseEntryDetailsResponse;
 
 export const zShareLinksGetShareLinkResponse = zShareLinkResponse;
 
 export const zShareLinksUpdateShareLinkResponse = zShareLinkResponse;
+
+export const zVolsegEntriesListEntriesResponse = z.array(zVolsegEntryResponse);
+
+export const zVolsegEntriesUploadEntryResponse = zVolsegEntryResponse;
+
+export const zVolsegEntriesDeleteViewResponse = z.string().uuid();
+
+export const zVolsegEntriesGetEntryByIdResponse = zVolsegEntryResponse;
+
+export const zVolsegEntriesListPublicEntriesResponse =
+  z.array(zVolsegEntryResponse);
