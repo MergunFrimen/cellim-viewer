@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { MainLayout } from "./components/layout/Layout";
 import { LandingPage } from "./pages/LandingPage";
-import { NewEntryPage } from "./pages/NewEntryPage";
+import EntryCreatePage, { NewEntryPage } from "./pages/CreateEntryPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { EntryDetailsPage } from "./pages/EntryDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -15,7 +15,7 @@ export function App() {
       <MainLayout>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/entries/new" element={<NewEntryPage />} />
+          <Route path="/entries/new" element={<EntryCreatePage />} />
           <Route path="/entries/:entryId" element={<EntryDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />

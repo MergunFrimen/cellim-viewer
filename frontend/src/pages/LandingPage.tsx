@@ -5,11 +5,12 @@ import { EntryPreview } from "@/components/entries/EntryPreview";
 import { Button } from "@/components/ui/button";
 import { entriesListPublicEntriesOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export function LandingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const navigate = useNavigate();
   const search_term = searchParams.get("search_term") || "";
   const page = parseInt(searchParams.get("page") || "1");
   const perPage = parseInt(searchParams.get("per_page") || "12");
@@ -65,7 +66,9 @@ export function LandingPage() {
           <h2 className="text-2xl font-semibold">
             {search_term && `Search Results for "${search_term}"`}
           </h2>
-          <EntryCreateDialog />
+          <Button variant="default" onClick={() => navigate("/entries/new")}>
+            Create Entry
+          </Button>
         </div>
 
         {isLoading && (

@@ -48,20 +48,6 @@ async def get_entry_by_id(
     status_code=status.HTTP_200_OK,
     response_model=list[VolsegEntryResponse],
 )
-async def list_entries(
-    current_user: RequireUserDep,
-    volseg_service: VolsegServiceDep,
-):
-    return await volseg_service.list_entries(
-        user=current_user,
-    )
-
-
-@router.get(
-    "/public",
-    status_code=status.HTTP_200_OK,
-    response_model=list[VolsegEntryResponse],
-)
 async def list_public_entries(
     volseg_service: VolsegServiceDep,
 ):
