@@ -8,6 +8,7 @@ class Tags(Enum):
     views = "Views"
     test = "Test"
     volseg = "Volseg Entries"
+    me = "Me"
 
     def __str__(self):
         return super().value.lower()
