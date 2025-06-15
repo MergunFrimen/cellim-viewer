@@ -16,7 +16,8 @@ import {
   viewsUpdateView,
   viewsGetViewSnapshot,
   viewsGetViewThumbnailImage,
-  entriesListEntriesForUser,
+  meListEntriesForUser,
+  meListVolsegEntriesForUser,
   shareLinksGetShareLink,
   shareLinksUpdateShareLink,
   authLoginAdmin,
@@ -26,11 +27,10 @@ import {
   authProtectedRoute,
   authCheckAuth,
   testUploadFile,
-  volsegEntriesListEntries,
+  volsegEntriesListPublicEntries,
   volsegEntriesUploadEntry,
   volsegEntriesDeleteView,
   volsegEntriesGetEntryById,
-  volsegEntriesListPublicEntries,
 } from "../sdk.gen";
 import {
   queryOptions,
@@ -68,9 +68,10 @@ import type {
   ViewsUpdateViewResponse,
   ViewsGetViewSnapshotData,
   ViewsGetViewThumbnailImageData,
-  EntriesListEntriesForUserData,
-  EntriesListEntriesForUserError,
-  EntriesListEntriesForUserResponse,
+  MeListEntriesForUserData,
+  MeListEntriesForUserError,
+  MeListEntriesForUserResponse,
+  MeListVolsegEntriesForUserData,
   ShareLinksGetShareLinkData,
   ShareLinksUpdateShareLinkData,
   ShareLinksUpdateShareLinkError,
@@ -83,7 +84,7 @@ import type {
   AuthCheckAuthData,
   TestUploadFileData,
   TestUploadFileError,
-  VolsegEntriesListEntriesData,
+  VolsegEntriesListPublicEntriesData,
   VolsegEntriesUploadEntryData,
   VolsegEntriesUploadEntryError,
   VolsegEntriesUploadEntryResponse,
@@ -91,7 +92,6 @@ import type {
   VolsegEntriesDeleteViewError,
   VolsegEntriesDeleteViewResponse,
   VolsegEntriesGetEntryByIdData,
-  VolsegEntriesListPublicEntriesData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
 
@@ -565,16 +565,16 @@ export const viewsGetViewThumbnailImageOptions = (
   });
 };
 
-export const entriesListEntriesForUserQueryKey = (
-  options?: Options<EntriesListEntriesForUserData>,
-) => createQueryKey("entriesListEntriesForUser", options);
+export const meListEntriesForUserQueryKey = (
+  options?: Options<MeListEntriesForUserData>,
+) => createQueryKey("meListEntriesForUser", options);
 
-export const entriesListEntriesForUserOptions = (
-  options?: Options<EntriesListEntriesForUserData>,
+export const meListEntriesForUserOptions = (
+  options?: Options<MeListEntriesForUserData>,
 ) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await entriesListEntriesForUser({
+      const { data } = await meListEntriesForUser({
         ...options,
         ...queryKey[0],
         signal,
@@ -582,26 +582,26 @@ export const entriesListEntriesForUserOptions = (
       });
       return data;
     },
-    queryKey: entriesListEntriesForUserQueryKey(options),
+    queryKey: meListEntriesForUserQueryKey(options),
   });
 };
 
-export const entriesListEntriesForUserInfiniteQueryKey = (
-  options?: Options<EntriesListEntriesForUserData>,
-): QueryKey<Options<EntriesListEntriesForUserData>> =>
-  createQueryKey("entriesListEntriesForUser", options, true);
+export const meListEntriesForUserInfiniteQueryKey = (
+  options?: Options<MeListEntriesForUserData>,
+): QueryKey<Options<MeListEntriesForUserData>> =>
+  createQueryKey("meListEntriesForUser", options, true);
 
-export const entriesListEntriesForUserInfiniteOptions = (
-  options?: Options<EntriesListEntriesForUserData>,
+export const meListEntriesForUserInfiniteOptions = (
+  options?: Options<MeListEntriesForUserData>,
 ) => {
   return infiniteQueryOptions<
-    EntriesListEntriesForUserResponse,
-    EntriesListEntriesForUserError,
-    InfiniteData<EntriesListEntriesForUserResponse>,
-    QueryKey<Options<EntriesListEntriesForUserData>>,
+    MeListEntriesForUserResponse,
+    MeListEntriesForUserError,
+    InfiniteData<MeListEntriesForUserResponse>,
+    QueryKey<Options<MeListEntriesForUserData>>,
     | number
     | Pick<
-        QueryKey<Options<EntriesListEntriesForUserData>>[0],
+        QueryKey<Options<MeListEntriesForUserData>>[0],
         "body" | "headers" | "path" | "query"
       >
   >(
@@ -610,7 +610,7 @@ export const entriesListEntriesForUserInfiniteOptions = (
       queryFn: async ({ pageParam, queryKey, signal }) => {
         // @ts-ignore
         const page: Pick<
-          QueryKey<Options<EntriesListEntriesForUserData>>[0],
+          QueryKey<Options<MeListEntriesForUserData>>[0],
           "body" | "headers" | "path" | "query"
         > =
           typeof pageParam === "object"
@@ -621,7 +621,7 @@ export const entriesListEntriesForUserInfiniteOptions = (
                 },
               };
         const params = createInfiniteParams(queryKey, page);
-        const { data } = await entriesListEntriesForUser({
+        const { data } = await meListEntriesForUser({
           ...options,
           ...params,
           signal,
@@ -629,9 +629,30 @@ export const entriesListEntriesForUserInfiniteOptions = (
         });
         return data;
       },
-      queryKey: entriesListEntriesForUserInfiniteQueryKey(options),
+      queryKey: meListEntriesForUserInfiniteQueryKey(options),
     },
   );
+};
+
+export const meListVolsegEntriesForUserQueryKey = (
+  options?: Options<MeListVolsegEntriesForUserData>,
+) => createQueryKey("meListVolsegEntriesForUser", options);
+
+export const meListVolsegEntriesForUserOptions = (
+  options?: Options<MeListVolsegEntriesForUserData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await meListVolsegEntriesForUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: meListVolsegEntriesForUserQueryKey(options),
+  });
 };
 
 export const shareLinksGetShareLinkQueryKey = (
@@ -897,16 +918,16 @@ export const testUploadFileMutation = (
   return mutationOptions;
 };
 
-export const volsegEntriesListEntriesQueryKey = (
-  options?: Options<VolsegEntriesListEntriesData>,
-) => createQueryKey("volsegEntriesListEntries", options);
+export const volsegEntriesListPublicEntriesQueryKey = (
+  options?: Options<VolsegEntriesListPublicEntriesData>,
+) => createQueryKey("volsegEntriesListPublicEntries", options);
 
-export const volsegEntriesListEntriesOptions = (
-  options?: Options<VolsegEntriesListEntriesData>,
+export const volsegEntriesListPublicEntriesOptions = (
+  options?: Options<VolsegEntriesListPublicEntriesData>,
 ) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await volsegEntriesListEntries({
+      const { data } = await volsegEntriesListPublicEntries({
         ...options,
         ...queryKey[0],
         signal,
@@ -914,7 +935,7 @@ export const volsegEntriesListEntriesOptions = (
       });
       return data;
     },
-    queryKey: volsegEntriesListEntriesQueryKey(options),
+    queryKey: volsegEntriesListPublicEntriesQueryKey(options),
   });
 };
 
@@ -1005,26 +1026,5 @@ export const volsegEntriesGetEntryByIdOptions = (
       return data;
     },
     queryKey: volsegEntriesGetEntryByIdQueryKey(options),
-  });
-};
-
-export const volsegEntriesListPublicEntriesQueryKey = (
-  options?: Options<VolsegEntriesListPublicEntriesData>,
-) => createQueryKey("volsegEntriesListPublicEntries", options);
-
-export const volsegEntriesListPublicEntriesOptions = (
-  options?: Options<VolsegEntriesListPublicEntriesData>,
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await volsegEntriesListPublicEntries({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: volsegEntriesListPublicEntriesQueryKey(options),
   });
 };

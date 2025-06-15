@@ -129,20 +129,21 @@ export const zViewsGetViewByIdResponse = zViewResponse;
 
 export const zViewsUpdateViewResponse = zViewResponse;
 
-export const zEntriesListEntriesForUserResponse =
+export const zMeListEntriesForUserResponse =
   zPaginatedResponseEntryDetailsResponse;
+
+export const zMeListVolsegEntriesForUserResponse =
+  z.array(zVolsegEntryResponse);
 
 export const zShareLinksGetShareLinkResponse = zShareLinkResponse;
 
 export const zShareLinksUpdateShareLinkResponse = zShareLinkResponse;
 
-export const zVolsegEntriesListEntriesResponse = z.array(zVolsegEntryResponse);
+export const zVolsegEntriesListPublicEntriesResponse =
+  z.array(zVolsegEntryResponse);
 
 export const zVolsegEntriesUploadEntryResponse = zVolsegEntryResponse;
 
 export const zVolsegEntriesDeleteViewResponse = z.string().uuid();
 
 export const zVolsegEntriesGetEntryByIdResponse = zVolsegEntryResponse;
-
-export const zVolsegEntriesListPublicEntriesResponse =
-  z.array(zVolsegEntryResponse);

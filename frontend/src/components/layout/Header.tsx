@@ -23,6 +23,11 @@ export function Header() {
             <Link to="/dashboard">Dashboard</Link>
           </Button>
         )}
+        {isAuthenticated && (
+          <Button variant="link" asChild>
+            <Link to="/upload">Upload</Link>
+          </Button>
+        )}
         {isAuthenticated ? (
           <Button variant="link" onClick={() => handleLogout()}>
             Logout

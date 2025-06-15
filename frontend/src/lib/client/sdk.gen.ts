@@ -47,9 +47,11 @@ import type {
   ViewsGetViewSnapshotError,
   ViewsGetViewThumbnailImageData,
   ViewsGetViewThumbnailImageError,
-  EntriesListEntriesForUserData,
-  EntriesListEntriesForUserResponse,
-  EntriesListEntriesForUserError,
+  MeListEntriesForUserData,
+  MeListEntriesForUserResponse,
+  MeListEntriesForUserError,
+  MeListVolsegEntriesForUserData,
+  MeListVolsegEntriesForUserResponse,
   ShareLinksGetShareLinkData,
   ShareLinksGetShareLinkResponse,
   ShareLinksGetShareLinkError,
@@ -65,8 +67,8 @@ import type {
   AuthCheckAuthData,
   TestUploadFileData,
   TestUploadFileError,
-  VolsegEntriesListEntriesData,
-  VolsegEntriesListEntriesResponse,
+  VolsegEntriesListPublicEntriesData,
+  VolsegEntriesListPublicEntriesResponse,
   VolsegEntriesUploadEntryData,
   VolsegEntriesUploadEntryResponse,
   VolsegEntriesUploadEntryError,
@@ -76,8 +78,6 @@ import type {
   VolsegEntriesGetEntryByIdData,
   VolsegEntriesGetEntryByIdResponse,
   VolsegEntriesGetEntryByIdError,
-  VolsegEntriesListPublicEntriesData,
-  VolsegEntriesListPublicEntriesResponse,
 } from "./types.gen";
 import {
   zEntriesListPublicEntriesResponse,
@@ -92,14 +92,14 @@ import {
   zViewsDeleteViewResponse,
   zViewsGetViewByIdResponse,
   zViewsUpdateViewResponse,
-  zEntriesListEntriesForUserResponse,
+  zMeListEntriesForUserResponse,
+  zMeListVolsegEntriesForUserResponse,
   zShareLinksGetShareLinkResponse,
   zShareLinksUpdateShareLinkResponse,
-  zVolsegEntriesListEntriesResponse,
+  zVolsegEntriesListPublicEntriesResponse,
   zVolsegEntriesUploadEntryResponse,
   zVolsegEntriesDeleteViewResponse,
   zVolsegEntriesGetEntryByIdResponse,
-  zVolsegEntriesListPublicEntriesResponse,
 } from "./zod.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -476,12 +476,12 @@ export const viewsGetViewThumbnailImage = <
 /**
  * List Entries For User
  */
-export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
-  options?: Options<EntriesListEntriesForUserData, ThrowOnError>,
+export const meListEntriesForUser = <ThrowOnError extends boolean = false>(
+  options?: Options<MeListEntriesForUserData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    EntriesListEntriesForUserResponse,
-    EntriesListEntriesForUserError,
+    MeListEntriesForUserResponse,
+    MeListEntriesForUserError,
     ThrowOnError
   >({
     security: [
@@ -491,9 +491,36 @@ export const entriesListEntriesForUser = <ThrowOnError extends boolean = false>(
       },
     ],
     responseValidator: async (data) => {
-      return await zEntriesListEntriesForUserResponse.parseAsync(data);
+      return await zMeListEntriesForUserResponse.parseAsync(data);
     },
     url: "/api/v1/me/entries",
+    ...options,
+  });
+};
+
+/**
+ * List Volseg Entries For User
+ */
+export const meListVolsegEntriesForUser = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<MeListVolsegEntriesForUserData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    MeListVolsegEntriesForUserResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zMeListVolsegEntriesForUserResponse.parseAsync(data);
+    },
+    url: "/api/v1/me/volseg",
     ...options,
   });
 };
@@ -684,24 +711,20 @@ export const testUploadFile = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List Entries
+ * List Public Entries
  */
-export const volsegEntriesListEntries = <ThrowOnError extends boolean = false>(
-  options?: Options<VolsegEntriesListEntriesData, ThrowOnError>,
+export const volsegEntriesListPublicEntries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<VolsegEntriesListPublicEntriesData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    VolsegEntriesListEntriesResponse,
+    VolsegEntriesListPublicEntriesResponse,
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
-      return await zVolsegEntriesListEntriesResponse.parseAsync(data);
+      return await zVolsegEntriesListPublicEntriesResponse.parseAsync(data);
     },
     url: "/api/v1/volseg",
     ...options,
@@ -784,27 +807,6 @@ export const volsegEntriesGetEntryById = <ThrowOnError extends boolean = false>(
       return await zVolsegEntriesGetEntryByIdResponse.parseAsync(data);
     },
     url: "/api/v1/volseg/{volseg_entry_id}",
-    ...options,
-  });
-};
-
-/**
- * List Public Entries
- */
-export const volsegEntriesListPublicEntries = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<VolsegEntriesListPublicEntriesData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    VolsegEntriesListPublicEntriesResponse,
-    unknown,
-    ThrowOnError
-  >({
-    responseValidator: async (data) => {
-      return await zVolsegEntriesListPublicEntriesResponse.parseAsync(data);
-    },
-    url: "/api/v1/volseg/public",
     ...options,
   });
 };

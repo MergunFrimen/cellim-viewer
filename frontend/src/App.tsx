@@ -7,6 +7,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { EntryDetailsPage } from "./pages/EntryDetailsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import UploadVolseg from "./pages/UploadVolseg";
 
 export function App() {
   return (
@@ -17,6 +18,7 @@ export function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/entries/new" element={<EntryCreatePage />} />
           <Route path="/entries/:entryId" element={<EntryDetailsPage />} />
+          <Route path="/upload" element={<UploadVolseg />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />

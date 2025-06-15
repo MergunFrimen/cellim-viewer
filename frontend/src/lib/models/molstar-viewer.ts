@@ -18,8 +18,8 @@ export class MolstarViewerModel extends BaseReactiveModel {
   public state = {
     isInitialized: new BehaviorSubject<InitializationState>("pending"),
     isLoading: new BehaviorSubject<boolean>(false),
-    showControls: new BehaviorSubject<boolean>(true),
-    isExpanded: new BehaviorSubject<boolean>(true),
+    showControls: new BehaviorSubject<boolean>(false),
+    isExpanded: new BehaviorSubject<boolean>(false),
   };
 
   constructor() {
@@ -37,8 +37,6 @@ export class MolstarViewerModel extends BaseReactiveModel {
     };
 
     this.plugin = new PluginUIContext(spec);
-
-    this.plugin.events.log.subscribe((something) => console.log(something));
   }
 
   mount() {
@@ -46,6 +44,9 @@ export class MolstarViewerModel extends BaseReactiveModel {
     this.subscribe(this.plugin.layout.events.updated, () => {
       this.state.showControls.next(this.plugin.layout.state.showControls);
       this.state.isExpanded.next(this.plugin.layout.state.isExpanded);
+    });
+    this.subscribe(this.plugin.events.log, (message) => {
+      console.log(message);
     });
   }
 

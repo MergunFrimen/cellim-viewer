@@ -524,7 +524,7 @@ export type ViewsGetViewThumbnailImageResponses = {
   200: unknown;
 };
 
-export type EntriesListEntriesForUserData = {
+export type MeListEntriesForUserData = {
   body?: never;
   path?: never;
   query?: {
@@ -538,25 +538,42 @@ export type EntriesListEntriesForUserData = {
   url: "/api/v1/me/entries";
 };
 
-export type EntriesListEntriesForUserErrors = {
+export type MeListEntriesForUserErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type EntriesListEntriesForUserError =
-  EntriesListEntriesForUserErrors[keyof EntriesListEntriesForUserErrors];
+export type MeListEntriesForUserError =
+  MeListEntriesForUserErrors[keyof MeListEntriesForUserErrors];
 
-export type EntriesListEntriesForUserResponses = {
+export type MeListEntriesForUserResponses = {
   /**
    * Successful Response
    */
   200: PaginatedResponseEntryDetailsResponse;
 };
 
-export type EntriesListEntriesForUserResponse =
-  EntriesListEntriesForUserResponses[keyof EntriesListEntriesForUserResponses];
+export type MeListEntriesForUserResponse =
+  MeListEntriesForUserResponses[keyof MeListEntriesForUserResponses];
+
+export type MeListVolsegEntriesForUserData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/me/volseg";
+};
+
+export type MeListVolsegEntriesForUserResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<VolsegEntryResponse>;
+};
+
+export type MeListVolsegEntriesForUserResponse =
+  MeListVolsegEntriesForUserResponses[keyof MeListVolsegEntriesForUserResponses];
 
 export type ShareLinksGetShareLinkData = {
   body?: never;
@@ -737,22 +754,22 @@ export type TestUploadFileResponses = {
   200: unknown;
 };
 
-export type VolsegEntriesListEntriesData = {
+export type VolsegEntriesListPublicEntriesData = {
   body?: never;
   path?: never;
   query?: never;
   url: "/api/v1/volseg";
 };
 
-export type VolsegEntriesListEntriesResponses = {
+export type VolsegEntriesListPublicEntriesResponses = {
   /**
    * Successful Response
    */
   200: Array<VolsegEntryResponse>;
 };
 
-export type VolsegEntriesListEntriesResponse =
-  VolsegEntriesListEntriesResponses[keyof VolsegEntriesListEntriesResponses];
+export type VolsegEntriesListPublicEntriesResponse =
+  VolsegEntriesListPublicEntriesResponses[keyof VolsegEntriesListPublicEntriesResponses];
 
 export type VolsegEntriesUploadEntryData = {
   body: VolsegUploadEntry;
@@ -838,23 +855,6 @@ export type VolsegEntriesGetEntryByIdResponses = {
 
 export type VolsegEntriesGetEntryByIdResponse =
   VolsegEntriesGetEntryByIdResponses[keyof VolsegEntriesGetEntryByIdResponses];
-
-export type VolsegEntriesListPublicEntriesData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/volseg/public";
-};
-
-export type VolsegEntriesListPublicEntriesResponses = {
-  /**
-   * Successful Response
-   */
-  200: Array<VolsegEntryResponse>;
-};
-
-export type VolsegEntriesListPublicEntriesResponse =
-  VolsegEntriesListPublicEntriesResponses[keyof VolsegEntriesListPublicEntriesResponses];
 
 export type ClientOptions = {
   baseUrl: "http://127.0.0.1:8000" | (string & {});
