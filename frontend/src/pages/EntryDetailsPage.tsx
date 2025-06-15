@@ -43,7 +43,11 @@ export function EntryDetailsPage() {
 
   // Clear viewer when unmounting
   useEffect(() => {
+    console.log("mount");
+    viewer.loadVolseg("emd-1832");
     return () => {
+      console.log("unmount");
+
       viewer.clear();
     };
   }, [viewer]);

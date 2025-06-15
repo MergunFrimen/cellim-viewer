@@ -40,7 +40,7 @@ class VolsegService:
             )
 
         # store all files
-        base_path = f"/volseg_entries/{user.id}/{request.db_name}/{request.entry_id}"
+        base_path = f"/volseg_entries/emdb/{request.entry_id}"
         await self.storage.save(
             file_path=f"{base_path}/{request.annotations.filename}",
             file_data=request.annotations.file,
@@ -105,7 +105,7 @@ class VolsegService:
         self._check_permissions(volseg_entry, user)
 
         # Delete files
-        file_path = f"/volseg_entries/{user.id}/{volseg_entry.db_name}/{volseg_entry.entry_id}"
+        file_path = f"/volseg_entries/emdb/{volseg_entry.entry_id}"
         await self.storage.delete_directory(file_path)
 
         # Delete view

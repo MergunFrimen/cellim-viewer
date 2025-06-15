@@ -1,11 +1,14 @@
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+FROM python:3.13.2-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Add a non-root user and group
-RUN addgroup --system appuser && \
-    adduser --system --ingroup appuser appuser
+# Create a non-root user
+RUN groupadd --gid 1000 appuser && \
+    useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser
 
 WORKDIR /app
+
+# Change ownership of the app directory to the non-root user
+RUN chown -R appuser:appuser /app
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
@@ -14,7 +17,8 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install the project's dependencies using the lockfile and settings
-RUN --mount=type=cache,target=/root/.cache/uv \
+# Note: UV cache now uses appuser's home directory
+RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev
@@ -23,14 +27,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
 RUN chown -R appuser:appuser /app
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
     uv sync --frozen --no-dev
+
+# Switch to the non-root user
+USER appuser
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Switch to the non-root user
-# USER appuser
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []

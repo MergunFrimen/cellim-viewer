@@ -18,16 +18,16 @@ client.setConfig({
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark" storageKey="theme">
-          <MolstarProvider>
-            <App />
-          </MolstarProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-      <Toaster />
-    </AuthProvider>
-  </StrictMode>,
+  // <StrictMode>
+  <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="theme">
+        <MolstarProvider>
+          <App />
+        </MolstarProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+    <Toaster />
+  </AuthProvider>,
+  // </StrictMode>,
 );

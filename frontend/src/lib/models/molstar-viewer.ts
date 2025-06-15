@@ -1,3 +1,4 @@
+// import { LoadVolseg } from "molstar/lib/commonjs/extensions/volumes-and-segmentations";
 import { PluginStateSnapshotManager } from "molstar/lib/commonjs/mol-plugin-state/manager/snapshots";
 import { PluginUIContext } from "molstar/lib/commonjs/mol-plugin-ui/context";
 import {
@@ -7,6 +8,7 @@ import {
 import { PluginState } from "molstar/lib/commonjs/mol-plugin/state";
 import { BehaviorSubject } from "rxjs";
 import { BaseReactiveModel } from "./base-model";
+import { LoadVolseg } from "@/volseg/src/extensions/volumes-and-segmentations";
 
 type InitializationState = "pending" | "initializing" | "success" | "error";
 
@@ -16,8 +18,8 @@ export class MolstarViewerModel extends BaseReactiveModel {
   public state = {
     isInitialized: new BehaviorSubject<InitializationState>("pending"),
     isLoading: new BehaviorSubject<boolean>(false),
-    showControls: new BehaviorSubject<boolean>(false),
-    isExpanded: new BehaviorSubject<boolean>(false),
+    showControls: new BehaviorSubject<boolean>(true),
+    isExpanded: new BehaviorSubject<boolean>(true),
   };
 
   constructor() {
@@ -35,6 +37,8 @@ export class MolstarViewerModel extends BaseReactiveModel {
     };
 
     this.plugin = new PluginUIContext(spec);
+
+    this.plugin.events.log.subscribe((something) => console.log(something));
   }
 
   mount() {
@@ -103,5 +107,19 @@ export class MolstarViewerModel extends BaseReactiveModel {
     } finally {
       this.state.isLoading.next(false);
     }
+  }
+
+  async loadVolseg(entryId: string) {
+    this.plugin.runTask(
+      this.plugin.state.data.applyAction(LoadVolseg, {
+        serverUrl: "http://localhost:7000/v1",
+        source: {
+          name: "emdb",
+          params: {
+            entryId: entryId,
+          },
+        },
+      }),
+    );
   }
 }
