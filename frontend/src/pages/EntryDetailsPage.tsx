@@ -13,6 +13,12 @@ import { useEntryDetails } from "@/hooks/useEntryDetails";
 import { useEntryViews } from "@/hooks/useEntryViews";
 import { EntryHeader } from "@/components/entries/EntryHeader";
 import { useRequiredParam } from "@/hooks/useRequiredParam";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { volsegEntriesGetEntryById } from "@/lib/client";
+import {
+  volsegEntriesGetEntryByIdOptions,
+  volsegEntriesGetEntryByIdQueryKey,
+} from "@/lib/client/@tanstack/react-query.gen";
 
 export function EntryDetailsPage() {
   const entryId = useRequiredParam("entryId");
@@ -41,14 +47,24 @@ export function EntryDetailsPage() {
     updateViewMutation,
   } = useEntryViews(entryId);
 
+  const volsegGetEntryMutation = useQuery({
+    ...volsegEntriesGetEntryByIdOptions({
+      path: {
+        volseg_entry_id: entry?.volseg_entry_id,
+      },
+    }),
+    enabled: !!entry,
+  });
+
   // Clear viewer when unmounting
   useEffect(() => {
-    viewer.loadVolseg("emd-1832");
-    // if (entry) viewer.loadVolseg(entry.id);
+    // viewer.loadVolseg("emd-1832");
+    const entryId = volsegGetEntryMutation.data?.entry_id;
+    if (entryId) viewer.loadVolseg(entryId);
     return () => {
       viewer.clear();
     };
-  }, [viewer]);
+  }, [viewer, volsegGetEntryMutation.data?.entry_id]);
 
   if (isEntryLoading || isViewsLoading) {
     return (

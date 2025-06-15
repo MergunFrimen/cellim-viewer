@@ -39,7 +39,7 @@ async def create_entry(
 ):
     return await entry_service.create(
         user=current_user,
-        entry=request,
+        request=request,
     )
 
 

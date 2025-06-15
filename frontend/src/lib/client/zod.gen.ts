@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 export const zEntryCreateRequest = z.object({
+  volseg_entry_id: z.string().uuid(),
   name: z.string().min(1).max(255),
   description: z.union([z.string(), z.null()]).optional(),
   is_public: z.union([z.boolean(), z.null()]).optional(),
@@ -17,6 +18,7 @@ export const zEntryDetailsResponse = z.object({
   description: z.union([z.string(), z.null()]).optional(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
   is_public: z.boolean(),
+  volseg_entry_id: z.string().uuid(),
 });
 
 export const zEntryUpdateRequest = z.object({

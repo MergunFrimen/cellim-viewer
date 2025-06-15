@@ -20,7 +20,7 @@ import {
 } from "@/lib/client";
 import { entriesCreateEntryMutation } from "@/lib/client/@tanstack/react-query.gen";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +38,33 @@ export default function EntryCreatePage() {
       is_public: false,
     },
   });
+
+  const fetchPublicVolsegs = async () => {
+    const res = await fetch("http://localhost:8000/api/v1/volseg");
+    if (!res.ok) throw new Error("Failed to fetch public volsegs");
+    return res.json();
+  };
+
+  const fetchUserVolsegs = async () => {
+    const res = await fetch("http://localhost:8000/api/v1/me/volseg");
+    if (!res.ok) throw new Error("Failed to fetch user volsegs");
+    return res.json();
+  };
+
+  const { data: publicVolsegs = [] } = useQuery({
+    queryKey: ["volseg", "public"],
+    queryFn: fetchPublicVolsegs,
+  });
+
+  const { data: userVolsegs = [] } = useQuery({
+    queryKey: ["volseg", "user"],
+    queryFn: fetchUserVolsegs,
+  });
+
+  const combinedVolsegs = [
+    ...userVolsegs.map((v) => ({ ...v, scope: "My" })),
+    ...publicVolsegs.map((v) => ({ ...v, scope: "Public" })),
+  ];
 
   const mutation = useMutation({
     ...entriesCreateEntryMutation(),
@@ -59,6 +86,34 @@ export default function EntryCreatePage() {
       <h1 className="text-2xl font-semibold mb-6">Create New Entry</h1>
 
       <Form {...form}>
+        <FormField
+          control={form.control}
+          name="volseg_entry_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Select a Volseg Entry</FormLabel>
+              <FormControl>
+                <select
+                  className="w-full border rounded p-2"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                >
+                  <option value="" disabled>
+                    Select one...
+                  </option>
+                  {combinedVolsegs.map((volseg) => (
+                    <option key={volseg.id} value={volseg.id}>
+                      [{volseg.scope}] {volseg.db_name} {volseg.entry_id}
+                    </option>
+                  ))}
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}

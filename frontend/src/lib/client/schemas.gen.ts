@@ -2,6 +2,10 @@
 
 export const EntryCreateRequestSchema = {
   properties: {
+    volseg_entry_id: {
+      type: "string",
+      format: "uuid",
+    },
     name: {
       type: "string",
       maxLength: 255,
@@ -33,7 +37,7 @@ export const EntryCreateRequestSchema = {
   },
   additionalProperties: false,
   type: "object",
-  required: ["name"],
+  required: ["volseg_entry_id", "name"],
 } as const;
 
 export const EntryDetailsResponseSchema = {
@@ -87,9 +91,20 @@ export const EntryDetailsResponseSchema = {
     is_public: {
       type: "boolean",
     },
+    volseg_entry_id: {
+      type: "string",
+      format: "uuid",
+    },
   },
   type: "object",
-  required: ["id", "created_at", "updated_at", "name", "is_public"],
+  required: [
+    "id",
+    "created_at",
+    "updated_at",
+    "name",
+    "is_public",
+    "volseg_entry_id",
+  ],
 } as const;
 
 export const EntryUpdateRequestSchema = {

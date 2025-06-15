@@ -19,3 +19,6 @@ class VolsegEntry(Base, UuidMixin, TimestampMixin):
     user: Mapped["User"] = relationship(  # type: ignore
         back_populates="volseg_entries",
     )
+    entries: Mapped[list["Entry"]] = relationship(  # type: ignore
+        back_populates="volseg_entry",
+    )

@@ -14,6 +14,7 @@ from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.database.models.entry_model import Entry
 from app.database.models.share_link_model import ShareLink
 from app.database.models.user_model import User
+from app.database.models.volseg_entry_model import VolsegEntry
 from app.database.session_manager import get_async_session
 
 
@@ -21,9 +22,25 @@ class EntryService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, user: User, entry: EntryCreateRequest) -> Entry:
+    async def create(self, user: User, request: EntryCreateRequest) -> Entry:
+        volseg_entry: VolsegEntry | None = await self.session.get(
+            VolsegEntry,
+            request.volseg_entry_id,
+        )
+        if volseg_entry is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Volseg entry not found",
+            )
+
         new_link = ShareLink()
-        new_entry = Entry(user=user, link=new_link, views=[], **entry.model_dump())
+        new_entry = Entry(
+            user=user,
+            link=new_link,
+            views=[],
+            volseg_entry=volseg_entry,
+            **request.model_dump(),
+        )
 
         self.session.add(new_entry)
         await self.session.commit()

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.v1.contracts.responses.common import DebugModelName, Timestamp, Uuid
@@ -8,6 +10,7 @@ class EntryResponse(Timestamp, Uuid, BaseModel):
     description: str | None = Field(default=None, examples=["Markdown description."])
     thumbnail_url: str | None = Field(default=None, examples=["URL for entry thumbnail preview"])
     is_public: bool
+    volseg_entry_id: UUID
 
     model_config = ConfigDict(from_attributes=True)
 
