@@ -4,6 +4,7 @@ import {
   authGetUsersTokenOptions,
   authReadUsersMeOptions,
   meListEntriesForUserOptions,
+  meListVolsegEntriesForUserOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,10 @@ export function DashboardPage() {
 
   const entriesResult = useQuery({
     ...meListEntriesForUserOptions(),
+  });
+
+  const volsegEntriesResult = useQuery({
+    ...meListVolsegEntriesForUserOptions(),
   });
 
   const userResult = useQuery({
@@ -27,7 +32,6 @@ export function DashboardPage() {
     <div className="max-w-4xl mx-auto py-10 space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
 
-      {/* User Info */}
       <Card>
         <CardContent className="py-4 px-6 space-y-2">
           <h2 className="text-xl font-semibold mb-2">User Info</h2>
@@ -64,7 +68,6 @@ export function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Entries List */}
       <Card>
         <CardContent className="py-4 px-6">
           <h2 className="text-xl font-semibold mb-4">Your Entries</h2>
@@ -85,7 +88,7 @@ export function DashboardPage() {
                     <p className="font-medium">
                       {entry.name || "Untitled Entry"}
                     </p>
-                    <p className="text-sm text-">
+                    <p className="text-sm text-muted-foreground">
                       {new Date(entry.created_at).toLocaleString(undefined, {
                         year: "numeric",
                         month: "short",
@@ -106,6 +109,51 @@ export function DashboardPage() {
             </ul>
           ) : (
             !entriesResult.isLoading && <p>No entries found.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="py-4 px-6">
+          <h2 className="text-xl font-semibold mb-4">Your Volseg Entries</h2>
+
+          {volsegEntriesResult.isLoading && <p>Loading volseg entries...</p>}
+          {volsegEntriesResult.isError && (
+            <p className="text-destructive">Failed to load volseg entries.</p>
+          )}
+
+          {volsegEntriesResult.data && volsegEntriesResult.data.length > 0 ? (
+            <ul className="space-y-3">
+              {volsegEntriesResult.data.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="border rounded p-4 bg-background shadow-sm flex items-center justify-between"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {entry.entry_id || "Untitled Volseg Entry"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(entry.created_at).toLocaleString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate(`/volseg-entries/${entry.id}`)}
+                  >
+                    View Entry
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            !volsegEntriesResult.isLoading && <p>No volseg entries found.</p>
           )}
         </CardContent>
       </Card>
