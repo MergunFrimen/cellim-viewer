@@ -137,6 +137,7 @@ class ViewService:
 
     async def get_view_thumbnail(self, user: User, entry_id: UUID, view_id: UUID) -> UUID:
         view: View = await self._get_view_by_id(view_id)
+        await self.session.refresh(view, ["entry"])
 
         # Check permissions
         if user is None and not view.entry.is_public:

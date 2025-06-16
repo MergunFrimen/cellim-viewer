@@ -12,11 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthProvider";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
 import { viewsGetViewSnapshotOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
-import { Camera, Edit, GripVertical, MoreVertical, Trash2 } from "lucide-react";
+import { Camera, Edit, MoreVertical, Trash2 } from "lucide-react";
 
 interface ViewCardProps {
   entryId: string;
@@ -33,6 +34,8 @@ export function ViewCard({
   onEdit,
   onDelete,
 }: ViewCardProps) {
+  const { isAuthenticated } = useAuth();
+
   const { viewer } = useMolstar();
 
   const viewSnapshot = useQuery({
@@ -57,32 +60,30 @@ export function ViewCard({
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-x-2">
-            <GripVertical
-              size={16}
-              className="text-muted-foreground cursor-grab"
-            />
             <CardTitle className="text-base">{view.name}</CardTitle>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <MoreVertical size={14} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onEdit}>
-                <Edit size={14} className="mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={onDelete}
-                className="text-red-500 focus:text-red-500"
-              >
-                <Trash2 size={14} className="mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onEdit}>
+                  <Edit size={14} className="mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onDelete}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <Trash2 size={14} className="mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
 

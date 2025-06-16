@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function EntryCreatePage() {
+export function EntryCreatePage() {
   const navigate = useNavigate();
 
   const form = useForm<EntryCreateRequest>({

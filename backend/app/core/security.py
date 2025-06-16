@@ -79,40 +79,48 @@ def get_admin_user_token():
 
 
 def get_token_from_request(request: Request) -> str | None:
-    return request.cookies.get("access_token")
+    return request.cookies.get(get_settings().ACCESS_TOKEN_COOKIE)
 
 
 def get_required_user(
     required_role: RoleEnum | None = None,
 ) -> User:
     async def _get_current_user(
-        user: str | None = Depends(get_current_user(required_role)),
+        user_id: str | None = Depends(get_current_user_id(required_role)),
     ) -> User:
-        if user is None:
+        if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not authenticated",
             )
-        # if user.deleted_at is not None:
-        #     raise HTTPException(
-        #         status_code=400,
-        #         detail="Inactive user",
-        #     )
-        return user
+        async with get_session_manager().session() as session:
+            user: User | None = await session.get(User, user_id)
+            await session.refresh(user, ["role"])
+            if user is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                )
+            return user
 
     return _get_current_user
 
 
 def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
     async def _get_optional_user(
-        user: User | None = Depends(get_current_user(required_role)),
+        user_id: str | None = Depends(get_current_user_id(required_role)),
     ) -> User:
-        return user
+        if not user_id:
+            return None
+        async with get_session_manager().session() as session:
+            user: User | None = await session.get(User, user_id)
+            await session.refresh(user, ["role"])
+            return user
 
     return _get_optional_user
 
 
-def get_current_user(required_role: RoleEnum | None = None) -> User | None:
+def get_current_user_id(required_role: RoleEnum | None = None) -> str | None:
     async def _get_user(request: Request):
         token = get_token_from_request(request)
 
@@ -137,22 +145,13 @@ def get_current_user(required_role: RoleEnum | None = None) -> User | None:
             )
 
         user_id = payload["sub"]
-
-        async with get_session_manager().session() as session:
-            user: User | None = await session.get(User, user_id)
-            await session.refresh(user, ["role"])
-            if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="User not found",
-                )
-            return user
+        return user_id
 
     return _get_user
 
 
 def check_user_roles(allowed_roles: list[RoleEnum]):
-    async def check_user(current_user: User = Depends(get_current_user)):
+    async def check_user(current_user: User = Depends(get_current_user_id)):
         if not any(role.name != current_user.role.name for role in allowed_roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

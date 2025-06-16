@@ -9,7 +9,6 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the page the user was trying to visit
   const from = location.state?.from?.pathname || "/dashboard";
 
   const handleLogin = async () => {
@@ -23,11 +22,13 @@ export function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <h1>Login Page</h1>
-      <Button onClick={handleLogin} disabled={isLoggingIn}>
-        {isLoggingIn ? "Logging in..." : "Login"}
-      </Button>
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold">Login Page</h1>
+        <Button onClick={handleLogin} disabled={isLoggingIn}>
+          {isLoggingIn ? "Logging in..." : "Login"}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -49,15 +49,14 @@ export const AuthService = {
     }
   },
 
-  async checkAuth() {
+  async verify() {
     try {
       const response = await fetch("http://localhost:8000/api/v1/auth/verify", {
         credentials: "include",
       });
-
-      return response.status === 200;
-    } catch (error) {
-      console.error("Auth check error:", error);
+      const data = await response.json();
+      return data.isAuthenticated;
+    } catch {
       return false;
     }
   },

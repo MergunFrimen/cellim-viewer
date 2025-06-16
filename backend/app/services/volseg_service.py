@@ -66,11 +66,15 @@ class VolsegService:
 
         return VolsegEntryResponse.model_validate(volseg_entry)
 
-    async def get_entry_by_id(self, user: User, volseg_entry_id: UUID) -> VolsegEntryResponse:
+    async def get_entry_by_id(
+        self,
+        user: User | None,
+        volseg_entry_id: UUID,
+    ) -> VolsegEntryResponse:
         volseg_entry: VolsegEntry = await self._get_volseg_entry_by_id(volseg_entry_id)
 
         # Check permissions
-        if user is None and not entry.is_public:
+        if user is None and not volseg_entry.is_public:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Entry is not public",

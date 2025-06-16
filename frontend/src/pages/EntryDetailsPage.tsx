@@ -15,8 +15,11 @@ import { volsegEntriesGetEntryByIdOptions } from "@/lib/client/@tanstack/react-q
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export function EntryDetailsPage() {
+  const { isAuthenticated } = useAuth();
+
   const entryId = useRequiredParam("entryId");
   const { viewer } = useMolstar();
 
@@ -112,58 +115,64 @@ export function EntryDetailsPage() {
             onDeleteView={handleDeleteView}
           />
         </aside>
-        <main className="flex-1 relative">
+        <div className="flex-1 relative">
           <MolstarViewer />
-        </main>
+        </div>
       </div>
-      {/* Dialogs */}
-      <SaveViewDialog
-        open={showSaveDialog}
-        onOpenChange={setShowSaveDialog}
-        onSave={handleSaveView}
-      />
-      <EditViewDialog
-        open={!!viewToEdit}
-        onOpenChange={(open) => !open && setViewToEdit(null)}
-        view={viewToEdit}
-        onUpdate={(viewId, name, description) => {
-          updateViewMutation.mutate({
-            path: { entry_id: entryId, view_id: viewId },
-            body: { name, description },
-          });
-        }}
-        onRecreateSnapshot={async (viewId) => {
-          const snapshot = viewer.getState();
-          const thumbnail_image = await viewer.thumbnailImage();
-          const snapshotJson = JSON.stringify(snapshot);
-          const snapshotBlob = new Blob([snapshotJson], {
-            type: "application/json",
-          });
 
-          await updateViewMutation.mutateAsync({
-            path: { entry_id: entryId, view_id: viewId },
-            body: {
-              name: viewToEdit?.name || "",
-              description: viewToEdit?.description || null,
-              snapshot_json: snapshotBlob,
-              thumbnail_image,
-            },
-          });
-        }}
-      />
+      {isAuthenticated && (
+        <>
+          <SaveViewDialog
+            open={showSaveDialog}
+            onOpenChange={setShowSaveDialog}
+            onSave={handleSaveView}
+          />
 
-      <DeleteDialog
-        title="Delete View"
-        description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
-        open={!!viewToDelete}
-        onOpenChange={(open) => !open && setViewToDelete(null)}
-        onConfirm={() => {
-          if (viewToDelete) {
-            handleDeleteView(viewToDelete.id);
-            setViewToDelete(null);
-          }
-        }}
-      />
+          <EditViewDialog
+            open={!!viewToEdit}
+            onOpenChange={(open) => !open && setViewToEdit(null)}
+            view={viewToEdit}
+            onUpdate={(viewId, name, description) => {
+              updateViewMutation.mutate({
+                path: { entry_id: entryId, view_id: viewId },
+                body: { name, description },
+              });
+            }}
+            onRecreateSnapshot={async (viewId) => {
+              const snapshot = viewer.getState();
+              const thumbnail_image = await viewer.thumbnailImage();
+              const snapshotJson = JSON.stringify(snapshot);
+              const snapshotBlob = new Blob([snapshotJson], {
+                type: "application/json",
+              });
+
+              await updateViewMutation.mutateAsync({
+                path: { entry_id: entryId, view_id: viewId },
+                body: {
+                  name: viewToEdit?.name || "",
+                  description: viewToEdit?.description || null,
+                  snapshot_json: snapshotBlob,
+                  thumbnail_image,
+                },
+              });
+            }}
+          />
+
+          <DeleteDialog
+            title="Delete View"
+            description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
+            open={!!viewToDelete}
+            onOpenChange={(open) => !open && setViewToDelete(null)}
+            onConfirm={() => {
+              if (viewToDelete) {
+                handleDeleteView(viewToDelete.id);
+                setViewToDelete(null);
+              }
+            }}
+          />
+        </>
+      )}
+
       {/* <DeleteDialog
         title="Delete Entry"
         description="Are you sure you want to delete this entry? This action cannot be undone."

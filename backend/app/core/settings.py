@@ -17,10 +17,10 @@ class ModeEnum(str, Enum):
 class Settings(BaseSettings):
     MODE: ModeEnum = ModeEnum.development
 
-    # Api
+    # API
     API_V1_PREFIX: str = "/api/v1"
 
-    # App
+    # APP INFO
     APP_NAME: str = "CELLIM Viewer API"
     APP_SUMMARY: str = "API managing CELLIM data entries"
     APP_VERSION: str = "0.0.0"
@@ -45,12 +45,13 @@ class Settings(BaseSettings):
         "http://localhost:6006",  # for storybook
     ]
 
-    # Jwt
+    # JWT
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
+    ACCESS_TOKEN_COOKIE: str = "access_token"
 
-    # MinIO
+    # MINIO
     MINIO_HOST: str = os.getenv("MINIO_HOST")
     MINIO_PORT: str = os.getenv("MINIO_PORT")
     MINIO_ENDPOINT: str = f"{MINIO_HOST}:{MINIO_PORT}"
@@ -59,7 +60,7 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = os.getenv("MINIO_BUCKET")
     MINIO_SECURE: bool = os.getenv("MINIO_SECURE")
 
-    # PostgreSQL
+    # POSTGRES
     POSTGRES_DIALECT: str = "postgresql"
     POSTGRES_DBAPI: str = "asyncpg"
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
@@ -68,10 +69,7 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     POSTGRES_URL: str = f"{POSTGRES_DIALECT}+{POSTGRES_DBAPI}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 
-    # Redis
-    REDIS_URL: str = "redis://redis:6379/0"
-
-    # Local file storage
+    # LOCAL STORAGE
     FILE_STORAGE_BASE_PATH: str = "./temp"
 
     model_config = SettingsConfigDict(

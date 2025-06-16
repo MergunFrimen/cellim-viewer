@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, Path, status
 
 from app.api.v1.contracts.requests.volseg_requests import VolsegUploadEntry
 from app.api.v1.contracts.responses.volseg_responses import VolsegEntryResponse
-from app.api.v1.deps import RequireUserDep, VolsegServiceDep
+from app.api.v1.deps import OptionalUserDep, RequireUserDep, VolsegServiceDep
 from app.api.v1.tags import Tags
 
 router = APIRouter(prefix="/volseg", tags=[Tags.volseg])
@@ -34,7 +34,7 @@ async def upload_entry(
 )
 async def get_entry_by_id(
     volseg_entry_id: Annotated[UUID, Path(title="Volseg Entry ID")],
-    current_user: RequireUserDep,
+    current_user: OptionalUserDep,
     volseg_service: VolsegServiceDep,
 ):
     return await volseg_service.get_entry_by_id(

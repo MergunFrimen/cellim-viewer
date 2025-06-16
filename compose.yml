@@ -41,7 +41,7 @@ services:
       - cellim-network
     volumes:
       # - ./backend/temp:/app/temp
-      - shared_data:/app/temp
+      - shared_data:/app/temp/volseg_entries
     depends_on:
       - db
 

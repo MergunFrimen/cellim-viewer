@@ -33,7 +33,7 @@ export const AuthProvider = ({ children, ...props }: AuthProviderProps) => {
 
   useEffect(() => {
     const checkAuthentication = async () => {
-      const authStatus = await AuthService.checkAuth();
+      const authStatus = await AuthService.verify();
       setIsAuthenticated(authStatus);
       setIsLoading(false);
     };

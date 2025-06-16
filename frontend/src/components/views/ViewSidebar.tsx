@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ViewResponse } from "@/lib/client";
 import { Camera } from "lucide-react";
 import { ViewCard } from "./ViewCard";
+import { useAuth } from "@/contexts/AuthProvider";
 
 interface ViewsSidebarProps {
   entryId: string;
@@ -22,14 +23,18 @@ export function ViewsSidebar({
   onEditView,
   onDeleteView,
 }: ViewsSidebarProps) {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="flex flex-col h-full w-96">
       <div className="flex items-center justify-between mb-2 pr-4">
         <h2 className="text-xl font-bold">Saved Views</h2>
-        <Button onClick={onSaveView} size="sm" className="gap-1">
-          <Camera size={16} />
-          <span>Save View</span>
-        </Button>
+        {isAuthenticated && (
+          <Button onClick={onSaveView} size="sm" className="gap-1">
+            <Camera size={16} />
+            <span>Save View</span>
+          </Button>
+        )}
       </div>
 
       <ScrollArea className="flex-1 min-h-0 pb-0 pr-4">
