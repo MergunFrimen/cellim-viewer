@@ -88,6 +88,23 @@ services:
     volumes:
       - shared_data:/app/server/cellstar_server/preprocessor/temp/test_db
 
+  nginx:
+    container_name: cellim-viewer-nginx
+    image: nginx:latest
+    volumes:
+      - ./deployment/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "6080:80"
+      - "6443:443"
+    networks:
+      - cellim-network
+    restart: 
+      unless-stopped
+    depends_on:
+    - api
+    - frontend
+    - volseg
+
 networks:
   cellim-network:
     driver: bridge
