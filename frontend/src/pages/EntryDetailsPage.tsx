@@ -1,24 +1,20 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { DeleteDialog } from "@/components/common/DeleteDialog";
+import { EntryDescription } from "@/components/entries/EntryDescription";
+import { EntryHeader } from "@/components/entries/EntryHeader";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
 import { EditViewDialog } from "@/components/views/ViewEditDialog";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { EntryDescription } from "@/components/entries/EntryDescription";
-import { useEffect } from "react";
-import { AlertCircle } from "lucide-react";
 import { useEntryDetails } from "@/hooks/useEntryDetails";
 import { useEntryViews } from "@/hooks/useEntryViews";
-import { EntryHeader } from "@/components/entries/EntryHeader";
 import { useRequiredParam } from "@/hooks/useRequiredParam";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { volsegEntriesGetEntryById } from "@/lib/client";
-import {
-  volsegEntriesGetEntryByIdOptions,
-  volsegEntriesGetEntryByIdQueryKey,
-} from "@/lib/client/@tanstack/react-query.gen";
+import { volsegEntriesGetEntryByIdOptions } from "@/lib/client/@tanstack/react-query.gen";
+import { useQuery } from "@tanstack/react-query";
+import { AlertCircle } from "lucide-react";
+import { useEffect } from "react";
 
 export function EntryDetailsPage() {
   const entryId = useRequiredParam("entryId");
@@ -56,11 +52,16 @@ export function EntryDetailsPage() {
     enabled: !!entry,
   });
 
+  async function loadVolseg() {
+    const entryId = volsegGetEntryMutation.data?.entry_id;
+    if (!entryId) return;
+    await viewer.clear();
+    await viewer.loadVolseg(entryId);
+  }
+
   // Clear viewer when unmounting
   useEffect(() => {
-    // viewer.loadVolseg("emd-1832");
-    const entryId = volsegGetEntryMutation.data?.entry_id;
-    if (entryId) viewer.loadVolseg(entryId);
+    loadVolseg();
     return () => {
       viewer.clear();
     };

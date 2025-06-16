@@ -56,6 +56,15 @@ export type UploadFileRequest = {
   file: Blob | File;
 };
 
+export type UserResponse = {
+  response_model?: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  openid: string;
+  email: string;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -635,20 +644,6 @@ export type ShareLinksUpdateShareLinkResponses = {
 export type ShareLinksUpdateShareLinkResponse =
   ShareLinksUpdateShareLinkResponses[keyof ShareLinksUpdateShareLinkResponses];
 
-export type AuthLoginAdminData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/auth/login/admin";
-};
-
-export type AuthLoginAdminResponses = {
-  /**
-   * Successful Response
-   */
-  200: unknown;
-};
-
 export type AuthLoginUserData = {
   body?: never;
   path?: never;
@@ -681,51 +676,44 @@ export type AuthReadUsersMeData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/auth/get_current_user";
+  url: "/api/v1/auth/me/user";
 };
 
 export type AuthReadUsersMeResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: UserResponse;
 };
 
-export type AuthProtectedRouteData = {
+export type AuthReadUsersMeResponse =
+  AuthReadUsersMeResponses[keyof AuthReadUsersMeResponses];
+
+export type AuthGetUsersTokenData = {
   body?: never;
-  headers?: {
-    authorization?: string | null;
-  };
   path?: never;
   query?: never;
-  url: "/api/v1/auth/get_auth_header";
+  url: "/api/v1/auth/me/token";
 };
 
-export type AuthProtectedRouteErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type AuthProtectedRouteError =
-  AuthProtectedRouteErrors[keyof AuthProtectedRouteErrors];
-
-export type AuthProtectedRouteResponses = {
+export type AuthGetUsersTokenResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: string;
 };
 
-export type AuthCheckAuthData = {
+export type AuthGetUsersTokenResponse =
+  AuthGetUsersTokenResponses[keyof AuthGetUsersTokenResponses];
+
+export type AuthVerifyAuthData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/auth/check-auth";
+  url: "/api/v1/auth/verify";
 };
 
-export type AuthCheckAuthResponses = {
+export type AuthVerifyAuthResponses = {
   /**
    * Successful Response
    */
@@ -859,5 +847,5 @@ export type VolsegEntriesGetEntryByIdResponse =
   VolsegEntriesGetEntryByIdResponses[keyof VolsegEntriesGetEntryByIdResponses];
 
 export type ClientOptions = {
-  baseUrl: "http://127.0.0.1:8000" | (string & {});
+  baseUrl: "http://localhost:8000" | (string & {});
 };

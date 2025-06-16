@@ -58,13 +58,13 @@ import type {
   ShareLinksUpdateShareLinkData,
   ShareLinksUpdateShareLinkResponse,
   ShareLinksUpdateShareLinkError,
-  AuthLoginAdminData,
   AuthLoginUserData,
   AuthLogoutData,
   AuthReadUsersMeData,
-  AuthProtectedRouteData,
-  AuthProtectedRouteError,
-  AuthCheckAuthData,
+  AuthReadUsersMeResponse,
+  AuthGetUsersTokenData,
+  AuthGetUsersTokenResponse,
+  AuthVerifyAuthData,
   TestUploadFileData,
   TestUploadFileError,
   VolsegEntriesListPublicEntriesData,
@@ -96,6 +96,8 @@ import {
   zMeListVolsegEntriesForUserResponse,
   zShareLinksGetShareLinkResponse,
   zShareLinksUpdateShareLinkResponse,
+  zAuthReadUsersMeResponse,
+  zAuthGetUsersTokenResponse,
   zVolsegEntriesListPublicEntriesResponse,
   zVolsegEntriesUploadEntryResponse,
   zVolsegEntriesDeleteViewResponse,
@@ -150,12 +152,6 @@ export const entriesCreateEntry = <ThrowOnError extends boolean = false>(
     EntriesCreateEntryError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zEntriesCreateEntryResponse.parseAsync(data);
     },
@@ -179,12 +175,6 @@ export const entriesDeleteEntry = <ThrowOnError extends boolean = false>(
     EntriesDeleteEntryError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zEntriesDeleteEntryResponse.parseAsync(data);
     },
@@ -204,12 +194,6 @@ export const entriesGetEntryById = <ThrowOnError extends boolean = false>(
     EntriesGetEntryByIdError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zEntriesGetEntryByIdResponse.parseAsync(data);
     },
@@ -229,12 +213,6 @@ export const entriesUpdateEntry = <ThrowOnError extends boolean = false>(
     EntriesUpdateEntryError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zEntriesUpdateEntryResponse.parseAsync(data);
     },
@@ -279,12 +257,6 @@ export const entriesGetEntryShareLink = <ThrowOnError extends boolean = false>(
     EntriesGetEntryShareLinkError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zEntriesGetEntryShareLinkResponse.parseAsync(data);
     },
@@ -304,12 +276,6 @@ export const viewsListViewsForEntry = <ThrowOnError extends boolean = false>(
     ViewsListViewsForEntryError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zViewsListViewsForEntryResponse.parseAsync(data);
     },
@@ -330,12 +296,6 @@ export const viewsCreateView = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     ...formDataBodySerializer,
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zViewsCreateViewResponse.parseAsync(data);
     },
@@ -359,12 +319,6 @@ export const viewsDeleteView = <ThrowOnError extends boolean = false>(
     ViewsDeleteViewError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zViewsDeleteViewResponse.parseAsync(data);
     },
@@ -384,12 +338,6 @@ export const viewsGetViewById = <ThrowOnError extends boolean = false>(
     ViewsGetViewByIdError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zViewsGetViewByIdResponse.parseAsync(data);
     },
@@ -409,12 +357,6 @@ export const viewsUpdateView = <ThrowOnError extends boolean = false>(
     ViewsUpdateViewError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zViewsUpdateViewResponse.parseAsync(data);
     },
@@ -438,12 +380,6 @@ export const viewsGetViewSnapshot = <ThrowOnError extends boolean = false>(
     ViewsGetViewSnapshotError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     url: "/api/v1/entries/{entry_id}/views/{view_id}/snapshot",
     ...options,
   });
@@ -462,12 +398,6 @@ export const viewsGetViewThumbnailImage = <
     ViewsGetViewThumbnailImageError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     url: "/api/v1/entries/{entry_id}/views/{view_id}/thumbnail",
     ...options,
   });
@@ -484,12 +414,6 @@ export const meListEntriesForUser = <ThrowOnError extends boolean = false>(
     MeListEntriesForUserError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zMeListEntriesForUserResponse.parseAsync(data);
     },
@@ -511,12 +435,6 @@ export const meListVolsegEntriesForUser = <
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zMeListVolsegEntriesForUserResponse.parseAsync(data);
     },
@@ -536,12 +454,6 @@ export const shareLinksGetShareLink = <ThrowOnError extends boolean = false>(
     ShareLinksGetShareLinkError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zShareLinksGetShareLinkResponse.parseAsync(data);
     },
@@ -561,12 +473,6 @@ export const shareLinksUpdateShareLink = <ThrowOnError extends boolean = false>(
     ShareLinksUpdateShareLinkError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zShareLinksUpdateShareLinkResponse.parseAsync(data);
     },
@@ -576,22 +482,6 @@ export const shareLinksUpdateShareLink = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
-  });
-};
-
-/**
- * Login Admin
- */
-export const authLoginAdmin = <ThrowOnError extends boolean = false>(
-  options?: Options<AuthLoginAdminData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).post<
-    unknown,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/v1/auth/login/admin",
-    ...options,
   });
 };
 
@@ -622,12 +512,6 @@ export const authLogout = <ThrowOnError extends boolean = false>(
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     url: "/api/v1/auth/logout",
     ...options,
   });
@@ -639,51 +523,47 @@ export const authLogout = <ThrowOnError extends boolean = false>(
 export const authReadUsersMe = <ThrowOnError extends boolean = false>(
   options?: Options<AuthReadUsersMeData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
-    {
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/auth/get_current_user",
-      ...options,
-    },
-  );
-};
-
-/**
- * Protected Route
- */
-export const authProtectedRoute = <ThrowOnError extends boolean = false>(
-  options?: Options<AuthProtectedRouteData, ThrowOnError>,
-) => {
   return (options?.client ?? _heyApiClient).get<
+    AuthReadUsersMeResponse,
     unknown,
-    AuthProtectedRouteError,
     ThrowOnError
   >({
-    url: "/api/v1/auth/get_auth_header",
+    responseValidator: async (data) => {
+      return await zAuthReadUsersMeResponse.parseAsync(data);
+    },
+    url: "/api/v1/auth/me/user",
     ...options,
   });
 };
 
 /**
- * Check Auth
+ * Get Users Token
  */
-export const authCheckAuth = <ThrowOnError extends boolean = false>(
-  options?: Options<AuthCheckAuthData, ThrowOnError>,
+export const authGetUsersToken = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthGetUsersTokenData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    AuthGetUsersTokenResponse,
+    unknown,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zAuthGetUsersTokenResponse.parseAsync(data);
+    },
+    url: "/api/v1/auth/me/token",
+    ...options,
+  });
+};
+
+/**
+ * Verify Auth
+ */
+export const authVerifyAuth = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthVerifyAuthData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
     {
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/auth/check-auth",
+      url: "/api/v1/auth/verify",
       ...options,
     },
   );
@@ -743,12 +623,6 @@ export const volsegEntriesUploadEntry = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     ...formDataBodySerializer,
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zVolsegEntriesUploadEntryResponse.parseAsync(data);
     },
@@ -772,12 +646,6 @@ export const volsegEntriesDeleteView = <ThrowOnError extends boolean = false>(
     VolsegEntriesDeleteViewError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zVolsegEntriesDeleteViewResponse.parseAsync(data);
     },
@@ -797,12 +665,6 @@ export const volsegEntriesGetEntryById = <ThrowOnError extends boolean = false>(
     VolsegEntriesGetEntryByIdError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     responseValidator: async (data) => {
       return await zVolsegEntriesGetEntryByIdResponse.parseAsync(data);
     },

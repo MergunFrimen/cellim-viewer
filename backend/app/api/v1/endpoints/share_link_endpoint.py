@@ -37,9 +37,6 @@ async def get_share_link(
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
-    print(share_link.entry.user.id)
-    print(current_user.id)
-
     if share_link.entry.user.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

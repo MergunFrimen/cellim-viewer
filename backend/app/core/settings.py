@@ -52,7 +52,6 @@ class Settings(BaseSettings):
 
     # MinIO
     MINIO_HOST: str = os.getenv("MINIO_HOST")
-    print(MINIO_HOST)
     MINIO_PORT: str = os.getenv("MINIO_PORT")
     MINIO_ENDPOINT: str = f"{MINIO_HOST}:{MINIO_PORT}"
     MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY")

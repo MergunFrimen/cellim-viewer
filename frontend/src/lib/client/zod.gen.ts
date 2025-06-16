@@ -11,7 +11,7 @@ export const zEntryCreateRequest = z.object({
 
 export const zEntryDetailsResponse = z.object({
   response_model: z.string().optional().default(""),
-  id: z.string(),
+  id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   name: z.string().max(255),
@@ -48,7 +48,7 @@ export const zPaginatedResponseEntryDetailsResponse = z.object({
 
 export const zShareLinkResponse = z.object({
   response_model: z.string().optional().default(""),
-  id: z.string(),
+  id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   is_editable: z.boolean(),
@@ -64,6 +64,15 @@ export const zUploadFileRequest = z.object({
   file: z.string(),
 });
 
+export const zUserResponse = z.object({
+  response_model: z.string().optional().default(""),
+  id: z.string().uuid(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  openid: z.string().uuid(),
+  email: z.string(),
+});
+
 export const zViewCreateRequest = z.object({
   name: z.string().max(255),
   description: z.union([z.string().max(255), z.null()]).optional(),
@@ -73,7 +82,7 @@ export const zViewCreateRequest = z.object({
 
 export const zViewResponse = z.object({
   response_model: z.string().optional().default(""),
-  id: z.string(),
+  id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   name: z.string().max(255),
@@ -89,7 +98,7 @@ export const zViewUpdateRequest = z.object({
 
 export const zVolsegEntryResponse = z.object({
   response_model: z.string().optional().default(""),
-  id: z.string(),
+  id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   db_name: z.string().min(1).max(255),
@@ -101,9 +110,9 @@ export const zVolsegUploadEntry = z.object({
   db_name: z.string().min(1).max(255),
   entry_id: z.string().min(1).max(255),
   is_public: z.union([z.boolean(), z.null()]).optional(),
-  annotations: z.string(),
-  metadata: z.string(),
-  data: z.string(),
+  // annotations: z.string(),
+  // metadata: z.string(),
+  // data: z.string(),
 });
 
 export const zEntriesListPublicEntriesResponse =
@@ -140,6 +149,10 @@ export const zMeListVolsegEntriesForUserResponse =
 export const zShareLinksGetShareLinkResponse = zShareLinkResponse;
 
 export const zShareLinksUpdateShareLinkResponse = zShareLinkResponse;
+
+export const zAuthReadUsersMeResponse = zUserResponse;
+
+export const zAuthGetUsersTokenResponse = z.string();
 
 export const zVolsegEntriesListPublicEntriesResponse =
   z.array(zVolsegEntryResponse);

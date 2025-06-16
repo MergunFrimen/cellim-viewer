@@ -40,7 +40,8 @@ services:
     networks:
       - cellim-network
     volumes:
-      - ./backend/temp:/app/temp
+      # - ./backend/temp:/app/temp
+      - shared_data:/app/temp
     depends_on:
       - db
 
@@ -76,6 +77,17 @@ services:
       retries: 3
     networks:
       - cellim-network
+
+  volseg:
+    container_name: cellim-viewer-volseg
+    image: volseg:latest
+    command: /bin/bash -c "cd server/cellstar_server/ && uvicorn main:app --host 0.0.0.0 --port 7000 --reload"
+    ports:
+      - "7000:7000"
+    networks:
+      - cellim-network
+    volumes:
+      - shared_data:/app/server/cellstar_server/preprocessor/temp/test_db
 
   # createbuckets:
   #   container_name: cellim-viewer-mc
@@ -136,3 +148,6 @@ services:
 networks:
   cellim-network:
     driver: bridge
+
+volumes:
+  shared_data:

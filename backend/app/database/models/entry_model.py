@@ -28,12 +28,13 @@ class Entry(Base, UuidMixin, TimestampMixin):
         cascade="all, delete-orphan",
         uselist=False,  # For one-to-one relationship
     )
-    volseg_entry_id: Mapped[UUID] = mapped_column(ForeignKey("volseg_entries.id", ondelete="CASCADE"))
+    volseg_entry_id: Mapped[UUID] = mapped_column(
+        ForeignKey("volseg_entries.id", ondelete="CASCADE")
+    )
 
     volseg_entry: Mapped["VolsegEntry"] = relationship(  # type: ignore
         back_populates="entries",
     )
-
 
     def has_owner(self, user_id: UUID) -> bool:
         return self.user_id == user_id

@@ -1,5 +1,3 @@
-// src/pages/EntryCreatePage.tsx
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -18,7 +16,11 @@ import {
   EntryCreateRequest,
   zEntryCreateRequest,
 } from "@/lib/client";
-import { entriesCreateEntryMutation } from "@/lib/client/@tanstack/react-query.gen";
+import {
+  entriesCreateEntryMutation,
+  meListVolsegEntriesForUserOptions,
+  volsegEntriesListPublicEntriesOptions,
+} from "@/lib/client/@tanstack/react-query.gen";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
@@ -26,6 +28,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function EntryCreatePage() {
   const navigate = useNavigate();
@@ -39,31 +48,24 @@ export default function EntryCreatePage() {
     },
   });
 
-  const fetchPublicVolsegs = async () => {
-    const res = await fetch("http://localhost:8000/api/v1/volseg");
-    if (!res.ok) throw new Error("Failed to fetch public volsegs");
-    return res.json();
-  };
-
-  const fetchUserVolsegs = async () => {
-    const res = await fetch("http://localhost:8000/api/v1/me/volseg");
-    if (!res.ok) throw new Error("Failed to fetch user volsegs");
-    return res.json();
-  };
-
-  const { data: publicVolsegs = [] } = useQuery({
-    queryKey: ["volseg", "public"],
-    queryFn: fetchPublicVolsegs,
+  const publicVolsegQuery = useQuery({
+    ...volsegEntriesListPublicEntriesOptions(),
   });
 
-  const { data: userVolsegs = [] } = useQuery({
-    queryKey: ["volseg", "user"],
-    queryFn: fetchUserVolsegs,
+  const privateVolsegQuery = useQuery({
+    ...meListVolsegEntriesForUserOptions(),
   });
+
+  const publicVolsegs = publicVolsegQuery.data ?? [];
+  const userVolsegs = privateVolsegQuery.data ?? [];
+
+  const userVolsegIds = new Set(userVolsegs.map((v) => v.id));
 
   const combinedVolsegs = [
     ...userVolsegs.map((v) => ({ ...v, scope: "My" })),
-    ...publicVolsegs.map((v) => ({ ...v, scope: "Public" })),
+    ...publicVolsegs
+      .filter((v) => !userVolsegIds.has(v.id))
+      .map((v) => ({ ...v, scope: "Public" })),
   ];
 
   const mutation = useMutation({
@@ -86,35 +88,32 @@ export default function EntryCreatePage() {
       <h1 className="text-2xl font-semibold mb-6">Create New Entry</h1>
 
       <Form {...form}>
-        <FormField
-          control={form.control}
-          name="volseg_entry_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Select a Volseg Entry</FormLabel>
-              <FormControl>
-                <select
-                  className="w-full border rounded p-2"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                >
-                  <option value="" disabled>
-                    Select one...
-                  </option>
-                  {combinedVolsegs.map((volseg) => (
-                    <option key={volseg.id} value={volseg.id}>
-                      [{volseg.scope}] {volseg.db_name} {volseg.entry_id}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="volseg_entry_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select a Volseg Entry</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select one..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {combinedVolsegs.map((volseg) => (
+                        <SelectItem key={volseg.id} value={volseg.id}>
+                          [{volseg.scope}] {volseg.db_name} {volseg.entry_id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
@@ -152,14 +151,14 @@ export default function EntryCreatePage() {
             control={form.control}
             name="is_public"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start gap-x-3">
+              <FormItem className="flex flex-row items-start gap-x-3 space-y-0">
                 <FormControl>
                   <Checkbox
-                    checked={field.value}
+                    checked={!!field.value}
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <div className="space-y-1">
+                <div className="space-y-1 leading-none">
                   <FormLabel>Make entry public</FormLabel>
                   <FormDescription>
                     When enabled, this entry will be visible to everyone.
@@ -194,7 +193,7 @@ export default function EntryCreatePage() {
             <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!mutation.isIdle}>
+            <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? "Creating..." : "Create Entry"}
             </Button>
           </div>

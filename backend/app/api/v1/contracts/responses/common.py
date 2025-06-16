@@ -1,8 +1,10 @@
-from pydantic import UUID4, AwareDatetime, BaseModel, Field, model_validator
+from uuid import UUID
+
+from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 
 class Uuid(BaseModel):
-    id: UUID4 = Field(examples=["6cfec811-c860-4727-a0ba-a6482b8d29cc"])
+    id: UUID = Field(examples=["6cfec811-c860-4727-a0ba-a6482b8d29cc"])
 
 
 class Timestamp(BaseModel):

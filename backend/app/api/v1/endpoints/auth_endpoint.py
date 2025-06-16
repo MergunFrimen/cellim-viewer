@@ -1,53 +1,72 @@
-from typing import Annotated
+from fastapi import APIRouter, Request, Response, status
 
-from fastapi import APIRouter, Header, status
-
+from app.api.v1.contracts.responses.user_responses import UserResponse
 from app.api.v1.deps import RequireUserDep
 from app.api.v1.tags import Tags
-from app.core.security import get_admin_user_token, get_regular_user_token
+from app.core.security import get_regular_user_token
 from app.database.models.role_model import RoleEnum
 
 router = APIRouter(prefix="/auth", tags=[Tags.auth])
 
 
-@router.post("/login/admin")
-async def login_admin():
-    access_token = get_admin_user_token()
-    return {"access_token": access_token, "token_type": "bearer", "role": RoleEnum.admin.value}
-
-
 @router.post("/login/user")
-async def login_user():
+async def login_user(response: Response):
     access_token = get_regular_user_token()
-    return {"access_token": access_token, "token_type": "bearer", "role": RoleEnum.user.value}
 
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=36000,
+        httponly=True,  # TODO: set to TRUE
+        secure=False,  # TODO: set to TRUE
+        samesite="lax",
+    )
 
-@router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(
-    current_user: RequireUserDep,
-):
-    return current_user.id
-
-
-@router.get("/get_current_user")
-async def read_users_me(
-    current_user: RequireUserDep,
-):
-    return current_user
-
-
-@router.get("/get_auth_header")
-async def protected_route(
-    authorization: Annotated[str | None, Header()] = None,
-):
     return {
-        "message": "This is protected",
-        "raw_header": authorization,
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": RoleEnum.user.value,
+        "message": "Login successful, token set in cookie",
     }
 
 
-@router.get("/check-auth")
-async def check_auth(
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,  # TODO: set to TRUE
+        secure=False,  # TODO: set to TRUE
+        samesite="lax",
+    )
+    return {
+        "message": "Logged out successfully",
+    }
+
+
+@router.get(
+    "/me/user",
+    status_code=status.HTTP_200_OK,
+    response_model=UserResponse,
+)
+async def read_users_me(
+    current_user: RequireUserDep,
+):
+    return UserResponse.model_validate(current_user)
+
+
+@router.get(
+    "/me/token",
+    status_code=status.HTTP_200_OK,
+    response_model=str,
+)
+async def get_users_token(
+    request: Request,
+):
+    return request.cookies.get("access_token")
+
+
+@router.get("/verify")
+async def verify_auth(
     current_user: RequireUserDep,
 ):
     return {"authenticated": True}

@@ -20,12 +20,11 @@ import {
   meListVolsegEntriesForUser,
   shareLinksGetShareLink,
   shareLinksUpdateShareLink,
-  authLoginAdmin,
   authLoginUser,
   authLogout,
   authReadUsersMe,
-  authProtectedRoute,
-  authCheckAuth,
+  authGetUsersToken,
+  authVerifyAuth,
   testUploadFile,
   volsegEntriesListPublicEntries,
   volsegEntriesUploadEntry,
@@ -76,12 +75,11 @@ import type {
   ShareLinksUpdateShareLinkData,
   ShareLinksUpdateShareLinkError,
   ShareLinksUpdateShareLinkResponse,
-  AuthLoginAdminData,
   AuthLoginUserData,
   AuthLogoutData,
   AuthReadUsersMeData,
-  AuthProtectedRouteData,
-  AuthCheckAuthData,
+  AuthGetUsersTokenData,
+  AuthVerifyAuthData,
   TestUploadFileData,
   TestUploadFileError,
   VolsegEntriesListPublicEntriesData,
@@ -700,46 +698,6 @@ export const shareLinksUpdateShareLinkMutation = (
   return mutationOptions;
 };
 
-export const authLoginAdminQueryKey = (options?: Options<AuthLoginAdminData>) =>
-  createQueryKey("authLoginAdmin", options);
-
-export const authLoginAdminOptions = (
-  options?: Options<AuthLoginAdminData>,
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await authLoginAdmin({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: authLoginAdminQueryKey(options),
-  });
-};
-
-export const authLoginAdminMutation = (
-  options?: Partial<Options<AuthLoginAdminData>>,
-): UseMutationOptions<unknown, DefaultError, Options<AuthLoginAdminData>> => {
-  const mutationOptions: UseMutationOptions<
-    unknown,
-    DefaultError,
-    Options<AuthLoginAdminData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await authLoginAdmin({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
 export const authLoginUserQueryKey = (options?: Options<AuthLoginUserData>) =>
   createQueryKey("authLoginUser", options);
 
@@ -837,16 +795,16 @@ export const authReadUsersMeOptions = (
   });
 };
 
-export const authProtectedRouteQueryKey = (
-  options?: Options<AuthProtectedRouteData>,
-) => createQueryKey("authProtectedRoute", options);
+export const authGetUsersTokenQueryKey = (
+  options?: Options<AuthGetUsersTokenData>,
+) => createQueryKey("authGetUsersToken", options);
 
-export const authProtectedRouteOptions = (
-  options?: Options<AuthProtectedRouteData>,
+export const authGetUsersTokenOptions = (
+  options?: Options<AuthGetUsersTokenData>,
 ) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await authProtectedRoute({
+      const { data } = await authGetUsersToken({
         ...options,
         ...queryKey[0],
         signal,
@@ -854,17 +812,19 @@ export const authProtectedRouteOptions = (
       });
       return data;
     },
-    queryKey: authProtectedRouteQueryKey(options),
+    queryKey: authGetUsersTokenQueryKey(options),
   });
 };
 
-export const authCheckAuthQueryKey = (options?: Options<AuthCheckAuthData>) =>
-  createQueryKey("authCheckAuth", options);
+export const authVerifyAuthQueryKey = (options?: Options<AuthVerifyAuthData>) =>
+  createQueryKey("authVerifyAuth", options);
 
-export const authCheckAuthOptions = (options?: Options<AuthCheckAuthData>) => {
+export const authVerifyAuthOptions = (
+  options?: Options<AuthVerifyAuthData>,
+) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await authCheckAuth({
+      const { data } = await authVerifyAuth({
         ...options,
         ...queryKey[0],
         signal,
@@ -872,7 +832,7 @@ export const authCheckAuthOptions = (options?: Options<AuthCheckAuthData>) => {
       });
       return data;
     },
-    queryKey: authCheckAuthQueryKey(options),
+    queryKey: authVerifyAuthQueryKey(options),
   });
 };
 

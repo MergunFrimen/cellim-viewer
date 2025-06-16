@@ -1,14 +1,12 @@
 from datetime import timedelta
 from functools import lru_cache
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from jwt import DecodeError, ExpiredSignatureError, MissingRequiredClaimError, decode, encode
 from pydantic import BaseModel
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 
 from app.core.settings import get_settings
 from app.database.models.mixins.timestamp_mixin import utcnow
@@ -80,7 +78,13 @@ def get_admin_user_token():
     return create_access_token({"sub": get_admin_user_id()}, expires_delta=timedelta(hours=10))
 
 
-def get_required_user(required_role: RoleEnum | None = None) -> User:
+def get_token_from_request(request: Request) -> str | None:
+    return request.cookies.get("access_token")
+
+
+def get_required_user(
+    required_role: RoleEnum | None = None,
+) -> User:
     async def _get_current_user(
         user: str | None = Depends(get_current_user(required_role)),
     ) -> User:
@@ -88,7 +92,6 @@ def get_required_user(required_role: RoleEnum | None = None) -> User:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not authenticated",
-                headers={"WWW-Authenticate": "Bearer"},
             )
         # if user.deleted_at is not None:
         #     raise HTTPException(
@@ -102,7 +105,7 @@ def get_required_user(required_role: RoleEnum | None = None) -> User:
 
 def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
     async def _get_optional_user(
-        user: str | None = Depends(get_current_user(required_role)),
+        user: User | None = Depends(get_current_user(required_role)),
     ) -> User:
         return user
 
@@ -110,7 +113,9 @@ def get_optional_user(required_role: RoleEnum | None = None) -> User | None:
 
 
 def get_current_user(required_role: RoleEnum | None = None) -> User | None:
-    async def _get_user(token: Annotated[str | None, Depends(oauth2_scheme)]):
+    async def _get_user(request: Request):
+        token = get_token_from_request(request)
+
         if token is None:
             return None
         try:
@@ -134,10 +139,8 @@ def get_current_user(required_role: RoleEnum | None = None) -> User | None:
         user_id = payload["sub"]
 
         async with get_session_manager().session() as session:
-            result = await session.execute(
-                select(User).where(User.id == user_id).options(selectinload(User.role))
-            )
-            user: User | None = result.scalar()
+            user: User | None = await session.get(User, user_id)
+            await session.refresh(user, ["role"])
             if user is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -146,11 +149,6 @@ def get_current_user(required_role: RoleEnum | None = None) -> User | None:
             return user
 
     return _get_user
-
-
-# TODO: anonymous
-# TODO: logged in but no roles required
-# TODO: allow only certain roles
 
 
 def check_user_roles(allowed_roles: list[RoleEnum]):

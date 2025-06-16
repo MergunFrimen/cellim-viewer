@@ -48,7 +48,7 @@ export const EntryDetailsResponseSchema = {
     },
     id: {
       type: "string",
-      format: "uuid4",
+      format: "uuid",
       examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
@@ -199,7 +199,7 @@ export const ShareLinkResponseSchema = {
     },
     id: {
       type: "string",
-      format: "uuid4",
+      format: "uuid",
       examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
@@ -260,6 +260,39 @@ export const UploadFileRequestSchema = {
   additionalProperties: false,
   type: "object",
   required: ["file"],
+} as const;
+
+export const UserResponseSchema = {
+  properties: {
+    response_model: {
+      type: "string",
+      default: "",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      examples: ["2025-04-24 09:46:15.895023+00:00"],
+    },
+    openid: {
+      type: "string",
+      format: "uuid",
+    },
+    email: {
+      type: "string",
+    },
+  },
+  type: "object",
+  required: ["id", "created_at", "updated_at", "openid", "email"],
 } as const;
 
 export const ValidationErrorSchema = {
@@ -336,7 +369,7 @@ export const ViewResponseSchema = {
     },
     id: {
       type: "string",
-      format: "uuid4",
+      format: "uuid",
       examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {
@@ -429,7 +462,7 @@ export const VolsegEntryResponseSchema = {
     },
     id: {
       type: "string",
-      format: "uuid4",
+      format: "uuid",
       examples: ["6cfec811-c860-4727-a0ba-a6482b8d29cc"],
     },
     created_at: {

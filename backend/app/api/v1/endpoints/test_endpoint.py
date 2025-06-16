@@ -22,7 +22,6 @@ async def upload_file(
     request: Annotated[UploadFileRequest, File()],
 ):
     settings = get_settings()
-    print(settings.MINIO_ENDPOINT)
     storage = MinioStorage(
         endpoint=settings.MINIO_ENDPOINT,
         bucket=settings.MINIO_BUCKET,
