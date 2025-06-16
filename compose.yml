@@ -40,7 +40,6 @@ services:
     networks:
       - cellim-network
     volumes:
-      # - ./backend/temp:/app/temp
       - shared_data:/app/temp/volseg_entries
     depends_on:
       - db
@@ -88,62 +87,6 @@ services:
       - cellim-network
     volumes:
       - shared_data:/app/server/cellstar_server/preprocessor/temp/test_db
-
-  # createbuckets:
-  #   container_name: cellim-viewer-mc
-  #   image: minio/mc:latest
-  #   entrypoint: >
-  #     /bin/sh -c "
-  #     sleep 5;
-  #     /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
-  #     /usr/bin/mc mb myminio/cellim-viewer;
-  #     /usr/bin/mc policy set public myminio/cellim-viewer;
-  #     exit 0;
-  #     "
-  #   networks:
-  #     - cellim-network
-  #   depends_on:
-  #     - minio
-
-  # redis:
-  #   image: redis:alpine
-  #   ports:
-  #     - "6379:6379"
-  #   restart: always
-  #   networks:
-  #     - cellim-network
-
-  # celery_worker:
-  #   build: ./backend/
-  #   command: celery -A app.celery.celery_app worker --loglevel=info
-  #   depends_on:
-  #     - api
-  #     - redis
-  #   networks:
-  #     - cellim-network
-
-  # flower:
-  #   build: ./backend/
-  #   command: celery -A app.celery.celery_app flower --port=5555
-  #   ports:
-  #     - "5555:5555"
-  #   depends_on:
-  #     - redis
-  #     - celery_worker
-  #   networks:
-  #     - cellim-network
-
-  # onezone:
-  #   image: onedata/onezone:21.02.8
-  #   container_name: oz_demo
-  #   command: demo
-  #   ports:
-  #     - "8001:80"
-  #     - "8002:443"
-  #     - "8003:53"
-  #     - "8004:9443"
-  #   networks:
-  #     - cellim-network
 
 networks:
   cellim-network:
