@@ -96,7 +96,7 @@ export function EditViewDialog({
               </div>
             )}
           </div>
-          <div className="flex justify-end mt-2 gap-2">
+          {/* <div className="flex justify-end mt-2 gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -106,7 +106,7 @@ export function EditViewDialog({
               <Camera className="h-4 w-4 mr-2" />
               Update Preview
             </Button>
-          </div>
+          </div> */}
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
