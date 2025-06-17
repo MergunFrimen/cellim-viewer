@@ -23,7 +23,7 @@ function DevIndicator() {
 
   return (
     <div className="pb-5">
-      <div className="fixed top-0 left-0 z-50 bg-yellow-200 text-xs font-semibold w-full text-center py-1">
+      <div className="fixed top-0 left-0 z-50 bg-yellow-200 text-black text-xs font-semibold w-full text-center py-1">
         🚧 DEVELOPMENT BUILD 🚧
       </div>
     </div>
