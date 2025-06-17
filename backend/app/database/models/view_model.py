@@ -14,6 +14,7 @@ class View(Base, UuidMixin, TimestampMixin):
     description: Mapped[str | None] = mapped_column(default=None)
     snapshot_url: Mapped[str] = mapped_column(String(2083))
     thumbnail_url: Mapped[str | None] = mapped_column(String(2083), default=None)
+    is_thumbnail: Mapped[bool] = mapped_column(default=False)
 
     entry_id: Mapped[UUID] = mapped_column(ForeignKey("entries.id", ondelete="CASCADE"))
 

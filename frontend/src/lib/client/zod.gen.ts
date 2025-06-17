@@ -78,6 +78,7 @@ export const zViewCreateRequest = z.object({
   description: z.union([z.string().max(255), z.null()]).optional(),
   snapshot_json: z.string(),
   thumbnail_image: z.union([z.string(), z.null()]).optional(),
+  is_thumbnail: z.boolean().optional().default(false),
 });
 
 export const zViewResponse = z.object({
@@ -86,14 +87,16 @@ export const zViewResponse = z.object({
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   name: z.string().max(255),
-  description: z.union([z.string(), z.null()]).optional(),
+  description: z.union([z.string(), z.null()]),
   thumbnail_url: z.union([z.string().max(2083), z.null()]),
   snapshot_url: z.string().max(2083),
+  is_thumbnail: z.boolean(),
 });
 
 export const zViewUpdateRequest = z.object({
   name: z.union([z.string().max(255), z.null()]).optional(),
   description: z.union([z.string().max(255), z.null()]).optional(),
+  is_thumbnail: z.union([z.boolean(), z.null()]).optional(),
 });
 
 export const zVolsegEntryResponse = z.object({
@@ -110,9 +113,9 @@ export const zVolsegUploadEntry = z.object({
   db_name: z.string().min(1).max(255),
   entry_id: z.string().min(1).max(255),
   is_public: z.union([z.boolean(), z.null()]).optional(),
-  // annotations: z.string(),
-  // metadata: z.string(),
-  // data: z.string(),
+  annotations: z.string(),
+  metadata: z.string(),
+  data: z.string(),
 });
 
 export const zEntriesListPublicEntriesResponse =

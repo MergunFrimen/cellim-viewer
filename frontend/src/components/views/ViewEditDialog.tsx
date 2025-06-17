@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ViewResponse } from "@/lib/client";
 import { Button } from "@/components/ui/button";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useMolstar } from "@/contexts/MolstarProvider";
 
 interface EditViewDialogProps {
@@ -31,12 +31,11 @@ export function EditViewDialog({
   onOpenChange,
   view,
   onUpdate,
-  onRecreateSnapshot,
 }: EditViewDialogProps) {
   const { viewer } = useMolstar();
   const [viewName, setViewName] = useState("");
   const [viewDescription, setViewDescription] = useState("");
-  const [isRecreating, setIsRecreating] = useState(false);
+  const [isRecreating] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Update form when view changes

@@ -15,9 +15,14 @@ import {
 import { useAuth } from "@/contexts/AuthProvider";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
-import { viewsGetViewSnapshotOptions } from "@/lib/client/@tanstack/react-query.gen";
-import { useQuery } from "@tanstack/react-query";
-import { Camera, Edit, MoreVertical, Trash2 } from "lucide-react";
+import {
+  viewsGetViewSnapshotOptions,
+  viewsListViewsForEntryQueryKey,
+  viewsUpdateViewMutation,
+} from "@/lib/client/@tanstack/react-query.gen";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Edit, ImageIcon, MoreVertical, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ViewCardProps {
   entryId: string;
@@ -35,8 +40,8 @@ export function ViewCard({
   onDelete,
 }: ViewCardProps) {
   const { isAuthenticated } = useAuth();
-
   const { viewer } = useMolstar();
+  const queryClient = useQueryClient();
 
   const viewSnapshot = useQuery({
     ...viewsGetViewSnapshotOptions({
@@ -48,15 +53,46 @@ export function ViewCard({
     enabled: false, // don't run on mount
   });
 
+  const viewMutation = useMutation({
+    ...viewsUpdateViewMutation(),
+    onSuccess: (view) => {
+      toast.success(`View "${view.name}" set a default thumbnail`);
+      queryClient.invalidateQueries({
+        queryKey: viewsListViewsForEntryQueryKey({
+          path: { entry_id: entryId },
+        }),
+      });
+    },
+  });
+
   const handleLoadView = async () => {
     const { data } = await viewSnapshot.refetch();
     await viewer.loadSnapshot(data);
   };
 
+  const onSetAsThumbnail = async () => {
+    viewMutation.mutate({
+      path: {
+        entry_id: entryId,
+        view_id: view.id,
+      },
+      body: {
+        is_thumbnail: true,
+      },
+    });
+  };
+
   return (
     <Card
-      className={`transition-all hover:shadow-md mr-0 ${isActive ? "ring-2 ring-primary" : ""}`}
+      className={`transition-all hover:shadow-md mr-0 relative ${isActive ? "ring-2 ring-primary" : ""}`}
     >
+      {/* Thumbnail Indicator */}
+      {view.is_thumbnail && (
+        <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-0.5 rounded-full z-10">
+          Default
+        </div>
+      )}
+
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-x-2">
@@ -81,13 +117,19 @@ export function ViewCard({
                   <Trash2 size={14} className="mr-2" />
                   Delete
                 </DropdownMenuItem>
+                {!view.is_thumbnail && (
+                  <DropdownMenuItem onClick={onSetAsThumbnail}>
+                    <ImageIcon size={14} className="mr-2" />
+                    Set as Default Thumbnail
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>
       </CardHeader>
 
-      {/* Screenshot Preview */}
+      {/* Screenshot */}
       <div className="px-6 pb-2">
         <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
           {view.thumbnail_url ? (
@@ -97,7 +139,7 @@ export function ViewCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <Camera className="h-8 w-8 text-muted-foreground" />
+            <ImageIcon className="h-8 w-8 text-muted-foreground" />
           )}
         </div>
       </div>
@@ -114,7 +156,7 @@ export function ViewCard({
           size="sm"
           className="w-full"
         >
-          <span>Load</span>
+          Load
         </Button>
       </CardFooter>
     </Card>

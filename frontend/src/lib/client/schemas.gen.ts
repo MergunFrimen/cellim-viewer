@@ -355,6 +355,10 @@ export const ViewCreateRequestSchema = {
         },
       ],
     },
+    is_thumbnail: {
+      type: "boolean",
+      default: false,
+    },
   },
   additionalProperties: false,
   type: "object",
@@ -411,6 +415,9 @@ export const ViewResponseSchema = {
       type: "string",
       maxLength: 2083,
     },
+    is_thumbnail: {
+      type: "boolean",
+    },
   },
   type: "object",
   required: [
@@ -418,8 +425,10 @@ export const ViewResponseSchema = {
     "created_at",
     "updated_at",
     "name",
+    "description",
     "thumbnail_url",
     "snapshot_url",
+    "is_thumbnail",
   ],
 } as const;
 
@@ -448,6 +457,16 @@ export const ViewUpdateRequestSchema = {
         },
       ],
       examples: ["View Description"],
+    },
+    is_thumbnail: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
     },
   },
   additionalProperties: false,

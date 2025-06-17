@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
@@ -170,7 +170,6 @@ class ViewService:
         user: User,
         updates: ViewUpdateRequest,
     ) -> View:
-        # Get view
         view: View = await self._get_view_by_id(view_id)
 
         # Check valid query params
@@ -186,15 +185,8 @@ class ViewService:
         # Check permissions
         self._check_permissions(view.entry, user)
 
-        # Delete associated files
-        if view.snapshot_url:
-            await self.storage.delete(
-                file_path=view.snapshot_url,
-            )
-        if view.thumbnail_url:
-            await self.storage.delete(
-                file_path=view.thumbnail_url,
-            )
+        # Reset entry's thumbnail
+        await self._reset_entry_thumbnails(view)
 
         # Update view
         for key, value in updates.model_dump(exclude_unset=True).items():
@@ -215,11 +207,28 @@ class ViewService:
         # Check permissions
         self._check_permissions(view.entry, user)
 
+        # Delete associated files
+        await self.storage.delete(
+            file_path=view.snapshot_url,
+        )
+        await self.storage.delete(
+            file_path=view.thumbnail_url,
+        )
+
         # Delete view
         await self.session.delete(view)
         await self.session.commit()
 
         return view_id
+
+    async def _reset_entry_thumbnails(self, view: View) -> None:
+        stmt = (
+            update(View)
+            .where(View.entry_id == view.entry_id, View.is_thumbnail == True)
+            .values(is_thumbnail=False)
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
 
     async def _get_view_by_id(self, id: UUID) -> View:
         view: View | None = await self.session.get(View, id)

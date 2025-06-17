@@ -82,6 +82,7 @@ export type ViewCreateRequest = {
    * Thumbnail image for view
    */
   thumbnail_image?: (Blob | File) | null;
+  is_thumbnail?: boolean;
 };
 
 export type ViewResponse = {
@@ -90,14 +91,16 @@ export type ViewResponse = {
   created_at: string;
   updated_at: string;
   name: string;
-  description?: string | null;
+  description: string | null;
   thumbnail_url: string | null;
   snapshot_url: string;
+  is_thumbnail: boolean;
 };
 
 export type ViewUpdateRequest = {
   name?: string | null;
   description?: string | null;
+  is_thumbnail?: boolean | null;
 };
 
 export type VolsegEntryResponse = {
