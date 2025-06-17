@@ -86,13 +86,6 @@ export function ViewCard({
     <Card
       className={`transition-all hover:shadow-md mr-0 relative ${isActive ? "ring-2 ring-primary" : ""}`}
     >
-      {/* Thumbnail Indicator */}
-      {view.is_thumbnail && (
-        <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-0.5 rounded-full z-10">
-          Default
-        </div>
-      )}
-
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-x-2">
@@ -131,7 +124,12 @@ export function ViewCard({
 
       {/* Screenshot */}
       <div className="px-6 pb-2">
-        <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
+        <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center relative">
+          {view.is_thumbnail && (
+            <div className="absolute top-2 left-2 bg-primary-foreground text-white text-xs px-2 py-0.5 rounded-full z-10 shadow">
+              Default
+            </div>
+          )}
           {view.thumbnail_url ? (
             <img
               src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
