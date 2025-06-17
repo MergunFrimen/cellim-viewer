@@ -1,5 +1,5 @@
+import { VisibilityBadge } from "@/components/common/VisibilityBadge";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
-import { Badge } from "@/components/ui/badge";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { useRequiredParam } from "@/hooks/useRequiredParam";
 import { volsegEntriesGetEntryByIdOptions } from "@/lib/client/@tanstack/react-query.gen";
@@ -52,9 +52,7 @@ export function VolsegEntryPreview() {
               <h1 className="text-3xl font-bold">
                 {volsegEntryQuery.data?.entry_id}
               </h1>
-              <Badge variant="outline">
-                {volsegEntryQuery.data?.is_public ? "Public" : "Private"}
-              </Badge>
+              <VisibilityBadge isPublic={volsegEntryQuery.data.is_public} />
             </div>
             <div className="flex items-center text-sm text-muted-foreground mb-6">
               <Calendar className="h-4 w-4 mr-2" />

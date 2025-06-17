@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import inspect, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
@@ -31,10 +31,7 @@ class ViewService:
         entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
 
         # Check permissions
-        if not entry.has_owner(user.id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-            )
+        self._check_permissions(entry, user)
 
         view_id = uuid4()
         thumbnail_url: str | None = None
@@ -68,6 +65,7 @@ class ViewService:
                     detail=f"Error saving image: {str(e)}",
                 )
 
+        # Save view
         new_view = View(
             id=view_id,
             name=request.name,
@@ -76,7 +74,6 @@ class ViewService:
             thumbnail_url=thumbnail_url,
             entry=entry,
         )
-
         self.session.add(new_view)
         await self.session.commit()
 
@@ -89,16 +86,7 @@ class ViewService:
         await self.session.refresh(view, ["entry"])
 
         # Check permissions
-        if user is None and not view.entry.is_public:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Entry is not public",
-            )
-        if user is not None and not self._check_permissions(view, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
+        self._check_permissions(view.entry, user)
 
         return ViewResponse.model_validate(view)
 
@@ -118,16 +106,7 @@ class ViewService:
             )
 
         # Check permissions
-        if user is None and not view.entry.is_public:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Entry is not public",
-            )
-        if user is not None and not self._check_permissions(view, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
+        self._check_permissions(view.entry, user)
 
         snapshot = await self.storage.get(
             file_path=view.snapshot_url,
@@ -140,16 +119,7 @@ class ViewService:
         await self.session.refresh(view, ["entry"])
 
         # Check permissions
-        if user is None and not view.entry.is_public:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Entry is not public",
-            )
-        if user is not None and not self._check_permissions(view, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
+        self._check_permissions(view.entry, user)
 
         if not view.thumbnail_url:
             raise HTTPException(
@@ -181,22 +151,14 @@ class ViewService:
     async def list_views_for_entry(self, user: User | None, entry_id: UUID) -> list[ViewResponse]:
         entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
 
+        # Get entry's views
         result = await self.session.execute(
             select(View).where(View.entry_id == entry_id),
         )
         views: list[View] = result.scalars().all()
 
         # Check permissions
-        if user is None and not entry.is_public:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
-        if user is not None and entry.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
+        self._check_permissions(entry, user)
 
         return [ViewResponse.model_validate(view) for view in views]
 
@@ -222,7 +184,7 @@ class ViewService:
         await self.session.refresh(view, ["entry"])
 
         # Check permissions
-        self._check_permissions(view, user)
+        self._check_permissions(view.entry, user)
 
         # Delete associated files
         if view.snapshot_url:
@@ -251,7 +213,7 @@ class ViewService:
         await self.session.refresh(view, ["entry"])
 
         # Check permissions
-        self._check_permissions(view, user)
+        self._check_permissions(view.entry, user)
 
         # Delete view
         await self.session.delete(view)
@@ -268,10 +230,17 @@ class ViewService:
             )
         return view
 
-    async def _check_permissions(self, view: View, user: User) -> None:
-        if not inspect(view).attrs.entry.loaded:
-            await self.session.refresh(view, ["entry"])
-        return view.entry.user_id != user.id
+    async def _check_permissions(self, entry: Entry, user: User | None) -> bool:
+        if not entry.is_public and not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Entry is not public",
+            )
+        if entry.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Don't have access to entry",
+            )
 
 
 async def get_view_service(

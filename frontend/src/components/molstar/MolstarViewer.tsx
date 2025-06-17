@@ -3,8 +3,6 @@ import { useBehavior } from "@/hooks/useBehavior";
 import { useEffect } from "react";
 import { ViewerLayout } from "./ViewerLayout";
 
-import "molstar/lib/mol-plugin-ui/skin/light.scss";
-
 export function MolstarViewer() {
   const { viewer } = useMolstar();
 

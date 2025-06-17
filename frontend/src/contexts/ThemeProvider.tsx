@@ -48,7 +48,19 @@ export function ThemeProvider({
       }
     };
 
+    const loadMolstarTheme = () => {
+      const existingLink = document.getElementById("molstar-theme");
+      if (existingLink) existingLink.remove();
+
+      const link = document.createElement("link");
+      link.id = "molstar-theme";
+      link.rel = "stylesheet";
+      link.href = `/styles/molstar-${theme}-theme.css`;
+      document.head.appendChild(link);
+    };
+
     applyTheme();
+    loadMolstarTheme();
 
     // Add event listener for system theme changes
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

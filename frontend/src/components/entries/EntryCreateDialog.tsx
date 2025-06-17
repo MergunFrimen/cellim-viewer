@@ -108,7 +108,7 @@ export function EntryCreateDialog() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe this entry (Markdown supported)"
+                        placeholder="Describe this entry"
                         className="min-h-32"
                         {...field}
                         value={field.value || ""}

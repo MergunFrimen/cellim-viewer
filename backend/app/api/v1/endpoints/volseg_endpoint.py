@@ -21,7 +21,7 @@ async def upload_entry(
     current_user: RequireUserDep,
     volseg_service: VolsegServiceDep,
 ):
-    return await volseg_service.upload_entry(
+    return await volseg_service.create(
         user=current_user,
         request=request,
     )
@@ -64,7 +64,7 @@ async def delete_view(
     current_user: RequireUserDep,
     volseg_service: VolsegServiceDep,
 ):
-    return await volseg_service.delete_entry(
+    return await volseg_service.delete(
         user=current_user,
         volseg_entry_id=volseg_entry_id,
     )

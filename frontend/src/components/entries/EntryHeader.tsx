@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { VisibilityBadge } from "../common/VisibilityBadge";
 
 interface EntryHeaderProps {
   name: string;
@@ -13,7 +14,7 @@ export function EntryHeader({ name, isPublic, createdAt }: EntryHeaderProps) {
     <div className="md:col-span-2">
       <div className="flex justify-between items-start mb-4">
         <h1 className="text-3xl font-bold">{name}</h1>
-        <Badge variant="outline">{isPublic ? "Public" : "Private"}</Badge>
+        <VisibilityBadge isPublic={isPublic} />
       </div>
       <div className="flex items-center text-sm text-muted-foreground mb-6">
         <Calendar className="h-4 w-4 mr-2" />

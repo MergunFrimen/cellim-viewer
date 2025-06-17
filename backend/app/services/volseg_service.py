@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import inspect, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.contracts.requests.volseg_requests import VolsegUploadEntry
@@ -22,7 +22,7 @@ class VolsegService:
         self.session = session
         self.storage = storage
 
-    async def upload_entry(self, user: User, request: VolsegUploadEntry) -> VolsegEntryResponse:
+    async def create(self, user: User, request: VolsegUploadEntry) -> VolsegEntryResponse:
         result = await self.session.execute(
             select(VolsegEntry).where(
                 (VolsegEntry.user_id == user.id)
@@ -32,14 +32,14 @@ class VolsegService:
         )
         volseg_entries: list[VolsegEntry] = result.scalars().all()
 
-        # check if it already exists
+        # Check if it already exists
         if len(volseg_entries) != 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Volseg entry with dbname '{request.db_name}' and entryId '{request.entry_id}' already exists.",
             )
 
-        # store all files
+        # Store all files
         base_path = f"/volseg_entries/emdb/{request.entry_id}"
         await self.storage.save(
             file_path=f"{base_path}/{request.annotations.filename}",
@@ -74,16 +74,7 @@ class VolsegService:
         volseg_entry: VolsegEntry = await self._get_volseg_entry_by_id(volseg_entry_id)
 
         # Check permissions
-        if user is None and not volseg_entry.is_public:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Entry is not public",
-            )
-        if user is not None and volseg_entry.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Entry is not public",
-            )
+        self._check_permissions(volseg_entry, user)
 
         return VolsegEntryResponse.model_validate(volseg_entry)
 
@@ -101,7 +92,7 @@ class VolsegService:
         volseg_entries: list[VolsegEntry] = result.scalars().all()
         return [VolsegEntryResponse.model_validate(entry) for entry in volseg_entries]
 
-    async def delete_entry(self, user: User, volseg_entry_id: UUID) -> UUID:
+    async def delete(self, user: User, volseg_entry_id: UUID) -> UUID:
         # Get view
         volseg_entry: VolsegEntry = await self._get_volseg_entry_by_id(volseg_entry_id)
 
@@ -127,10 +118,17 @@ class VolsegService:
             )
         return volseg_entry
 
-    async def _check_permissions(self, volseg_entry: VolsegEntry, user: User) -> None:
-        if not inspect(volseg_entry).attrs.entry.loaded:
-            await self.session.refresh(volseg_entry, ["user"])
-        return volseg_entry.user.id != user.id
+    async def _check_permissions(self, volseg_entry: VolsegEntry, user: User | None) -> None:
+        if not volseg_entry.is_public and not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Entry is not public",
+            )
+        if volseg_entry.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Don't have access to entry",
+            )
 
 
 async def get_volseg_service(
