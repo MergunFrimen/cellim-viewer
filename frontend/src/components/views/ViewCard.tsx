@@ -16,6 +16,8 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
 import {
+  viewsDeleteViewMutation,
+  viewsGetViewByIdQueryKey,
   viewsGetViewSnapshotOptions,
   viewsListViewsForEntryQueryKey,
   viewsUpdateViewMutation,
@@ -23,25 +25,21 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, ImageIcon, MoreVertical, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { EditViewDialog } from "./ViewEditDialog";
+import { useState } from "react";
 
 interface ViewCardProps {
   entryId: string;
   view: ViewResponse;
   isActive: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
 }
 
-export function ViewCard({
-  entryId,
-  view,
-  isActive,
-  onEdit,
-  onDelete,
-}: ViewCardProps) {
+export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
   const { isAuthenticated } = useAuth();
   const { viewer } = useMolstar();
   const queryClient = useQueryClient();
+
+  const [editOpen, setEditOpen] = useState(false);
 
   const viewSnapshot = useQuery({
     ...viewsGetViewSnapshotOptions({
@@ -53,7 +51,7 @@ export function ViewCard({
     enabled: false, // don't run on mount
   });
 
-  const viewMutation = useMutation({
+  const updateViewMutation = useMutation({
     ...viewsUpdateViewMutation(),
     onSuccess: (view) => {
       toast.success(`View "${view.name}" set a default thumbnail`);
@@ -65,13 +63,30 @@ export function ViewCard({
     },
   });
 
-  const handleLoadView = async () => {
+  const deleteViewMutation = useMutation({
+    ...viewsDeleteViewMutation(),
+    onSuccess: (deletedViewId) => {
+      toast.success("View deleted successfully");
+      queryClient.invalidateQueries({
+        queryKey: viewsGetViewByIdQueryKey({
+          path: { entry_id: entryId, view_id: deletedViewId },
+        }),
+      });
+      queryClient.invalidateQueries({
+        queryKey: viewsListViewsForEntryQueryKey({
+          path: { entry_id: entryId },
+        }),
+      });
+    },
+  });
+
+  async function handleLoadView() {
     const { data } = await viewSnapshot.refetch();
     await viewer.loadSnapshot(data);
-  };
+  }
 
-  const onSetAsThumbnail = async () => {
-    viewMutation.mutate({
+  async function onSetAsThumbnail() {
+    updateViewMutation.mutate({
       path: {
         entry_id: entryId,
         view_id: view.id,
@@ -80,83 +95,95 @@ export function ViewCard({
         is_thumbnail: true,
       },
     });
-  };
+  }
+
+  function onDelete() {
+    deleteViewMutation.mutate({
+      path: {
+        view_id: view.id,
+      },
+    });
+  }
 
   return (
-    <Card
-      className={`transition-all hover:shadow-md mr-0 relative ${isActive ? "ring-2 ring-primary" : ""}`}
-    >
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-x-2">
-            <CardTitle className="text-base">{view.name}</CardTitle>
-          </div>
-          {isAuthenticated && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical size={14} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onEdit}>
-                  <Edit size={14} className="mr-2" />
-                  Edit
-                </DropdownMenuItem>
-                {!view.is_thumbnail && (
-                  <DropdownMenuItem onClick={onSetAsThumbnail}>
-                    <ImageIcon size={14} className="mr-2" />
-                    Set as Default Thumbnail
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={onDelete}
-                  className="text-red-500 focus:text-red-500"
-                >
-                  <Trash2 size={14} className="mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </CardHeader>
-
-      {/* Screenshot */}
-      <div className="px-6 pb-2">
-        <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center relative">
-          {view.is_thumbnail && (
-            <div className="absolute top-2 left-2 bg-primary-foreground text-white text-xs px-2 py-0.5 rounded-full z-10 shadow">
-              Default
+    <>
+      <Card
+        className={`transition-all hover:shadow-md mr-0 relative ${isActive ? "ring-2 ring-primary" : ""}`}
+      >
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-x-2">
+              <CardTitle className="text-base">{view.name}</CardTitle>
             </div>
-          )}
-          {view.thumbnail_url ? (
-            <img
-              src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
-              alt={`${view.name} thumbnail`}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-          )}
-        </div>
-      </div>
+            {isAuthenticated && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical size={14} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                    <Edit size={14} className="mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  {!view.is_thumbnail && (
+                    <DropdownMenuItem onClick={onSetAsThumbnail}>
+                      <ImageIcon size={14} className="mr-2" />
+                      Set as Default Thumbnail
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    onClick={onDelete}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 size={14} className="mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </CardHeader>
 
-      <CardContent>
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {view.description}
-        </p>
-      </CardContent>
-      <CardFooter className="justify-center pt-2">
-        <Button
-          onClick={handleLoadView}
-          variant={isActive ? "default" : "outline"}
-          size="sm"
-          className="w-full"
-        >
-          Load
-        </Button>
-      </CardFooter>
-    </Card>
+        {/* Screenshot */}
+        <div className="px-6 pb-2">
+          <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center relative">
+            {view.is_thumbnail && (
+              <div className="absolute top-2 left-2 bg-primary-foreground text-white text-xs px-2 py-0.5 rounded-full z-10 shadow">
+                Default
+              </div>
+            )}
+            {view.thumbnail_url ? (
+              <img
+                src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
+                alt={`${view.name} thumbnail`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            )}
+          </div>
+        </div>
+
+        <CardContent>
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {view.description}
+          </p>
+        </CardContent>
+        <CardFooter className="justify-center pt-2">
+          <Button
+            onClick={handleLoadView}
+            variant={isActive ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+          >
+            Load
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <EditViewDialog view={view} open={editOpen} setOpen={setEditOpen} />
+    </>
   );
 }

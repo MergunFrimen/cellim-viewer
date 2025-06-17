@@ -1,140 +1,191 @@
 // src/components/views/ViewEditDialog.tsx
-import { useEffect, useState } from "react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ViewResponse } from "@/lib/client";
-import { Button } from "@/components/ui/button";
+import {
+  ViewResponse,
+  viewsListViewsForEntry,
+  ViewUpdateRequest,
+  zViewUpdateRequest,
+} from "@/lib/client";
+import {
+  viewsGetViewByIdQueryKey,
+  viewsListViewsForEntryQueryKey,
+  viewsUpdateViewMutation,
+} from "@/lib/client/@tanstack/react-query.gen";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
-import { useMolstar } from "@/contexts/MolstarProvider";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { useEffect } from "react";
 
 interface EditViewDialogProps {
+  view: ViewResponse;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  view: ViewResponse | null;
-  onUpdate: (viewId: string, name: string, description: string) => void;
-  onRecreateSnapshot?: (viewId: string) => Promise<void>;
+  setOpen: (open: boolean) => void;
 }
 
-export function EditViewDialog({
-  open,
-  onOpenChange,
-  view,
-  onUpdate,
-}: EditViewDialogProps) {
-  const { viewer } = useMolstar();
-  const [viewName, setViewName] = useState("");
-  const [viewDescription, setViewDescription] = useState("");
-  const [isRecreating] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
+  const queryClient = useQueryClient();
 
-  // Update form when view changes
+  const form = useForm<ViewUpdateRequest>({
+    resolver: zodResolver(zViewUpdateRequest),
+    defaultValues: {
+      name: view.name,
+      description: view.description,
+    },
+  });
+
   useEffect(() => {
-    if (view) {
-      setViewName(view.name);
-      setViewDescription(view.description || "");
-      setPreviewUrl(
-        `${import.meta.env.VITE_API_URL}/api/v1/entries/${view?.entry_id}/views/${view?.id}/thumbnail`,
-      );
+    if (open) {
+      form.reset({
+        name: view.name,
+        description: view.description,
+      });
     }
-  }, [view]);
+  }, [form, open, view.description, view.name]);
 
-  const handleUpdate = () => {
-    if (view) {
-      onUpdate(view.id, viewName, viewDescription);
-    }
+  const updateViewMutation = useMutation({
+    ...viewsUpdateViewMutation(),
+    onSuccess: (updatedView) => {
+      toast.success(`View "${updatedView.name}" updated successfully`);
+      queryClient.invalidateQueries({
+        queryKey: viewsListViewsForEntryQueryKey({
+          path: { entry_id: view.entry_id },
+        }),
+      });
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(
+        "Failed to update view: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    },
+  });
+
+  const handleSubmit = (data: ViewUpdateRequest) => {
+    updateViewMutation.mutate({
+      path: {
+        entry_id: view.entry_id,
+        view_id: view.id,
+      },
+      body: {
+        ...data,
+      },
+    });
   };
 
   const handleCancel = () => {
-    onOpenChange(false);
-  };
-
-  const captureNewPreview = async () => {
-    if (!viewer) return;
-
-    try {
-      const url = await viewer.screenshot();
-      setPreviewUrl(url);
-    } catch (error) {
-      console.error("Failed to capture new preview:", error);
-    }
+    setOpen(false);
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-2xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Edit View</AlertDialogTitle>
-          <AlertDialogDescription>
-            Update the name and description for this view
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-w-2xl">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
+            <DialogHeader>
+              <DialogTitle>Edit View</DialogTitle>
+              <DialogDescription>
+                Update the name and description for this view
+              </DialogDescription>
+            </DialogHeader>
 
-        <div>
-          <Label>Preview</Label>
-          <div className="aspect-video mt-2 bg-secondary rounded-md overflow-hidden flex items-center justify-center">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="View preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground">
-                <Camera size={32} className="mb-2" />
-                <p className="text-xs">No preview available</p>
+            <div className="space-y-2">
+              <Label>Preview</Label>
+              <div className="aspect-video mt-2 bg-secondary rounded-md overflow-hidden flex items-center justify-center">
+                {view.thumbnail_url ? (
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${view?.entry_id}/views/${view?.id}/thumbnail`}
+                    alt="View preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                    <Camera size={32} className="mb-2" />
+                    <p className="text-xs">No preview available</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          {/* <div className="flex justify-end mt-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={captureNewPreview}
-              disabled={isRecreating}
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              Update Preview
-            </Button>
-          </div> */}
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">Name</Label>
-            <Input
-              id="edit-name"
-              placeholder="View name"
-              value={viewName}
-              onChange={(e) => setViewName(e.target.value)}
+            </div>
+
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="View name"
+                      value={field.value!}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="edit-description">Description</Label>
-            <Textarea
-              id="edit-description"
-              placeholder="Description of this view"
-              value={viewDescription}
-              onChange={(e) => setViewDescription(e.target.value)}
-              className="resize-none"
-              rows={3}
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="View description"
+                      value={field.value!}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <AlertDialogFooter className="gap-2">
-          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleUpdate}>Update</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+
+            <DialogFooter className="gap-2">
+              <Button
+                variant="secondary"
+                type="button"
+                disabled={updateViewMutation.isPending}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                type="submit"
+                disabled={updateViewMutation.isPending}
+              >
+                {updateViewMutation.isPending ? "Updating..." : "Update Entry"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -463,6 +463,28 @@ export const ViewUpdateRequestSchema = {
       ],
       examples: ["View Description"],
     },
+    snapshot_json: {
+      anyOf: [
+        {
+          type: "string",
+          format: "binary",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    thumbnail_image: {
+      anyOf: [
+        {
+          type: "string",
+          format: "binary",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
     is_thumbnail: {
       anyOf: [
         {

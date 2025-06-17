@@ -128,36 +128,6 @@ export function EntryDetailsPage() {
             onSave={handleSaveView}
           />
 
-          <EditViewDialog
-            open={!!viewToEdit}
-            onOpenChange={(open) => !open && setViewToEdit(null)}
-            view={viewToEdit}
-            onUpdate={(viewId, name, description) => {
-              updateViewMutation.mutate({
-                path: { entry_id: entryId, view_id: viewId },
-                body: { name, description },
-              });
-            }}
-            onRecreateSnapshot={async (viewId) => {
-              const snapshot = viewer.getState();
-              const thumbnail_image = await viewer.thumbnailImage();
-              const snapshotJson = JSON.stringify(snapshot);
-              const snapshotBlob = new Blob([snapshotJson], {
-                type: "application/json",
-              });
-
-              await updateViewMutation.mutateAsync({
-                path: { entry_id: entryId, view_id: viewId },
-                body: {
-                  name: viewToEdit?.name || "",
-                  description: viewToEdit?.description || null,
-                  snapshot_json: snapshotBlob,
-                  thumbnail_image,
-                },
-              });
-            }}
-          />
-
           <DeleteDialog
             title="Delete View"
             description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}

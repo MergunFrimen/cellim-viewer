@@ -101,6 +101,14 @@ export type ViewResponse = {
 export type ViewUpdateRequest = {
   name?: string | null;
   description?: string | null;
+  /**
+   * Mol* state file (.molj file)
+   */
+  snapshot_json?: (Blob | File) | null;
+  /**
+   * Thumbnail image for view
+   */
+  thumbnail_image?: (Blob | File) | null;
   is_thumbnail?: boolean | null;
 };
 
