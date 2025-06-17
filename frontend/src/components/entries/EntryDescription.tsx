@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 
 interface EntryDescriptionProps {
@@ -8,11 +9,8 @@ interface EntryDescriptionProps {
 export function EntryDescription({ description }: EntryDescriptionProps) {
   return (
     <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Description</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="prose prose-sm dark:prose-invert max-w-none">
+      <CardContent className="px-2">
+        <ScrollArea className="h-64 px-3">
           {description ? (
             <ReactMarkdown>{description}</ReactMarkdown>
           ) : (
@@ -20,7 +18,7 @@ export function EntryDescription({ description }: EntryDescriptionProps) {
               No description provided
             </p>
           )}
-        </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
