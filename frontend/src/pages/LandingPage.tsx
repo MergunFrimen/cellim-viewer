@@ -1,6 +1,5 @@
 import { PaginationControls } from "@/components/common/Pagination";
 import { SearchBar } from "@/components/common/SearchBar";
-import { EntryCreateDialog } from "@/components/entries/EntryCreateDialog";
 import { EntryPreview } from "@/components/entries/EntryPreview";
 import { Button } from "@/components/ui/button";
 import { entriesListPublicEntriesOptions } from "@/lib/client/@tanstack/react-query.gen";

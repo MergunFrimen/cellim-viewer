@@ -23,7 +23,7 @@ export function EntryPreview({ entry }: { entry: EntryDetailsResponse }) {
       className="overflow-hidden hover:shadow-lg transition-shadow min-h-72"
     >
       <div className="aspect-video bg-secondary overflow-hidden flex items-center justify-center">
-        {entryThumbnail && entryThumbnail.length > 0 ? (
+        {entryThumbnail && viewsQuery.data && entryThumbnail.length > 0 ? (
           <img
             src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entry.id}/views/${viewsQuery.data[0].id}/thumbnail`}
             alt={`${entryThumbnail[0].name} thumbnail`}
