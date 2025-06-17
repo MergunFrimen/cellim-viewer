@@ -103,6 +103,12 @@ export function ViewCard({
                   <Edit size={14} className="mr-2" />
                   Edit
                 </DropdownMenuItem>
+                {!view.is_thumbnail && (
+                  <DropdownMenuItem onClick={onSetAsThumbnail}>
+                    <ImageIcon size={14} className="mr-2" />
+                    Set as Default Thumbnail
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={onDelete}
                   className="text-red-500 focus:text-red-500"
@@ -110,12 +116,6 @@ export function ViewCard({
                   <Trash2 size={14} className="mr-2" />
                   Delete
                 </DropdownMenuItem>
-                {!view.is_thumbnail && (
-                  <DropdownMenuItem onClick={onSetAsThumbnail}>
-                    <ImageIcon size={14} className="mr-2" />
-                    Set as Default Thumbnail
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

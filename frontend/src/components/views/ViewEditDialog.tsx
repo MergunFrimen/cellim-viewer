@@ -43,7 +43,9 @@ export function EditViewDialog({
     if (view) {
       setViewName(view.name);
       setViewDescription(view.description || "");
-      setPreviewUrl(view.thumbnail_url);
+      setPreviewUrl(
+        `${import.meta.env.VITE_API_URL}/api/v1/entries/${view?.entry_id}/views/${view?.id}/thumbnail`,
+      );
     }
   }, [view]);
 

@@ -386,6 +386,10 @@ export const ViewResponseSchema = {
       format: "date-time",
       examples: ["2025-04-24 09:46:15.895023+00:00"],
     },
+    entry_id: {
+      type: "string",
+      format: "uuid",
+    },
     name: {
       type: "string",
       maxLength: 255,
@@ -424,6 +428,7 @@ export const ViewResponseSchema = {
     "id",
     "created_at",
     "updated_at",
+    "entry_id",
     "name",
     "description",
     "thumbnail_url",

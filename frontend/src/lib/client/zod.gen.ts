@@ -86,6 +86,7 @@ export const zViewResponse = z.object({
   id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
+  entry_id: z.string().uuid(),
   name: z.string().max(255),
   description: z.union([z.string(), z.null()]),
   thumbnail_url: z.union([z.string().max(2083), z.null()]),

@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.v1.contracts.requests.view_requests import ViewCreateRequest, ViewUpdateRequest
 from app.api.v1.contracts.responses.view_responses import ViewResponse
@@ -153,7 +154,7 @@ class ViewService:
 
         # Get entry's views
         result = await self.session.execute(
-            select(View).where(View.entry_id == entry_id),
+            select(View).where(View.entry_id == entry_id).options(selectinload(View.entry)),
         )
         views: list[View] = result.scalars().all()
 
@@ -169,7 +170,7 @@ class ViewService:
         view_id: UUID,
         user: User,
         updates: ViewUpdateRequest,
-    ) -> View:
+    ) -> ViewResponse:
         view: View = await self._get_view_by_id(view_id)
 
         # Check valid query params
@@ -195,7 +196,7 @@ class ViewService:
         self.session.add(view)
         await self.session.commit()
 
-        return view
+        return ViewResponse.model_validate(view)
 
     async def delete(self, user: User, view_id: UUID) -> UUID:
         # Get view
