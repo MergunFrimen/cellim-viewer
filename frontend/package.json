@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
+    "build:themes": "sass --load-path=node_modules src/themes:public/styles",
     "dev": "vite",
     "format": "prettier --write .",
     "lint": "eslint .",
