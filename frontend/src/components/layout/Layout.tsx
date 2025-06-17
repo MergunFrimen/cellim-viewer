@@ -9,9 +9,23 @@ export function MainLayout({
 }) {
   return (
     <div className="min-h-screen">
+      <DevIndicator />
+
       <Header />
       <main className="container mx-auto flex-grow px-4 py-8">{children}</main>
-      {/* <Footer /> */}
+      <Footer />
+    </div>
+  );
+}
+
+function DevIndicator() {
+  if (process.env.NODE_ENV !== "development") return null;
+
+  return (
+    <div className="pb-5">
+      <div className="fixed top-0 left-0 z-50 bg-yellow-200 text-xs font-semibold w-full text-center py-1">
+        🚧 DEVELOPMENT BUILD 🚧
+      </div>
     </div>
   );
 }

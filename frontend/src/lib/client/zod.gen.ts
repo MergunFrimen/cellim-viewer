@@ -152,7 +152,9 @@ export const zShareLinksUpdateShareLinkResponse = zShareLinkResponse;
 
 export const zAuthReadUsersMeResponse = zUserResponse;
 
-export const zAuthGetUsersTokenResponse = z.string();
+export const zAuthGetUsersTokenResponse = z.union([z.string(), z.null()]);
+
+export const zAuthVerifyAuthResponse = z.boolean();
 
 export const zVolsegEntriesListPublicEntriesResponse =
   z.array(zVolsegEntryResponse);

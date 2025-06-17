@@ -10,6 +10,7 @@ import { AuthProvider } from "./contexts/AuthProvider.tsx";
 import { client } from "./lib/client/client.gen.ts";
 
 client.setConfig({
+  baseUrl: import.meta.env.VITE_API_URL,
   credentials: "include",
 });
 

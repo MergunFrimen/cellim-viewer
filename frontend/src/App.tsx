@@ -12,23 +12,25 @@ import { VolsegEntryPreview } from "./pages/VolsegEntryPreview";
 
 export function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/entries/new" element={<EntryCreatePage />} />
-          <Route path="/entries/:entryId" element={<EntryDetailsPage />} />
-          <Route path="/upload" element={<UploadVolseg />} />
-          <Route
-            path="/volseg-entries/:entryId"
-            element={<VolsegEntryPreview />}
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </MainLayout>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <ScrollToTop />
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/entries/new" element={<EntryCreatePage />} />
+            <Route path="/entries/:entryId" element={<EntryDetailsPage />} />
+            <Route path="/upload" element={<UploadVolseg />} />
+            <Route
+              path="/volseg-entries/:entryId"
+              element={<VolsegEntryPreview />}
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </MainLayout>
+      </BrowserRouter>
+    </>
   );
 }

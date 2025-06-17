@@ -92,7 +92,7 @@ export function ViewCard({
         <div className="aspect-video bg-secondary rounded-md overflow-hidden flex items-center justify-center">
           {view.thumbnail_url ? (
             <img
-              src={`http://localhost:8000/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
+              src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
               alt={`${view.name} thumbnail`}
               className="w-full h-full object-cover"
             />

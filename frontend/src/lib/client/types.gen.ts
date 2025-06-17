@@ -648,7 +648,7 @@ export type AuthLoginUserData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/auth/login/user";
+  url: "/api/v1/auth/login";
 };
 
 export type AuthLoginUserResponses = {
@@ -700,7 +700,7 @@ export type AuthGetUsersTokenResponses = {
   /**
    * Successful Response
    */
-  200: string;
+  200: string | null;
 };
 
 export type AuthGetUsersTokenResponse =
@@ -717,8 +717,11 @@ export type AuthVerifyAuthResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: boolean;
 };
+
+export type AuthVerifyAuthResponse =
+  AuthVerifyAuthResponses[keyof AuthVerifyAuthResponses];
 
 export type TestUploadFileData = {
   body: UploadFileRequest;

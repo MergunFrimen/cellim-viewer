@@ -113,7 +113,7 @@ export class MolstarViewerModel extends BaseReactiveModel {
   async loadVolseg(entryId: string) {
     this.plugin.runTask(
       this.plugin.state.data.applyAction(LoadVolseg, {
-        serverUrl: "http://localhost:7000/v1",
+        serverUrl: `${import.meta.env.VITE_VOLSEG_API_URL}/v1`,
         source: {
           name: "emdb",
           params: {

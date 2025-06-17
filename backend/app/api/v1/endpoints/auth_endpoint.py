@@ -5,12 +5,15 @@ from app.api.v1.deps import OptionalUserDep, RequireUserDep
 from app.api.v1.tags import Tags
 from app.core.security import get_regular_user_token
 from app.core.settings import get_settings
-from app.database.models.role_model import RoleEnum
 
 router = APIRouter(prefix="/auth", tags=[Tags.auth])
 
 
-@router.post("/login/user")
+@router.post(
+    "/login",
+    status_code=status.HTTP_200_OK,
+    response_model=None,
+)
 async def login_user(response: Response):
     access_token = get_regular_user_token()
 
@@ -23,15 +26,12 @@ async def login_user(response: Response):
         samesite="lax",
     )
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "role": RoleEnum.user.value,
-        "message": "Login successful, token set in cookie",
-    }
 
-
-@router.post("/logout")
+@router.post(
+    "/logout",
+    status_code=status.HTTP_200_OK,
+    response_model=None,
+)
 async def logout(response: Response):
     response.delete_cookie(
         key=get_settings().ACCESS_TOKEN_COOKIE,
@@ -39,9 +39,6 @@ async def logout(response: Response):
         secure=False,  # TODO: set to TRUE
         samesite="lax",
     )
-    return {
-        "message": "Logged out successfully",
-    }
 
 
 @router.get(
@@ -58,7 +55,7 @@ async def read_users_me(
 @router.get(
     "/me/token",
     status_code=status.HTTP_200_OK,
-    response_model=str,
+    response_model=str | None,
 )
 async def get_users_token(
     request: Request,
@@ -71,10 +68,9 @@ async def get_users_token(
 @router.get(
     "/verify",
     status_code=status.HTTP_200_OK,
+    response_model=bool,
 )
 async def verify_auth(
     current_user: OptionalUserDep,
 ):
-    return {
-        "isAuthenticated": current_user is not None,
-    }
+    return current_user is not None

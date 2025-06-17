@@ -1,17 +1,15 @@
+import {
+  authGetUsersToken,
+  authLoginUser,
+  authLogout,
+  authVerifyAuth,
+} from "./client";
+
 export const AuthService = {
   async login() {
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/login/user",
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-
-      const data = await response.json();
-
-      return response.ok && data.access_token;
+      const response = await authLoginUser();
+      return response.response.ok;
     } catch (error) {
       console.error("Login error:", error);
       return false;
@@ -20,11 +18,8 @@ export const AuthService = {
 
   async logout() {
     try {
-      await fetch("http://localhost:8000/api/v1/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      return true;
+      const response = await authLogout();
+      return response.response.ok;
     } catch (error) {
       console.error("Logout error:", error);
       return false;
@@ -33,16 +28,8 @@ export const AuthService = {
 
   async getToken(): Promise<string | undefined> {
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/me/token",
-        {
-          credentials: "include",
-        },
-      );
-
-      const token = await response.text();
-
-      return token;
+      const response = await authGetUsersToken();
+      return response.data ?? undefined;
     } catch (error) {
       console.error("Auth check error:", error);
       return undefined;
@@ -51,11 +38,8 @@ export const AuthService = {
 
   async verify() {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/auth/verify", {
-        credentials: "include",
-      });
-      const data = await response.json();
-      return data.isAuthenticated;
+      const response = await authVerifyAuth();
+      return !!response.data;
     } catch {
       return false;
     }

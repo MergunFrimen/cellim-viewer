@@ -65,6 +65,7 @@ import type {
   AuthGetUsersTokenData,
   AuthGetUsersTokenResponse,
   AuthVerifyAuthData,
+  AuthVerifyAuthResponse,
   TestUploadFileData,
   TestUploadFileError,
   VolsegEntriesListPublicEntriesData,
@@ -98,6 +99,7 @@ import {
   zShareLinksUpdateShareLinkResponse,
   zAuthReadUsersMeResponse,
   zAuthGetUsersTokenResponse,
+  zAuthVerifyAuthResponse,
   zVolsegEntriesListPublicEntriesResponse,
   zVolsegEntriesUploadEntryResponse,
   zVolsegEntriesDeleteViewResponse,
@@ -496,7 +498,7 @@ export const authLoginUser = <ThrowOnError extends boolean = false>(
     unknown,
     ThrowOnError
   >({
-    url: "/api/v1/auth/login/user",
+    url: "/api/v1/auth/login",
     ...options,
   });
 };
@@ -561,12 +563,17 @@ export const authGetUsersToken = <ThrowOnError extends boolean = false>(
 export const authVerifyAuth = <ThrowOnError extends boolean = false>(
   options?: Options<AuthVerifyAuthData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
-    {
-      url: "/api/v1/auth/verify",
-      ...options,
+  return (options?.client ?? _heyApiClient).get<
+    AuthVerifyAuthResponse,
+    unknown,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zAuthVerifyAuthResponse.parseAsync(data);
     },
-  );
+    url: "/api/v1/auth/verify",
+    ...options,
+  });
 };
 
 /**
