@@ -56,7 +56,6 @@ class MinioStorage:
             raise Exception(f"Error getting file from MinIO: {str(e)}")
 
     async def delete(self, file_path: str) -> bool:
-        print("WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
         try:
             self.client.remove_object(self.bucket, file_path)
             return True

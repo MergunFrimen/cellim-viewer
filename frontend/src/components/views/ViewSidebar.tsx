@@ -46,13 +46,7 @@ export function ViewsSidebar({
           )}
           {views.map((view) => (
             <div key={view.id} className="transition-transform">
-              <ViewCard
-                entryId={entryId}
-                view={view}
-                isActive={currentViewId === view.id}
-                onEdit={() => onEditView(view)}
-                onDelete={() => onDeleteView(view.id)}
-              />
+              <ViewCard view={view} />
             </div>
           ))}
         </div>

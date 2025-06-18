@@ -46,11 +46,6 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
 
   const form = useForm<ViewUpdateRequest>({
     resolver: zodResolver(zViewUpdateRequest),
-    defaultValues: {
-      name: view.name,
-      description: view.description,
-      is_thumbnail: view.is_thumbnail,
-    },
   });
 
   useEffect(() => {
@@ -58,9 +53,10 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
       form.reset({
         name: view.name,
         description: view.description,
+        is_thumbnail: view.is_thumbnail,
       });
     }
-  }, [form, open, view.description, view.name]);
+  }, [form, open, view.description, view.is_thumbnail, view.name]);
 
   const updateViewMutation = useMutation({
     ...viewsUpdateViewMutation(),
@@ -176,6 +172,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
                     <Checkbox
                       checked={!!field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!view.thumbnail_url}
                     />
                   </FormControl>
                   <FormLabel>Set as default thumbnail</FormLabel>

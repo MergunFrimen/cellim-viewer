@@ -29,12 +29,10 @@ import { EditViewDialog } from "./ViewEditDialog";
 import { useState } from "react";
 
 interface ViewCardProps {
-  entryId: string;
   view: ViewResponse;
-  isActive: boolean;
 }
 
-export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
+export function ViewCard({ view }: ViewCardProps) {
   const { isAuthenticated } = useAuth();
   const { viewer } = useMolstar();
   const queryClient = useQueryClient();
@@ -44,8 +42,8 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
   const viewSnapshot = useQuery({
     ...viewsGetViewSnapshotOptions({
       path: {
-        entry_id: entryId!,
-        view_id: view.id!,
+        entry_id: view.entry_id,
+        view_id: view.id,
       },
     }),
     enabled: false, // don't run on mount
@@ -57,7 +55,7 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
       toast.success(`View "${view.name}" set a default thumbnail`);
       queryClient.invalidateQueries({
         queryKey: viewsListViewsForEntryQueryKey({
-          path: { entry_id: entryId },
+          path: { entry_id: view.entry_id },
         }),
       });
     },
@@ -69,12 +67,12 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
       toast.success("View deleted successfully");
       queryClient.invalidateQueries({
         queryKey: viewsGetViewByIdQueryKey({
-          path: { entry_id: entryId, view_id: deletedViewId },
+          path: { entry_id: view.entry_id, view_id: deletedViewId },
         }),
       });
       queryClient.invalidateQueries({
         queryKey: viewsListViewsForEntryQueryKey({
-          path: { entry_id: entryId },
+          path: { entry_id: view.entry_id },
         }),
       });
     },
@@ -88,7 +86,7 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
   async function onSetAsThumbnail() {
     updateViewMutation.mutate({
       path: {
-        entry_id: entryId,
+        entry_id: view.entry_id,
         view_id: view.id,
       },
       body: {
@@ -107,9 +105,7 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
 
   return (
     <>
-      <Card
-        className={`transition-all hover:shadow-md mr-0 relative ${isActive ? "ring-2 ring-primary" : ""}`}
-      >
+      <Card className="transition-all hover:shadow-md mr-0 relative">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-x-2">
@@ -127,12 +123,6 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
                     <Edit size={14} className="mr-2" />
                     Edit
                   </DropdownMenuItem>
-                  {!view.is_thumbnail && (
-                    <DropdownMenuItem onClick={onSetAsThumbnail}>
-                      <ImageIcon size={14} className="mr-2" />
-                      Set as Default Thumbnail
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem
                     onClick={onDelete}
                     className="text-destructive focus:text-destructive"
@@ -156,7 +146,7 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
             )}
             {view.thumbnail_url ? (
               <img
-                src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${entryId}/views/${view.id}/thumbnail`}
+                src={`${import.meta.env.VITE_API_URL}/api/v1/entries/${view.entry_id}/views/${view.id}/thumbnail`}
                 alt={`${view.name} thumbnail`}
                 className="w-full h-full object-cover"
               />
@@ -174,7 +164,7 @@ export function ViewCard({ entryId, view, isActive }: ViewCardProps) {
         <CardFooter className="justify-center pt-2">
           <Button
             onClick={handleLoadView}
-            variant={isActive ? "default" : "outline"}
+            variant="outline"
             size="sm"
             className="w-full"
           >

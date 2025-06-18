@@ -22,7 +22,7 @@ export const zEntryDetailsResponse = z.object({
 });
 
 export const zEntryUpdateRequest = z.object({
-  name: z.union([z.string().max(255), z.null()]).optional(),
+  name: z.union([z.string().min(1).max(255), z.null()]).optional(),
   description: z.union([z.string(), z.null()]).optional(),
   is_public: z.union([z.boolean(), z.null()]).optional(),
 });
@@ -74,7 +74,7 @@ export const zUserResponse = z.object({
 });
 
 export const zViewCreateRequest = z.object({
-  name: z.string().max(255),
+  name: z.string().min(1).max(255),
   description: z.union([z.string().max(255), z.null()]).optional(),
   snapshot_json: z.string(),
   thumbnail_image: z.union([z.string(), z.null()]).optional(),
@@ -95,7 +95,7 @@ export const zViewResponse = z.object({
 });
 
 export const zViewUpdateRequest = z.object({
-  name: z.union([z.string().max(255), z.null()]).optional(),
+  name: z.union([z.string().min(1).max(255), z.null()]).optional(),
   description: z.union([z.string().max(255), z.null()]).optional(),
   is_thumbnail: z.union([z.boolean(), z.null()]).optional(),
 });

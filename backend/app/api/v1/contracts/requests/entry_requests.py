@@ -13,7 +13,7 @@ class EntryCreateRequest(BaseModel):
 
 
 class EntryUpdateRequest(BaseModel):
-    name: str | None = Field(default=None, max_length=255, examples=["Entry Name"])
+    name: str | None = Field(default=None, min_length=1, max_length=255, examples=["Entry Name"])
     description: str | None = Field(default=None, examples=["Markdown description."])
     is_public: bool | None = Field(default=None)
 

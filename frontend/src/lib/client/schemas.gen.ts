@@ -114,6 +114,7 @@ export const EntryUpdateRequestSchema = {
         {
           type: "string",
           maxLength: 255,
+          minLength: 1,
         },
         {
           type: "null",
@@ -326,6 +327,7 @@ export const ViewCreateRequestSchema = {
     name: {
       type: "string",
       maxLength: 255,
+      minLength: 1,
       examples: ["View Name"],
     },
     description: {
@@ -444,6 +446,7 @@ export const ViewUpdateRequestSchema = {
         {
           type: "string",
           maxLength: 255,
+          minLength: 1,
         },
         {
           type: "null",
