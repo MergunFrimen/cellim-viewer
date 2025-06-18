@@ -18,6 +18,11 @@ export function ViewsSidebar({
   onSaveView,
   isEditable,
 }: ViewsSidebarProps) {
+  const sortedViews = [...views].sort((a, b) => {
+    if (a.is_thumbnail === b.is_thumbnail) return 0;
+    return a.is_thumbnail ? -1 : 1;
+  });
+
   return (
     <div className="flex flex-col h-full w-96">
       <div className="flex items-center justify-between mb-2 pr-4">
@@ -32,16 +37,19 @@ export function ViewsSidebar({
 
       <ScrollArea className="flex-1 min-h-0 pb-0 pr-4">
         <div className="flex flex-col gap-y-3">
-          {views.length === 0 && (
+          {sortedViews.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>No views saved yet</p>
             </div>
+          ) : (
+            <>
+              {sortedViews.map((view) => (
+                <div key={view.id} className="transition-transform">
+                  <ViewCard view={view} isEditable={isEditable} />
+                </div>
+              ))}
+            </>
           )}
-          {views.map((view) => (
-            <div key={view.id} className="transition-transform">
-              <ViewCard view={view} isEditable={isEditable} />
-            </div>
-          ))}
         </div>
       </ScrollArea>
     </div>

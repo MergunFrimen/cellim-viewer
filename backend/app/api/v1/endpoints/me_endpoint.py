@@ -6,7 +6,7 @@ from app.api.v1.contracts.requests.entry_requests import (
     SearchQueryParams,
 )
 from app.api.v1.contracts.responses.entry_responses import (
-    EntryDetailsResponse,
+    EntryResponse,
 )
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
 from app.api.v1.contracts.responses.volseg_responses import VolsegEntryResponse
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/me", tags=[Tags.me])
 @router.get(
     "/entries",
     status_code=status.HTTP_200_OK,
-    response_model=PaginatedResponse[EntryDetailsResponse],
+    response_model=PaginatedResponse[EntryResponse],
 )
 async def list_entries_for_user(
     search_query: Annotated[SearchQueryParams, Query()],

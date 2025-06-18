@@ -34,7 +34,7 @@ class ViewService:
         entry_id: UUID,
         request: ViewCreateRequest,
     ) -> ViewResponse:
-        entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
+        entry: Entry = await self.entry_service._get_entry_by_id(entry_id)
 
         # Check permissions
         self._check_permissions(entry, user)
@@ -135,7 +135,13 @@ class ViewService:
 
         return json.loads(snapshot)
 
-    async def get_view_thumbnail(self, user: User, entry_id: UUID, view_id: UUID) -> UUID:
+    async def get_view_thumbnail(
+        self,
+        *,
+        user: User,
+        entry_id: UUID,
+        view_id: UUID,
+    ) -> UUID:
         view: View = await self._get_view_by_id(view_id)
 
         # Load in relationships
@@ -171,7 +177,7 @@ class ViewService:
         )
 
     async def list_views_for_entry(self, user: User | None, entry_id: UUID) -> list[ViewResponse]:
-        entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
+        entry: Entry = await self.entry_service._get_entry_by_id(entry_id)
 
         # Get entry's views
         result = await self.session.execute(

@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
 ADD . /app
 RUN chown -R appuser:appuser /app
 RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
-    uv sync --frozen --no-dev
+    uv sync --frozen
 
 # Switch to the non-root user
 USER appuser

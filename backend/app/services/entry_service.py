@@ -10,10 +10,14 @@ from app.api.v1.contracts.requests.entry_requests import (
     EntryUpdateRequest,
     SearchQueryParams,
 )
+from app.api.v1.contracts.responses.entry_responses import EntryResponse
 from app.api.v1.contracts.responses.pagination_response import PaginatedResponse
+from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
+from app.api.v1.contracts.responses.view_responses import ViewResponse
 from app.database.models.entry_model import Entry
 from app.database.models.share_link_model import ShareLink
 from app.database.models.user_model import User
+from app.database.models.view_model import View
 from app.database.models.volseg_entry_model import VolsegEntry
 from app.database.session_manager import get_async_session
 
@@ -22,7 +26,12 @@ class EntryService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, user: User, request: EntryCreateRequest) -> Entry:
+    async def create(
+        self,
+        *,
+        user: User,
+        request: EntryCreateRequest,
+    ) -> Entry:
         volseg_entry: VolsegEntry | None = await self.session.get(
             VolsegEntry,
             request.volseg_entry_id,
@@ -47,16 +56,97 @@ class EntryService:
 
         return new_entry
 
-    async def get_entry_by_id(self, entry_id: UUID) -> Entry:
-        entry: Entry | None = await self.session.get(Entry, entry_id)
-        if entry is None:
+    async def get_entry(
+        self,
+        *,
+        user: User,
+        entry_id: UUID,
+    ) -> EntryResponse:
+        entry: Entry = await self._get_entry_by_id(entry_id)
+
+        # Load in relationships
+        await self.session.refresh(entry, ["views", "link"])
+
+        # Check permissions
+        self._check_permissions(
+            entry=entry,
+            user=user,
+        )
+
+        return EntryResponse.model_validate(entry)
+
+    async def get_entry_share_link(
+        self,
+        *,
+        user: User,
+        entry_id: UUID,
+    ) -> ShareLinkResponse:
+        entry: Entry = await self._get_entry_by_id(entry_id)
+
+        # Load in relationships
+        await self.session.refresh(entry, ["link"])
+
+        # Check permissions
+        self._check_permissions(
+            entry=entry,
+            user=user,
+        )
+
+        return ShareLinkResponse.model_validate(entry.link)
+
+    async def get_entry_thumbnail_view(
+        self,
+        *,
+        entry_id: UUID,
+        user: User,
+    ) -> ViewResponse:
+        entry: Entry = await self._get_entry_by_id(entry_id)
+
+        # Check permissions
+        self._check_permissions(
+            entry=entry,
+            user=user,
+        )
+
+        result = await self.session.execute(
+            select(View)
+            .where(View.entry_id == entry_id, View.is_thumbnail == True)
+            .options(selectinload(View.entry)),
+        )
+        views: list[View] = result.scalars().all()
+
+        if not views:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Entry not found",
+                detail="Entry does not have a thumbnail view",
             )
-        return entry
 
-    async def list_public_entries(self, search_query: SearchQueryParams):
+        return ViewResponse.model_validate(views[0])
+
+    async def get_entry_by_share_link(
+        self,
+        *,
+        share_link_id: UUID,
+    ):
+        share_link: ShareLink = await self.share_link_service.get_share_link_by_id(share_link_id)
+
+        if not share_link.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Link is not active",
+            )
+
+        # Get the shared entry
+        entry: Entry = await self._get_entry_by_id(share_link.entry_id)
+        await self.session.refresh(entry, ["views", "link"])
+
+        return EntryResponse.model_validate(entry)
+
+    async def list_public_entries(
+        self,
+        *,
+        search_query: SearchQueryParams,
+    ):
         query = select(Entry).where(Entry.is_public == True)
 
         if search_query.search_term:
@@ -115,16 +205,72 @@ class EntryService:
             total_pages=total_pages,
         )
 
-    async def update(self, entry: Entry, updates: EntryUpdateRequest) -> Entry:
-        for key, value in updates.model_dump(exclude_unset=True).items():
+    async def update(
+        self,
+        *,
+        entry_id: UUID,
+        user: User,
+        request: EntryUpdateRequest,
+    ) -> Entry:
+        entry: Entry = await self._get_entry_by_id(entry_id)
+
+        # Check permissions
+        self._check_permissions(
+            entry=entry,
+            user=user,
+        )
+
+        # Update model
+        for key, value in request.model_dump(exclude_unset=True).items():
             setattr(entry, key, value)
         await self.session.commit()
-        return entry
 
-    async def delete(self, entry: Entry) -> UUID:
+        return EntryResponse.model_validate(entry)
+
+    async def delete(
+        self,
+        *,
+        entry_id: UUID,
+        user: User,
+    ) -> UUID:
+        entry: Entry = await self._get_entry_by_id(entry_id)
+
+        # Check permissions
+        self._check_permissions(
+            entry=entry,
+            user=user,
+        )
+
         await self.session.delete(entry)
         await self.session.commit()
+
         return entry.id
+
+    async def _get_entry_by_id(self, id: UUID) -> Entry:
+        entry: Entry | None = await self.session.get(Entry, id)
+        if entry is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Entry not found",
+            )
+        return entry
+
+    async def _check_permissions(
+        self,
+        *,
+        entry: Entry,
+        user: User | None,
+    ) -> bool:
+        if not entry.is_public and not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Entry is not public",
+            )
+        if entry.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Don't have access to entry",
+            )
 
 
 async def get_entry_service(
