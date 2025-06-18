@@ -4,8 +4,7 @@ import { DeleteDialog } from "@/components/common/DeleteDialog";
 import { EntryDescription } from "@/components/entries/EntryDescription";
 import { EntryHeader } from "@/components/entries/EntryHeader";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
-import { SaveViewDialog } from "@/components/views/ViewCreateDialog";
-import { EditViewDialog } from "@/components/views/ViewEditDialog";
+import { ViewCreateDialog } from "@/components/views/ViewCreateDialog";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { useEntryDetails } from "@/hooks/useEntryDetails";
@@ -122,10 +121,10 @@ export function EntryDetailsPage() {
 
       {isAuthenticated && (
         <>
-          <SaveViewDialog
+          <ViewCreateDialog
+            entry={entry}
             open={showSaveDialog}
-            onOpenChange={setShowSaveDialog}
-            onSave={handleSaveView}
+            setOpen={setShowSaveDialog}
           />
 
           <DeleteDialog

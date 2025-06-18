@@ -77,8 +77,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
     },
   });
 
-  const handleSubmit = (data: ViewUpdateRequest) => {
-    console.log(data);
+  function handleSubmit(data: ViewUpdateRequest) {
     updateViewMutation.mutate({
       path: {
         entry_id: view.entry_id,
@@ -88,11 +87,11 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
         ...data,
       },
     });
-  };
+  }
 
-  const handleCancel = () => {
+  function handleCancel() {
     setOpen(false);
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

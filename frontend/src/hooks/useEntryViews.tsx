@@ -8,7 +8,6 @@ import {
   viewsGetViewByIdQueryKey,
   viewsListViewsForEntryOptions,
   viewsListViewsForEntryQueryKey,
-  viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
@@ -44,17 +43,6 @@ export function useEntryViews(entryId: string) {
     },
   });
 
-  const updateViewMutation = useMutation({
-    ...viewsUpdateViewMutation(),
-    onSuccess: (updatedView) => {
-      toast.success(`View "${updatedView.name}" updated successfully`);
-      queryClient.invalidateQueries({
-        queryKey: viewsGetViewByIdQueryKey({
-          path: { entry_id: entryId, view_id: updatedView.id },
-        }),
-      });
-    },
-  });
 
   const deleteViewMutation = useMutation({
     ...viewsDeleteViewMutation(),
@@ -119,6 +107,5 @@ export function useEntryViews(entryId: string) {
     setViewToEdit,
     viewToDelete,
     setViewToDelete,
-    updateViewMutation,
   };
 }
