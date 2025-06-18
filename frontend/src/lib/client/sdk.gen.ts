@@ -28,6 +28,9 @@ import type {
   EntriesGetEntryShareLinkData,
   EntriesGetEntryShareLinkResponse,
   EntriesGetEntryShareLinkError,
+  EntriesGetEntryThumbnailViewData,
+  EntriesGetEntryThumbnailViewResponse,
+  EntriesGetEntryThumbnailViewError,
   ViewsListViewsForEntryData,
   ViewsListViewsForEntryResponse,
   ViewsListViewsForEntryError,
@@ -88,6 +91,7 @@ import {
   zEntriesUpdateEntryResponse,
   zEntriesGetEntryByShareLinkResponse,
   zEntriesGetEntryShareLinkResponse,
+  zEntriesGetEntryThumbnailViewResponse,
   zViewsListViewsForEntryResponse,
   zViewsCreateViewResponse,
   zViewsDeleteViewResponse,
@@ -263,6 +267,27 @@ export const entriesGetEntryShareLink = <ThrowOnError extends boolean = false>(
       return await zEntriesGetEntryShareLinkResponse.parseAsync(data);
     },
     url: "/api/v1/entries/{entry_id}/share_link",
+    ...options,
+  });
+};
+
+/**
+ * Get Entry Thumbnail View
+ */
+export const entriesGetEntryThumbnailView = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<EntriesGetEntryThumbnailViewData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    EntriesGetEntryThumbnailViewResponse,
+    EntriesGetEntryThumbnailViewError,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zEntriesGetEntryThumbnailViewResponse.parseAsync(data);
+    },
+    url: "/api/v1/entries/{entry_id}/thumbnail",
     ...options,
   });
 };

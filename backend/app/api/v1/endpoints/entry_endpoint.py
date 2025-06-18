@@ -87,7 +87,7 @@ async def get_entry_share_link(
 
 
 @router.get(
-    "/{entry_id}/share_link",
+    "/{entry_id}/thumbnail",
     status_code=status.HTTP_200_OK,
     response_model=ViewResponse,
 )

@@ -22,7 +22,13 @@ import {
   viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit, ImageIcon, MoreVertical, Trash2 } from "lucide-react";
+import {
+  CameraIcon,
+  Edit,
+  ImageIcon,
+  MoreVertical,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { EditViewDialog } from "./ViewEditDialog";
 import { useState } from "react";
@@ -123,6 +129,12 @@ export function ViewCard({ view, isEditable }: ViewCardProps) {
                     <Edit size={14} className="mr-2" />
                     Edit
                   </DropdownMenuItem>
+                  {!view.is_thumbnail && (
+                    <DropdownMenuItem onClick={onSetAsThumbnail}>
+                      <CameraIcon size={14} className="mr-2" />
+                      Set As Thumbnail
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={onDelete}
                     className="text-destructive focus:text-destructive"

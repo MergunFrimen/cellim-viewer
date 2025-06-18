@@ -114,7 +114,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                         id=fake.uuid4(),
                         name=fake.view_name(),
                         description=fake.view_description(),
-                        thumbnail_url=fake.image_url(),
+                        thumbnail_url=None,
                         snapshot_url=fake.image_url(),
                         created_at=view_created,
                         updated_at=view_created,

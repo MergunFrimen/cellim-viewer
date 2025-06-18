@@ -1,59 +1,48 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-import { DeleteDialog } from "@/components/common/DeleteDialog";
 import { EntryDescription } from "@/components/entries/EntryDescription";
 import { EntryHeader } from "@/components/entries/EntryHeader";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
 import { ViewCreateDialog } from "@/components/views/ViewCreateDialog";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { useEntryDetails } from "@/hooks/useEntryDetails";
-import { useEntryViews } from "@/hooks/useEntryViews";
 import { useRequiredParam } from "@/hooks/useRequiredParam";
-import { volsegEntriesGetEntryByIdOptions } from "@/lib/client/@tanstack/react-query.gen";
+import {
+  entriesGetEntryByIdOptions,
+  volsegEntriesGetEntryByIdOptions,
+} from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 
-interface EntryDetailsPageProps {
-  // isEditable: boolean;
-}
-
-export function EntryDetailsPage({}: EntryDetailsPageProps) {
-  const { isAuthenticated } = useAuth();
-
-  const entryId = useRequiredParam("entryId");
+export function EntryDetailsPage() {
   const { viewer } = useMolstar();
+  const { isAuthenticated } = useAuth();
+  const entryId = useRequiredParam("entryId");
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  const {
-    entry,
-    isLoading: isEntryLoading,
-    error: entryError,
-  } = useEntryDetails(entryId);
-
-  const {
-    views,
-    currentViewId,
-    isViewsLoading,
-    viewsError,
-    viewToDelete,
-    setViewToDelete,
-  } = useEntryViews(entryId);
-
-  const volsegGetEntryMutation = useQuery({
-    ...volsegEntriesGetEntryByIdOptions({
+  const entryQuery = useQuery({
+    ...entriesGetEntryByIdOptions({
       path: {
-        volseg_entry_id: entry?.volseg_entry_id,
+        entry_id: entryId!,
       },
     }),
-    enabled: !!entry,
+    enabled: !!entryId,
+  });
+
+  const volsegMutation = useQuery({
+    ...volsegEntriesGetEntryByIdOptions({
+      path: {
+        volseg_entry_id: entryQuery.data?.volseg_entry_id,
+      },
+    }),
+    enabled: !!entryQuery.data,
   });
 
   async function loadVolseg() {
-    const entryId = volsegGetEntryMutation.data?.entry_id;
+    const entryId = volsegMutation.data?.entry_id;
     if (!entryId) return;
     await viewer.clear();
     await viewer.loadVolseg(entryId);
@@ -65,9 +54,9 @@ export function EntryDetailsPage({}: EntryDetailsPageProps) {
     return () => {
       viewer.clear();
     };
-  }, [viewer, volsegGetEntryMutation.data?.entry_id]);
+  }, [viewer, volsegMutation.data?.entry_id]);
 
-  if (isEntryLoading || isViewsLoading) {
+  if (entryQuery.isLoading) {
     return (
       <div className="container py-8">
         <div className="text-center py-8">Loading entry data...</div>
@@ -75,19 +64,19 @@ export function EntryDetailsPage({}: EntryDetailsPageProps) {
     );
   }
 
-  if (entryError || viewsError) {
+  if (entryQuery.isError) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          {entryError?.message || viewsError?.message || "Failed to load data"}
+          {entryQuery.error.message || "Failed to load data"}
         </AlertDescription>
       </Alert>
     );
   }
 
-  if (!entry) {
+  if (!entryQuery.data) {
     return null;
   }
 
@@ -95,18 +84,16 @@ export function EntryDetailsPage({}: EntryDetailsPageProps) {
     <div className="container py-8">
       {/* Entry Header Section */}
       <EntryHeader
-        name={entry.name}
-        isPublic={entry.is_public}
-        createdAt={entry.created_at}
+        name={entryQuery.data.name}
+        isPublic={entryQuery.data.is_public}
+        createdAt={entryQuery.data.created_at}
       />
       {/* Entry Description Section */}
-      <EntryDescription description={entry.description} />
+      <EntryDescription description={entryQuery.data.description} />
       <div className="flex flex-1 overflow-hidden gap-x-3">
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
             entryId={entryId}
-            views={views}
-            currentViewId={currentViewId}
             isEditable={isAuthenticated}
             onSaveView={() => setShowSaveDialog(true)}
           />
@@ -119,7 +106,7 @@ export function EntryDetailsPage({}: EntryDetailsPageProps) {
       {isAuthenticated && (
         <>
           <ViewCreateDialog
-            entry={entry}
+            entry={entryQuery.data}
             open={showSaveDialog}
             setOpen={setShowSaveDialog}
           />

@@ -9,6 +9,7 @@ import {
   entriesUpdateEntry,
   entriesGetEntryByShareLink,
   entriesGetEntryShareLink,
+  entriesGetEntryThumbnailView,
   viewsListViewsForEntry,
   viewsCreateView,
   viewsDeleteView,
@@ -54,6 +55,7 @@ import type {
   EntriesUpdateEntryResponse,
   EntriesGetEntryByShareLinkData,
   EntriesGetEntryShareLinkData,
+  EntriesGetEntryThumbnailViewData,
   ViewsListViewsForEntryData,
   ViewsCreateViewData,
   ViewsCreateViewError,
@@ -383,6 +385,27 @@ export const entriesGetEntryShareLinkOptions = (
       return data;
     },
     queryKey: entriesGetEntryShareLinkQueryKey(options),
+  });
+};
+
+export const entriesGetEntryThumbnailViewQueryKey = (
+  options: Options<EntriesGetEntryThumbnailViewData>,
+) => createQueryKey("entriesGetEntryThumbnailView", options);
+
+export const entriesGetEntryThumbnailViewOptions = (
+  options: Options<EntriesGetEntryThumbnailViewData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await entriesGetEntryThumbnailView({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: entriesGetEntryThumbnailViewQueryKey(options),
   });
 };
 

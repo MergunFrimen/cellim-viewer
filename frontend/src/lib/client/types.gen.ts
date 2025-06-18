@@ -7,7 +7,7 @@ export type EntryCreateRequest = {
   is_public?: boolean | null;
 };
 
-export type EntryDetailsResponse = {
+export type EntryResponse = {
   response_model?: string;
   id: string;
   created_at: string;
@@ -29,13 +29,13 @@ export type HttpValidationError = {
   detail?: Array<ValidationError>;
 };
 
-export type PaginatedResponseEntryDetailsResponse = {
+export type PaginatedResponseEntryResponse = {
   response_model?: string;
   page: number;
   per_page: number;
   total_pages: number;
   total_items: number;
-  items: Array<EntryDetailsResponse>;
+  items: Array<EntryResponse>;
 };
 
 export type ShareLinkResponse = {
@@ -82,7 +82,7 @@ export type ViewCreateRequest = {
    * Thumbnail image for view
    */
   thumbnail_image?: (Blob | File) | null;
-  is_thumbnail?: boolean;
+  is_thumbnail: boolean;
 };
 
 export type ViewResponse = {
@@ -160,7 +160,7 @@ export type EntriesListPublicEntriesResponses = {
   /**
    * Successful Response
    */
-  200: PaginatedResponseEntryDetailsResponse;
+  200: PaginatedResponseEntryResponse;
 };
 
 export type EntriesListPublicEntriesResponse =
@@ -187,7 +187,7 @@ export type EntriesCreateEntryResponses = {
   /**
    * Successful Response
    */
-  201: EntryDetailsResponse;
+  201: EntryResponse;
 };
 
 export type EntriesCreateEntryResponse =
@@ -245,7 +245,7 @@ export type EntriesGetEntryByIdResponses = {
   /**
    * Successful Response
    */
-  200: EntryDetailsResponse;
+  200: EntryResponse;
 };
 
 export type EntriesGetEntryByIdResponse =
@@ -274,7 +274,7 @@ export type EntriesUpdateEntryResponses = {
   /**
    * Successful Response
    */
-  200: EntryDetailsResponse;
+  200: EntryResponse;
 };
 
 export type EntriesUpdateEntryResponse =
@@ -303,7 +303,7 @@ export type EntriesGetEntryByShareLinkResponses = {
   /**
    * Successful Response
    */
-  200: EntryDetailsResponse;
+  200: EntryResponse;
 };
 
 export type EntriesGetEntryByShareLinkResponse =
@@ -337,6 +337,35 @@ export type EntriesGetEntryShareLinkResponses = {
 
 export type EntriesGetEntryShareLinkResponse =
   EntriesGetEntryShareLinkResponses[keyof EntriesGetEntryShareLinkResponses];
+
+export type EntriesGetEntryThumbnailViewData = {
+  body?: never;
+  path: {
+    entry_id: string;
+  };
+  query?: never;
+  url: "/api/v1/entries/{entry_id}/thumbnail";
+};
+
+export type EntriesGetEntryThumbnailViewErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type EntriesGetEntryThumbnailViewError =
+  EntriesGetEntryThumbnailViewErrors[keyof EntriesGetEntryThumbnailViewErrors];
+
+export type EntriesGetEntryThumbnailViewResponses = {
+  /**
+   * Successful Response
+   */
+  200: ViewResponse;
+};
+
+export type EntriesGetEntryThumbnailViewResponse =
+  EntriesGetEntryThumbnailViewResponses[keyof EntriesGetEntryThumbnailViewResponses];
 
 export type ViewsListViewsForEntryData = {
   body?: never;
@@ -568,7 +597,7 @@ export type MeListEntriesForUserResponses = {
   /**
    * Successful Response
    */
-  200: PaginatedResponseEntryDetailsResponse;
+  200: PaginatedResponseEntryResponse;
 };
 
 export type MeListEntriesForUserResponse =

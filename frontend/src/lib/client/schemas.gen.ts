@@ -40,7 +40,7 @@ export const EntryCreateRequestSchema = {
   required: ["volseg_entry_id", "name"],
 } as const;
 
-export const EntryDetailsResponseSchema = {
+export const EntryResponseSchema = {
   properties: {
     response_model: {
       type: "string",
@@ -160,7 +160,7 @@ export const HTTPValidationErrorSchema = {
   type: "object",
 } as const;
 
-export const PaginatedResponse_EntryDetailsResponse_Schema = {
+export const PaginatedResponse_EntryResponse_Schema = {
   properties: {
     response_model: {
       type: "string",
@@ -183,7 +183,7 @@ export const PaginatedResponse_EntryDetailsResponse_Schema = {
     },
     items: {
       items: {
-        $ref: "#/components/schemas/EntryDetailsResponse",
+        $ref: "#/components/schemas/EntryResponse",
       },
       type: "array",
     },
@@ -366,12 +366,11 @@ export const ViewCreateRequestSchema = {
     },
     is_thumbnail: {
       type: "boolean",
-      default: false,
     },
   },
   additionalProperties: false,
   type: "object",
-  required: ["name"],
+  required: ["name", "is_thumbnail"],
 } as const;
 
 export const ViewResponseSchema = {

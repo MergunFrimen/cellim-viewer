@@ -117,7 +117,7 @@ class EntryService:
 
         if not views:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_204_NO_CONTENT,
                 detail="Entry does not have a thumbnail view",
             )
 
