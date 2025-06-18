@@ -11,18 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   ViewResponse,
-  viewsListViewsForEntry,
   ViewUpdateRequest,
   zViewUpdateRequest,
 } from "@/lib/client";
 import {
-  viewsGetViewByIdQueryKey,
   viewsListViewsForEntryQueryKey,
   viewsUpdateViewMutation,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -34,7 +33,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { useEffect } from "react";
+import { Checkbox } from "../ui/checkbox";
 
 interface EditViewDialogProps {
   view: ViewResponse;
@@ -50,6 +49,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
     defaultValues: {
       name: view.name,
       description: view.description,
+      is_thumbnail: view.is_thumbnail,
     },
   });
 
@@ -82,6 +82,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
   });
 
   const handleSubmit = (data: ViewUpdateRequest) => {
+    console.log(data);
     updateViewMutation.mutate({
       path: {
         entry_id: view.entry_id,
@@ -161,6 +162,23 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
                       onChange={field.onChange}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_thumbnail"
+              render={({ field }) => (
+                <FormItem className="flex flex-row gap-x-3 items-center">
+                  <FormControl>
+                    <Checkbox
+                      checked={!!field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Set as default thumbnail</FormLabel>
                   <FormMessage />
                 </FormItem>
               )}

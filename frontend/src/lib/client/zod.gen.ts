@@ -97,8 +97,6 @@ export const zViewResponse = z.object({
 export const zViewUpdateRequest = z.object({
   name: z.union([z.string().max(255), z.null()]).optional(),
   description: z.union([z.string().max(255), z.null()]).optional(),
-  snapshot_json: z.union([z.string(), z.null()]).optional(),
-  thumbnail_image: z.union([z.string(), z.null()]).optional(),
   is_thumbnail: z.union([z.boolean(), z.null()]).optional(),
 });
 
