@@ -132,11 +132,13 @@ async def update_view(
     response_model=UUID,
 )
 async def delete_view(
+    entry_id: Annotated[UUID, Path(title="Entry ID")],
     view_id: Annotated[UUID, Path(title="View ID")],
     view_service: ViewServiceDep,
     current_user: OptionalUserDep,
 ):
     return await view_service.delete(
+        entry_id=entry_id,
         view_id=view_id,
         user=current_user,
     )

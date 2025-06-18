@@ -399,6 +399,7 @@ export type ViewsCreateViewResponse =
 export type ViewsDeleteViewData = {
   body?: never;
   path: {
+    entry_id: string;
     view_id: string;
   };
   query?: never;

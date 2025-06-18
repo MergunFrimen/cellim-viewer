@@ -9,7 +9,7 @@ class ViewCreateRequest(BaseModel):
         default=None, description="Mol* state file (.molj file)"
     )
     thumbnail_image: UploadFile | None = File(default=None, description="Thumbnail image for view")
-    is_thumbnail: bool = Form(default=False)
+    is_thumbnail: bool = Form()
 
     model_config = {"extra": "forbid"}
 

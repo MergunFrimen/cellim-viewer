@@ -4,32 +4,25 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ViewResponse } from "@/lib/client";
 import { Camera } from "lucide-react";
 import { ViewCard } from "./ViewCard";
-import { useAuth } from "@/contexts/AuthProvider";
 
 interface ViewsSidebarProps {
   entryId: string;
   views: ViewResponse[];
   currentViewId: string | null;
+  isEditable: boolean;
   onSaveView: () => void;
-  onEditView: (view: ViewResponse) => void;
-  onDeleteView: (viewId: string) => void;
 }
 
 export function ViewsSidebar({
-  entryId,
   views,
-  currentViewId,
   onSaveView,
-  onEditView,
-  onDeleteView,
+  isEditable,
 }: ViewsSidebarProps) {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="flex flex-col h-full w-96">
       <div className="flex items-center justify-between mb-2 pr-4">
         <h2 className="text-xl font-bold">Saved Views</h2>
-        {isAuthenticated && (
+        {isEditable && (
           <Button onClick={onSaveView} size="sm" className="gap-1">
             <Camera size={16} />
             <span>Save View</span>
@@ -46,7 +39,7 @@ export function ViewsSidebar({
           )}
           {views.map((view) => (
             <div key={view.id} className="transition-transform">
-              <ViewCard view={view} />
+              <ViewCard view={view} isEditable={isEditable} />
             </div>
           ))}
         </div>

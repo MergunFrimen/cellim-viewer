@@ -28,7 +28,12 @@ class ViewService:
         self.storage = storage
         self.entry_service = entry_service
 
-    async def create(self, user: User, entry_id: UUID, request: ViewCreateRequest) -> ViewResponse:
+    async def create(
+        self,
+        user: User,
+        entry_id: UUID,
+        request: ViewCreateRequest,
+    ) -> ViewResponse:
         entry: Entry = await self.entry_service.get_entry_by_id(entry_id)
 
         # Check permissions
@@ -71,12 +76,17 @@ class ViewService:
             id=view_id,
             name=request.name,
             description=request.description,
+            is_thumbnail=request.is_thumbnail,
             snapshot_url=snapshot_url,
             thumbnail_url=thumbnail_url,
             entry=entry,
         )
         self.session.add(new_view)
         await self.session.commit()
+
+        # Set this view as the entry's default thumbnail
+        if request.is_thumbnail:
+            await self._set_entry_as_default_thumbnail(new_view)
 
         return ViewResponse.model_validate(new_view)
 
@@ -197,8 +207,9 @@ class ViewService:
         # Check permissions
         self._check_permissions(view.entry, user)
 
-        # Reset entry's thumbnail
-        await self._reset_entry_thumbnails(view)
+        # Set this view as the entry's default thumbnail
+        if updates.is_thumbnail:
+            await self._set_entry_as_default_thumbnail(view)
 
         # Update view
         for key, value in updates.model_dump(exclude_unset=True).items():
@@ -209,7 +220,13 @@ class ViewService:
 
         return ViewResponse.model_validate(view)
 
-    async def delete(self, user: User, view_id: UUID) -> UUID:
+    async def delete(
+        self,
+        *,
+        entry_id: UUID,
+        view_id: UUID,
+        user: User,
+    ) -> UUID:
         # Get view
         view = await self._get_view_by_id(view_id)
 
@@ -220,12 +237,14 @@ class ViewService:
         self._check_permissions(view.entry, user)
 
         # Delete associated files
-        await self.storage.delete(
-            file_path=view.snapshot_url,
-        )
-        await self.storage.delete(
-            file_path=view.thumbnail_url,
-        )
+        if view.snapshot_url:
+            await self.storage.delete(
+                file_path=view.snapshot_url,
+            )
+        if view.thumbnail_url:
+            await self.storage.delete(
+                file_path=view.thumbnail_url,
+            )
 
         # Delete view
         await self.session.delete(view)
@@ -233,13 +252,13 @@ class ViewService:
 
         return view_id
 
-    async def _reset_entry_thumbnails(self, view: View) -> None:
-        stmt = (
+    async def _set_entry_as_default_thumbnail(self, view: View) -> None:
+        await self.session.execute(
             update(View)
             .where(View.entry_id == view.entry_id, View.is_thumbnail == True)
             .values(is_thumbnail=False)
         )
-        await self.session.execute(stmt)
+        await self.session.execute(update(View).where(View.id == view.id).values(is_thumbnail=True))
         await self.session.commit()
 
     async def _get_view_by_id(self, id: UUID) -> View:

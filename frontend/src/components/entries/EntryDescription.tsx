@@ -22,10 +22,6 @@ export function EntryDescription({ description }: EntryDescriptionProps) {
             size="sm"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-accent-foreground rounded transition-colors"
             onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-            aria-label={
-              expanded ? "Collapse description" : "Expand description"
-            }
           >
             {expanded ? "Collapse" : "Expand"}
             {expanded ? (
@@ -39,7 +35,7 @@ export function EntryDescription({ description }: EntryDescriptionProps) {
 
       <CardContent>
         {description ? (
-          <ScrollArea className={expanded ? "h-auto max-h-none" : "h-64"}>
+          <ScrollArea className={expanded ? "h-64" : "h-auto max-h-none"}>
             <ReactMarkdown>{description}</ReactMarkdown>
           </ScrollArea>
         ) : (

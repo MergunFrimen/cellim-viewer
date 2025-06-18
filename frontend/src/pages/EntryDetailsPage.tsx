@@ -13,14 +13,20 @@ import { useRequiredParam } from "@/hooks/useRequiredParam";
 import { volsegEntriesGetEntryByIdOptions } from "@/lib/client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 
-export function EntryDetailsPage() {
+interface EntryDetailsPageProps {
+  // isEditable: boolean;
+}
+
+export function EntryDetailsPage({}: EntryDetailsPageProps) {
   const { isAuthenticated } = useAuth();
 
   const entryId = useRequiredParam("entryId");
   const { viewer } = useMolstar();
+
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const {
     entry,
@@ -33,16 +39,8 @@ export function EntryDetailsPage() {
     currentViewId,
     isViewsLoading,
     viewsError,
-    handleSaveView,
-    handleEditView,
-    handleDeleteView,
-    showSaveDialog,
-    setShowSaveDialog,
-    viewToEdit,
-    setViewToEdit,
     viewToDelete,
     setViewToDelete,
-    updateViewMutation,
   } = useEntryViews(entryId);
 
   const volsegGetEntryMutation = useQuery({
@@ -109,9 +107,8 @@ export function EntryDetailsPage() {
             entryId={entryId}
             views={views}
             currentViewId={currentViewId}
+            isEditable={isAuthenticated}
             onSaveView={() => setShowSaveDialog(true)}
-            onEditView={handleEditView}
-            onDeleteView={handleDeleteView}
           />
         </aside>
         <div className="flex-1 relative">
@@ -126,30 +123,8 @@ export function EntryDetailsPage() {
             open={showSaveDialog}
             setOpen={setShowSaveDialog}
           />
-
-          <DeleteDialog
-            title="Delete View"
-            description={`Are you sure you want to delete "${viewToDelete?.name}"? This action cannot be undone.`}
-            open={!!viewToDelete}
-            onOpenChange={(open) => !open && setViewToDelete(null)}
-            onConfirm={() => {
-              if (viewToDelete) {
-                handleDeleteView(viewToDelete.id);
-                setViewToDelete(null);
-              }
-            }}
-          />
         </>
       )}
-
-      {/* <DeleteDialog
-        title="Delete Entry"
-        description="Are you sure you want to delete this entry? This action cannot be undone."
-        open={isDeleting}
-        onOpenChange={(open) => !open && handleDeleteEntry(false)}
-        onConfirm={() => handleDeleteEntry(true)}
-        isLoading={isDeleting}
-      /> */}
     </div>
   );
 }

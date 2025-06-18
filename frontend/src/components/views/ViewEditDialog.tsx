@@ -48,16 +48,6 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
     resolver: zodResolver(zViewUpdateRequest),
   });
 
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        name: view.name,
-        description: view.description,
-        is_thumbnail: view.is_thumbnail,
-      });
-    }
-  }, [form, open, view.description, view.is_thumbnail, view.name]);
-
   const updateViewMutation = useMutation({
     ...viewsUpdateViewMutation(),
     onSuccess: (updatedView) => {
@@ -92,6 +82,16 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
   function handleCancel() {
     setOpen(false);
   }
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: view.name,
+        description: view.description,
+        is_thumbnail: view.is_thumbnail,
+      });
+    }
+  }, [form, open, view.description, view.is_thumbnail, view.name]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -12,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthProvider";
 import { useMolstar } from "@/contexts/MolstarProvider";
 import { ViewResponse } from "@/lib/client";
 import {
@@ -30,10 +29,10 @@ import { useState } from "react";
 
 interface ViewCardProps {
   view: ViewResponse;
+  isEditable: boolean;
 }
 
-export function ViewCard({ view }: ViewCardProps) {
-  const { isAuthenticated } = useAuth();
+export function ViewCard({ view, isEditable }: ViewCardProps) {
   const { viewer } = useMolstar();
   const queryClient = useQueryClient();
 
@@ -98,6 +97,7 @@ export function ViewCard({ view }: ViewCardProps) {
   function onDelete() {
     deleteViewMutation.mutate({
       path: {
+        entry_id: view.entry_id,
         view_id: view.id,
       },
     });
@@ -111,7 +111,7 @@ export function ViewCard({ view }: ViewCardProps) {
             <div className="flex items-center gap-x-2">
               <CardTitle className="text-base">{view.name}</CardTitle>
             </div>
-            {isAuthenticated && (
+            {isEditable && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

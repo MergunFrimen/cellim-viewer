@@ -37,7 +37,7 @@ import { PluginState } from "molstar/lib/mol-plugin/state";
 import { Checkbox } from "../ui/checkbox";
 import { useForm } from "react-hook-form";
 
-interface SaveViewDialogProps {
+interface ViewCreateDialogProps {
   entry: EntryDetailsResponse;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -47,7 +47,7 @@ export function ViewCreateDialog({
   entry,
   open,
   setOpen,
-}: SaveViewDialogProps) {
+}: ViewCreateDialogProps) {
   const queryClient = useQueryClient();
   const { viewer } = useMolstar();
 
@@ -116,6 +116,12 @@ export function ViewCreateDialog({
     }
 
     if (open) {
+      form.reset({
+        name: undefined,
+        description: undefined,
+        is_thumbnail: undefined,
+      });
+
       reset();
     }
   }, [open, viewer]);
