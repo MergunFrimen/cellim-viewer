@@ -99,24 +99,36 @@ class ViewService:
         # Load in relationships
         await self.session.refresh(view, ["entry"])
 
-        # Check valid query params
-        if view.entry.id != entry_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Entry '{entry_id}' does not have a view '{view_id}'",
-            )
-
         # Check permissions
         self._check_permissions(view.entry, user)
 
-        snapshot = await self.storage.get(
-            file_path=view.snapshot_url,
-        )
+        if not view.snapshot_url:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="View doesn't have a snapshot",
+            )
+
+        try:
+            snapshot = await self.storage.get(
+                file_path=view.snapshot_url,
+            )
+        except FileNotFoundError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thumbnail not found",
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"{e}",
+            )
 
         return json.loads(snapshot)
 
     async def get_view_thumbnail(self, user: User, entry_id: UUID, view_id: UUID) -> UUID:
         view: View = await self._get_view_by_id(view_id)
+
+        # Load in relationships
         await self.session.refresh(view, ["entry"])
 
         # Check permissions
@@ -128,10 +140,9 @@ class ViewService:
                 detail="View doesn't have a thumbnail",
             )
 
-        file_path = f"/entries/{entry_id}/views/{view_id}/thumbnail.png"
         try:
             thumbnail_image = await self.storage.get(
-                file_path=file_path,
+                file_path=view.thumbnail_url,
             )
         except FileNotFoundError:
             raise HTTPException(

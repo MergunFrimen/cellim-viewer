@@ -76,7 +76,7 @@ export const zUserResponse = z.object({
 export const zViewCreateRequest = z.object({
   name: z.string().min(1).max(255),
   description: z.union([z.string().max(255), z.null()]).optional(),
-  snapshot_json: z.string(),
+  snapshot_json: z.union([z.string(), z.null()]).optional(),
   thumbnail_image: z.union([z.string(), z.null()]).optional(),
   is_thumbnail: z.boolean().optional().default(false),
 });

@@ -98,8 +98,8 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
       <DialogContent className="max-w-2xl">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
+            onSubmit={form.handleSubmit(handleSubmit)}
           >
             <DialogHeader>
               <DialogTitle>Edit View</DialogTitle>
@@ -135,7 +135,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
                   <FormControl>
                     <Input
                       placeholder="View name"
-                      value={field.value!}
+                      value={field.value ?? ""}
                       onChange={field.onChange}
                     />
                   </FormControl>
@@ -153,7 +153,7 @@ export function EditViewDialog({ view, open, setOpen }: EditViewDialogProps) {
                   <FormControl>
                     <Input
                       placeholder="View description"
-                      value={field.value!}
+                      value={field.value ?? ""}
                       onChange={field.onChange}
                     />
                   </FormControl>

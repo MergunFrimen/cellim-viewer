@@ -77,7 +77,7 @@ export type ViewCreateRequest = {
   /**
    * Mol* state file (.molj file)
    */
-  snapshot_json: Blob | File;
+  snapshot_json?: (Blob | File) | null;
   /**
    * Thumbnail image for view
    */

@@ -343,8 +343,15 @@ export const ViewCreateRequestSchema = {
       examples: ["View Description"],
     },
     snapshot_json: {
-      type: "string",
-      format: "binary",
+      anyOf: [
+        {
+          type: "string",
+          format: "binary",
+        },
+        {
+          type: "null",
+        },
+      ],
     },
     thumbnail_image: {
       anyOf: [
@@ -364,7 +371,7 @@ export const ViewCreateRequestSchema = {
   },
   additionalProperties: false,
   type: "object",
-  required: ["name", "snapshot_json"],
+  required: ["name"],
 } as const;
 
 export const ViewResponseSchema = {

@@ -1,130 +1,231 @@
 // src/components/views/SaveViewDialog.tsx
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useMolstar } from "@/contexts/MolstarProvider";
+import {
+  EntryDetailsResponse,
+  ViewCreateRequest,
+  zViewCreateRequest,
+} from "@/lib/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  viewsCreateViewMutation,
+  viewsListViewsForEntryQueryKey,
+} from "@/lib/client/@tanstack/react-query.gen";
+import { toast } from "sonner";
+import { PluginState } from "molstar/lib/mol-plugin/state";
+import { Checkbox } from "../ui/checkbox";
+import { useForm } from "react-hook-form";
 
 interface SaveViewDialogProps {
+  entry: EntryDetailsResponse;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (name: string, description: string) => void;
-  screenshotPreview?: string;
+  setOpen: (open: boolean) => void;
 }
 
-export function SaveViewDialog({
+export function ViewCreateDialog({
+  entry,
   open,
-  onOpenChange,
-  onSave,
-  screenshotPreview,
+  setOpen,
 }: SaveViewDialogProps) {
+  const queryClient = useQueryClient();
   const { viewer } = useMolstar();
-  const [viewName, setViewName] = useState("");
-  const [viewDescription, setViewDescription] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
-    screenshotPreview,
+
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+  const [snapshotBlob, setSnapshotBlob] = useState<Blob | undefined>(undefined);
+  const [thumbnailImage, setThumbnailImage] = useState<File | undefined>(
+    undefined,
   );
 
-  // Take a screenshot when the dialog opens
-  const captureScreenshot = async () => {
-    if (!previewUrl) {
-      try {
-        const url = await viewer.screenshot();
-        setPreviewUrl(url);
-      } catch (error) {
-        console.error("Failed to capture screenshot:", error);
-      }
-    }
-  };
+  const form = useForm<ViewCreateRequest>({
+    resolver: zodResolver(zViewCreateRequest),
+  });
 
-  const handleSave = () => {
-    onSave(viewName, viewDescription);
-    // Reset form
-    setViewName("");
-    setViewDescription("");
-    setPreviewUrl(undefined);
-  };
+  const createViewMutation = useMutation({
+    ...viewsCreateViewMutation(),
+    onSuccess: (newView) => {
+      toast.success(`View "${newView.name}" created successfully`);
+      queryClient.invalidateQueries({
+        queryKey: viewsListViewsForEntryQueryKey({
+          path: { entry_id: entry.id },
+        }),
+      });
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(
+        "Failed to create view: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    },
+  });
 
-  const handleCancel = () => {
-    onOpenChange(false);
-    // Reset form
-    setViewName("");
-    setViewDescription("");
-    setPreviewUrl(undefined);
-  };
-
-  // Capture screenshot when dialog opens
-  if (open && !previewUrl) {
-    captureScreenshot();
+  function handleSubmit(data: ViewCreateRequest) {
+    createViewMutation.mutate({
+      path: {
+        entry_id: entry.id,
+      },
+      body: {
+        ...data,
+        snapshot_json: snapshotBlob,
+        thumbnail_image: thumbnailImage,
+      },
+    });
   }
 
+  function handleCancel() {
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    async function reset() {
+      try {
+        const url = await viewer.screenshot();
+        const thumbnail_image = await viewer.thumbnailImage();
+        const snapshot: PluginState.Snapshot = viewer.getState();
+        const snapshotJson = JSON.stringify(snapshot);
+        const snapshotBlob = new Blob([snapshotJson], {
+          type: "application/json",
+        });
+        setPreviewUrl(url);
+        setThumbnailImage(thumbnail_image);
+        setSnapshotBlob(snapshotBlob);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    if (open) {
+      reset();
+    }
+  }, [open, viewer]);
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Save Current View</AlertDialogTitle>
-          <AlertDialogDescription>
-            Provide a name and description for this view
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-w-2xl">
+        <Form {...form}>
+          <form
+            className="space-y-6"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
+            <DialogHeader>
+              <DialogTitle>Save Current View</DialogTitle>
+              <DialogDescription>
+                Provide a name and description for this view
+              </DialogDescription>
+            </DialogHeader>
 
-        {/* Screenshot Preview */}
-        <div className="my-2">
-          <Label htmlFor="preview">Preview</Label>
-          <div className="aspect-video mt-2 bg-secondary rounded-md overflow-hidden flex items-center justify-center">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="View preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground">
-                <Camera size={32} className="mb-2" />
-                <p className="text-xs">Generating preview...</p>
+            <div className="space-y-2">
+              <Label>Preview</Label>
+              <div className="aspect-video mt-2 bg-secondary rounded-md overflow-hidden flex items-center justify-center">
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt="View preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                    <Camera size={32} className="mb-2" />
+                    <p className="text-xs">Generating preview...</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              placeholder="View name"
-              value={viewName}
-              onChange={(e) => setViewName(e.target.value)}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="View name"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Description of this view"
-              value={viewDescription}
-              onChange={(e) => setViewDescription(e.target.value)}
-              className="resize-none"
-              rows={3}
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="View description"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleSave}>Save</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+
+            <FormField
+              control={form.control}
+              name="is_thumbnail"
+              render={({ field }) => (
+                <FormItem className="flex flex-row gap-x-3 items-center">
+                  <FormControl>
+                    <Checkbox
+                      checked={!!field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Set as default thumbnail</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="gap-2">
+              <Button
+                variant="secondary"
+                type="button"
+                disabled={createViewMutation.isPending}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                type="submit"
+                disabled={createViewMutation.isPending}
+              >
+                {createViewMutation.isPending ? "Creating..." : "Create Entry"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
