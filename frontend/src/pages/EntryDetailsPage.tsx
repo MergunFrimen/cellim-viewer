@@ -12,6 +12,7 @@ import { useRequiredParam } from "@/hooks/useRequiredParam";
 import {
   entriesGetEntryByIdOptions,
   entriesGetEntryByIdQueryKey,
+  entriesGetEntryShareLinkOptions,
   entriesUpdateEntryMutation,
   volsegEntriesGetEntryByIdOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
@@ -28,6 +29,8 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { ShareLinkDialog } from "@/components/share-links/ShareLinkDialog";
+import { toast } from "sonner";
 
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
@@ -36,6 +39,7 @@ export function EntryDetailsPage() {
   const queryClient = useQueryClient();
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   const entryQuery = useQuery({
@@ -63,9 +67,18 @@ export function EntryDetailsPage() {
     enabled: !!entryQuery.data,
   });
 
+  const shareLinkQuery = useQuery({
+    ...entriesGetEntryShareLinkOptions({
+      path: {
+        entry_id: entryId,
+      },
+    }),
+  });
+
   const entryMutation = useMutation({
     ...entriesUpdateEntryMutation(),
     onSuccess: () => {
+      toast.success("Entry changes saved.");
       queryClient.invalidateQueries({
         queryKey: entriesGetEntryByIdQueryKey({
           path: {
@@ -73,6 +86,10 @@ export function EntryDetailsPage() {
           },
         }),
       });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to create view: " + error.detail[0].msg);
     },
   });
 
@@ -122,7 +139,6 @@ export function EntryDetailsPage() {
         is_public: isPublic,
       },
     });
-    setIsEditing(false);
   }
 
   if (!entryQuery.data) {
@@ -185,13 +201,22 @@ export function EntryDetailsPage() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowShareDialog(true)}
+                    >
+                      Share
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      Edit
+                    </Button>
+                  </>
                 )}
               </div>
             )}
@@ -260,6 +285,12 @@ export function EntryDetailsPage() {
           />
         </>
       )}
+
+      <ShareLinkDialog
+        open={showShareDialog}
+        setOpen={setShowShareDialog}
+        shareLinkId={shareLinkQuery.data?.id}
+      />
     </div>
   );
 }

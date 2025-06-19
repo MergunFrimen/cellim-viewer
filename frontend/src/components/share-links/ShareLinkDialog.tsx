@@ -1,135 +1,122 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Check, Copy, Link, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import {
+  shareLinksUpdateShareLinkMutation,
+  shareLinksGetShareLinkOptions,
+} from "@/lib/client/@tanstack/react-query.gen";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Input } from "../ui/input";
+import { CopyIcon } from "lucide-react";
 
 interface ShareLinkDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  entryName: string;
-  editLink: string;
-  shareLink?: string;
-  isPublic: boolean;
+  setOpen: (open: boolean) => void;
+  shareLinkId: string;
 }
 
 export function ShareLinkDialog({
   open,
-  onOpenChange,
-  entryName,
-  editLink,
-  shareLink,
-  isPublic,
+  setOpen,
+  shareLinkId,
 }: ShareLinkDialogProps) {
-  const [editLinkCopied, setEditLinkCopied] = useState(false);
-  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
-  const copyToClipboard = async (
-    text: string,
-    setIsCopied: (copied: boolean) => void,
-  ) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
+  const { data, isLoading } = useQuery({
+    ...shareLinksGetShareLinkOptions({ path: { share_link_id: shareLinkId } }),
+    enabled: open,
+  });
+
+  const updateMutation = useMutation({
+    ...shareLinksUpdateShareLinkMutation(),
+    onSuccess: () => {
+      setOpen(false);
+    },
+  });
+
+  const shareUrl = `${window.location.origin}/share/${shareLinkId}`;
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      toast.success("Link copied to clipboard");
+    });
+  }
+
+  function onSave() {
+    updateMutation.mutate({
+      path: { share_link_id: shareLinkId },
+      body: {
+        is_editable: isEditable,
+        is_active: isActive,
+      },
+    });
+  }
+
+  useEffect(() => {
+    if (data) {
+      setIsEditable(data.is_editable);
+      setIsActive(data.is_active);
     }
-  };
-
-  const getFullUrl = (path: string) => {
-    const baseUrl = window.location.origin;
-    // If we're using a subdirectory for deployment, include it
-    const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
-    return `${baseUrl}${basePath}${path}`;
-  };
-
-  const fullEditLink = getFullUrl(`/edit/${editLink}`);
-  const fullShareLink = shareLink
-    ? getFullUrl(`/share/${shareLink}`)
-    : undefined;
+  }, [data]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Entry Created Successfully</DialogTitle>
-          <DialogDescription>
-            "{entryName}" has been created. Save these links to access and share
-            your entry in the future.
-          </DialogDescription>
+          <DialogTitle>Share Link Settings</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-link" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" /> Edit Link (Private)
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Input
-                id="edit-link"
-                value={fullEditLink}
-                readOnly
-                className="flex-1"
-              />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => copyToClipboard(fullEditLink, setEditLinkCopied)}
-              >
-                {editLinkCopied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Use this link to edit your entry at any time, even if it's
-              private.
-            </p>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="share-link" className="flex items-center gap-2">
-              <Link className="h-4 w-4" /> Share Link
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Input
-                id="share-link"
-                value={fullShareLink}
-                readOnly
-                className="flex-1"
-              />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  copyToClipboard(fullShareLink, setShareLinkCopied)
-                }
-              >
-                {shareLinkCopied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  id="share-url"
+                  value={shareUrl}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                  <CopyIcon className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Share this link with others to let them view your entry.
-            </p>
+
+            {/* Toggles */}
+            <div className="flex items-center justify-start gap-x-3">
+              <Switch
+                id="active"
+                checked={isActive}
+                onCheckedChange={setIsActive}
+              />
+              <Label htmlFor="active">Link is Active</Label>
+            </div>
+
+            <div className="flex items-center justify-start gap-x-3">
+              <Switch
+                id="editable"
+                checked={isEditable}
+                onCheckedChange={setIsEditable}
+              />
+              <Label htmlFor="editable">Allow Edits</Label>
+            </div>
+
+            <Button onClick={onSave} disabled={updateMutation.isPending}>
+              Save
+            </Button>
           </div>
-        </div>
-        <DialogFooter className="sm:justify-center">
-          <Button onClick={() => onOpenChange(false)}>Continue</Button>
-        </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
