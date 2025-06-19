@@ -11,6 +11,8 @@ services:
     restart: always
     networks:
       - cellim-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   adminer:
     container_name: cellim-viewer-adminer
@@ -115,3 +117,4 @@ networks:
 
 volumes:
   shared_data:
+  db_data:
