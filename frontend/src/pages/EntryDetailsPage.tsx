@@ -11,11 +11,13 @@ import { useMolstar } from "@/contexts/MolstarProvider";
 import { useRequiredParam } from "@/hooks/useRequiredParam";
 import {
   entriesGetEntryByIdOptions,
+  entriesGetEntryByIdQueryKey,
+  entriesUpdateEntryMutation,
   volsegEntriesGetEntryByIdOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { formatDate } from "@/lib/utils";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   CalendarIcon,
@@ -24,11 +26,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export function EntryDetailsPage() {
   const { viewer } = useMolstar();
   const { isAuthenticated } = useAuth();
   const entryId = useRequiredParam("entryId");
+  const queryClient = useQueryClient();
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -42,6 +47,13 @@ export function EntryDetailsPage() {
     enabled: !!entryId,
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(entryQuery.data?.name ?? "");
+  const [description, setDescription] = useState(
+    entryQuery.data?.description ?? "",
+  );
+  const [isPublic, setIsPublic] = useState(entryQuery.data?.is_public ?? false);
+
   const volsegMutation = useQuery({
     ...volsegEntriesGetEntryByIdOptions({
       path: {
@@ -49,6 +61,19 @@ export function EntryDetailsPage() {
       },
     }),
     enabled: !!entryQuery.data,
+  });
+
+  const entryMutation = useMutation({
+    ...entriesUpdateEntryMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: entriesGetEntryByIdQueryKey({
+          path: {
+            entry_id: entryId,
+          },
+        }),
+      });
+    },
   });
 
   async function loadVolseg() {
@@ -86,6 +111,20 @@ export function EntryDetailsPage() {
     );
   }
 
+  function onSave() {
+    entryMutation.mutate({
+      path: {
+        entry_id: entryId,
+      },
+      body: {
+        name: name,
+        description: description,
+        is_public: isPublic,
+      },
+    });
+    setIsEditing(false);
+  }
+
   if (!entryQuery.data) {
     return null;
   }
@@ -94,19 +133,76 @@ export function EntryDetailsPage() {
     <div className="container py-8">
       <div className="md:col-span-2">
         <div className="flex justify-between items-start mb-4">
-          <h1 className="text-3xl font-bold">{entryQuery.data.name}</h1>
-          <VisibilityBadge isPublic={entryQuery.data.is_public} />
-        </div>
-        <div className="flex items-center text-sm text-muted-foreground mb-6">
-          <CalendarIcon className="h-4 w-4 mr-2" />
-          Created on {formatDate(entryQuery.data.created_at)}
+          <div className="flex-1">
+            {isEditing ? (
+              <input
+                className="text-3xl font-bold border-b border-muted focus:outline-none focus:border-primary px-1 w-auto max-w-full"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            ) : (
+              <h1 className="text-3xl font-bold border-b border-background">
+                {entryQuery.data.name}
+              </h1>
+            )}
+
+            <div className="flex items-center text-sm text-muted-foreground mt-2">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Created on {formatDate(entryQuery.data.created_at)}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-2 ml-4">
+            {isEditing ? (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="public"
+                  checked={isPublic}
+                  onCheckedChange={(value) => setIsPublic(!!value)}
+                />
+                <Label htmlFor="public">Public</Label>
+              </div>
+            ) : (
+              <VisibilityBadge isPublic={entryQuery.data.is_public} />
+            )}
+            {isAuthenticated && (
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button size="sm" onClick={onSave}>
+                      Save
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setName(entryQuery.data.name);
+                        setDescription(entryQuery.data.description || "");
+                        setIsEditing(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       <Card className="mb-8">
         <CardHeader className="flex items-center justify-between">
           <CardTitle>Description</CardTitle>
-          {entryQuery.data.description && (
+          {entryQuery.data.description && !isEditing && (
             <Button
               variant="ghost"
               size="sm"
@@ -123,7 +219,14 @@ export function EntryDetailsPage() {
           )}
         </CardHeader>
         <CardContent>
-          {entryQuery.data.description ? (
+          {isEditing ? (
+            <textarea
+              className="w-full p-2 border rounded text-sm font-mono"
+              rows={expanded ? 10 : 4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          ) : entryQuery.data.description ? (
             <ScrollArea className={expanded ? "h-64" : "h-auto max-h-none"}>
               <ReactMarkdown>{entryQuery.data.description}</ReactMarkdown>
             </ScrollArea>
