@@ -1,16 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, HTTPException, Path, status
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter, Body, Path, status
 
 from app.api.v1.contracts.requests.share_link_requests import ShareLinkUpdateRequest
 from app.api.v1.contracts.responses.share_link_responses import ShareLinkResponse
-from app.api.v1.deps import DbSessionDep, RequireUserDep
+from app.api.v1.deps import RequireUserDep, ShareLinkServiceDep
 from app.api.v1.tags import Tags
-from app.database.models.entry_model import Entry
-from app.database.models.share_link_model import ShareLink
 
 router = APIRouter(prefix="/share_links", tags=[Tags.share_links])
 
@@ -22,27 +18,13 @@ router = APIRouter(prefix="/share_links", tags=[Tags.share_links])
 )
 async def get_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
-    session: DbSessionDep,
     current_user: RequireUserDep,
+    service: ShareLinkServiceDep,
 ):
-    result: ShareLink | None = await session.execute(
-        select(ShareLink)
-        .where(ShareLink.id == share_link_id)
-        .options(selectinload(ShareLink.entry).selectinload(Entry.user))
+    return await service.get_share_link(
+        share_link_id=share_link_id,
+        user=current_user,
     )
-    share_link = result.scalar()
-
-    if not share_link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-        )
-
-    if share_link.entry.user.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-
-    return ShareLinkResponse.model_validate(share_link)
 
 
 @router.put(
@@ -53,29 +35,11 @@ async def get_share_link(
 async def update_share_link(
     share_link_id: Annotated[UUID, Path(title="Entry ID")],
     request: Annotated[ShareLinkUpdateRequest, Body()],
-    session: DbSessionDep,
     current_user: RequireUserDep,
+    service: ShareLinkServiceDep,
 ):
-    result: ShareLink | None = await session.execute(
-        select(ShareLink)
-        .where(ShareLink.id == share_link_id)
-        .options(selectinload(ShareLink.entry).selectinload(Entry.user))
+    return await service.update(
+        share_link_id=share_link_id,
+        user=current_user,
+        request=request,
     )
-    share_link = result.scalar()
-
-    if not share_link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Entry not found",
-        )
-
-    if share_link.entry.user.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-
-    for key, value in request.model_dump(exclude_unset=True).items():
-        setattr(share_link, key, value)
-    await session.commit()
-
-    return ShareLinkResponse.model_validate(share_link)

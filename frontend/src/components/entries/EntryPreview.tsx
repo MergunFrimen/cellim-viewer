@@ -2,11 +2,11 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { EntryDetailsResponse } from "@/lib/client";
+import { EntryResponse } from "@/lib/client";
 import { useQuery } from "@tanstack/react-query";
 import { viewsListViewsForEntryOptions } from "@/lib/client/@tanstack/react-query.gen";
 
-export function EntryPreview({ entry }: { entry: EntryDetailsResponse }) {
+export function EntryPreview({ entry }: { entry: EntryResponse }) {
   const viewsQuery = useQuery({
     ...viewsListViewsForEntryOptions({
       path: {

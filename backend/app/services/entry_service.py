@@ -20,11 +20,13 @@ from app.database.models.user_model import User
 from app.database.models.view_model import View
 from app.database.models.volseg_entry_model import VolsegEntry
 from app.database.session_manager import get_async_session
+from app.services.share_link_service import ShareLinkService, get_share_link_service
 
 
 class EntryService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, share_link_service: ShareLinkService):
         self.session = session
+        self.share_link_service = share_link_service
 
     async def create(
         self,
@@ -128,7 +130,13 @@ class EntryService:
         *,
         share_link_id: UUID,
     ):
-        share_link: ShareLink = await self.share_link_service.get_share_link_by_id(share_link_id)
+        share_link: ShareLink | None = await self.session.get(ShareLink, share_link_id)
+
+        if share_link is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share link not found",
+            )
 
         if not share_link.is_active:
             raise HTTPException(
@@ -138,7 +146,6 @@ class EntryService:
 
         # Get the shared entry
         entry: Entry = await self._get_entry_by_id(share_link.entry_id)
-        await self.session.refresh(entry, ["views", "link"])
 
         return EntryResponse.model_validate(entry)
 
@@ -275,5 +282,9 @@ class EntryService:
 
 async def get_entry_service(
     session: AsyncSession = Depends(get_async_session),
+    share_link_service: AsyncSession = Depends(get_share_link_service),
 ) -> EntryService:
-    return EntryService(session)
+    return EntryService(
+        session=session,
+        share_link_service=share_link_service,
+    )
