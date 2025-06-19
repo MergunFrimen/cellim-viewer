@@ -1,14 +1,16 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { VisibilityBadge } from "@/components/common/VisibilityBadge";
+import { EntryDescription } from "@/components/entries/EntryDescription";
 import { MolstarViewer } from "@/components/molstar/MolstarViewer";
+import { ShareLinkDialog } from "@/components/share-links/ShareLinkDialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { ViewCreateDialog } from "@/components/views/ViewCreateDialog";
 import { ViewsSidebar } from "@/components/views/ViewSidebar";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useMolstar } from "@/contexts/MolstarProvider";
-import { useRequiredParam } from "@/hooks/useRequiredParam";
 import {
   entriesGetEntryByIdOptions,
   entriesGetEntryByIdQueryKey,
@@ -17,21 +19,14 @@ import {
   volsegEntriesGetEntryByIdOptions,
 } from "@/lib/client/@tanstack/react-query.gen";
 import { formatDate } from "@/lib/utils";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
-  CalendarIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
+  CalendarIcon
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { ShareLinkDialog } from "@/components/share-links/ShareLinkDialog";
-import { toast } from "sonner";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 interface EntryDetailsPageProps {
   entryId?: string;
@@ -242,44 +237,16 @@ export function EntryDetailsPage({
         </div>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader className="flex items-center justify-between">
-          <CardTitle>Description</CardTitle>
-          {entryQuery.data.description && !isEditing && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-accent-foreground rounded transition-colors"
-              onClick={() => setExpanded((v) => !v)}
-            >
-              {expanded ? "Collapse" : "Expand"}
-              {expanded ? (
-                <ChevronUpIcon className="ml-1 h-4 w-4 transition-transform" />
-              ) : (
-                <ChevronDownIcon className="ml-1 h-4 w-4 transition-transform" />
-              )}
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {isEditing ? (
-            <textarea
-              className="w-full p-2 border rounded text-sm font-mono"
-              rows={expanded ? 10 : 4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          ) : entryQuery.data.description ? (
-            <ScrollArea className={expanded ? "h-64" : "h-auto max-h-none"}>
-              <ReactMarkdown>{entryQuery.data.description}</ReactMarkdown>
-            </ScrollArea>
-          ) : (
-            <p className="text-muted-foreground italic">
-              No description provided
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      {isEditing ? (
+        <textarea
+          className="w-full p-2 border rounded text-sm font-mono mb-8"
+          rows={20}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      ) : (
+        <EntryDescription description={entryQuery.data.description} />
+      )}
 
       <div className="flex flex-1 overflow-hidden gap-x-3">
         <aside className="overflow-hidden flex flex-col h-[80vh]">

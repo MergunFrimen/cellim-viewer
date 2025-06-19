@@ -44,12 +44,6 @@ export function ShareLinkDialog({
 
   const shareUrl = `${window.location.origin}/share/${shareLinkId}`;
 
-  function copyToClipboard() {
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      toast.success("Link copied to clipboard");
-    });
-  }
-
   function onSave() {
     updateMutation.mutate({
       path: { share_link_id: shareLinkId },
@@ -58,6 +52,15 @@ export function ShareLinkDialog({
         is_active: isActive,
       },
     });
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
   }
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export function ShareLinkDialog({
                   readOnly
                   className="flex-1"
                 />
-                <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                <Button variant="outline" size="icon" onClick={handleCopy}>
                   <CopyIcon className="h-4 w-4" />
                 </Button>
               </div>
