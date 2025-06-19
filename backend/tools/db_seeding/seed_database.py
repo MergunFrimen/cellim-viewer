@@ -75,12 +75,20 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
             session.add(user)
             users.append(user)
 
-        volseg_entry = VolsegEntry(
+        emd_1832 = VolsegEntry(
             db_name="emdb",
             entry_id="emd-1832",
             is_public=True,
             user=test_user,
         )
+        custom_tubhiswt = VolsegEntry(
+            db_name="emdb",
+            entry_id="custom-tubhiswt",
+            is_public=True,
+            user=test_user,
+        )
+        session.add(emd_1832)
+        session.add(custom_tubhiswt)
 
         for user in users:
             for _ in range(num_entries):
@@ -94,7 +102,7 @@ async def seed_database(num_users=3, num_entries=10, num_views=5, clear=False):
                     is_public=random.random() < 0.7,
                     created_at=created_date,
                     updated_at=created_date + timedelta(days=random.randint(0, 30)),
-                    volseg_entry=volseg_entry,
+                    volseg_entry=emd_1832,
                     user=user,
                 )
                 session.add(entry)
