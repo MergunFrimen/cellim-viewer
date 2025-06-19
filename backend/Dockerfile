@@ -25,8 +25,7 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
-ADD . /app
-RUN chown -R appuser:appuser /app
+COPY --chown=appuser:appuser . /app
 RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
     uv sync --frozen
 
