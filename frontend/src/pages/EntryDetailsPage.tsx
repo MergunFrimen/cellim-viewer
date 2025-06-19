@@ -31,11 +31,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ShareLinkDialog } from "@/components/share-links/ShareLinkDialog";
 import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
-export function EntryDetailsPage() {
+interface EntryDetailsPageProps {
+  entryId?: string;
+  isEditable: boolean;
+}
+
+export function EntryDetailsPage({
+  entryId: overrideEntryId,
+  isEditable = true,
+}: EntryDetailsPageProps) {
   const { viewer } = useMolstar();
   const { isAuthenticated } = useAuth();
-  const entryId = useRequiredParam("entryId");
+  const canEdit = isAuthenticated && isEditable;
+  const params = useParams();
+  const routeEntryId = params["entryId"];
+  const entryId = overrideEntryId ?? routeEntryId;
   const queryClient = useQueryClient();
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -181,7 +193,7 @@ export function EntryDetailsPage() {
             ) : (
               <VisibilityBadge isPublic={entryQuery.data.is_public} />
             )}
-            {isAuthenticated && (
+            {canEdit && (
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
@@ -194,6 +206,7 @@ export function EntryDetailsPage() {
                       onClick={() => {
                         setName(entryQuery.data.name);
                         setDescription(entryQuery.data.description || "");
+                        setIsPublic(entryQuery.data.is_public || false);
                         setIsEditing(false);
                       }}
                     >
@@ -212,7 +225,12 @@ export function EntryDetailsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => {
+                        setName(entryQuery.data.name);
+                        setDescription(entryQuery.data.description || "");
+                        setIsPublic(entryQuery.data.is_public || false);
+                        setIsEditing(true);
+                      }}
                     >
                       Edit
                     </Button>
@@ -267,7 +285,7 @@ export function EntryDetailsPage() {
         <aside className="overflow-hidden flex flex-col h-[80vh]">
           <ViewsSidebar
             entryId={entryId}
-            isEditable={isAuthenticated}
+            isEditable={!!canEdit}
             onSaveView={() => setShowSaveDialog(true)}
           />
         </aside>
@@ -276,7 +294,7 @@ export function EntryDetailsPage() {
         </div>
       </div>
 
-      {isAuthenticated && (
+      {canEdit && (
         <>
           <ViewCreateDialog
             entry={entryQuery.data}

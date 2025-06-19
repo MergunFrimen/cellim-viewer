@@ -10,6 +10,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import UploadVolseg from "./pages/UploadVolseg";
 import { VolsegEntryPreview } from "./pages/VolsegEntryPreview";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import ShareEntryPage from "./pages/ShareEntryPage";
 
 export function App() {
   return (
@@ -26,6 +27,14 @@ export function App() {
             />
             <Route path="/login" element={<LoginPage />} />
 
+            <Route
+              path="/share/:share_link_id"
+              element={
+                <ProtectedRoute>
+                  <ShareEntryPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/entries/new"
               element={

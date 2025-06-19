@@ -114,9 +114,9 @@ export const zVolsegUploadEntry = z.object({
   db_name: z.string().min(1).max(255),
   entry_id: z.string().min(1).max(255),
   is_public: z.union([z.boolean(), z.null()]).optional(),
-  annotations: z.string(),
-  metadata: z.string(),
-  data: z.string(),
+  // annotations: z.string(),
+  // metadata: z.string(),
+  // data: z.string(),
 });
 
 export const zEntriesListPublicEntriesResponse =

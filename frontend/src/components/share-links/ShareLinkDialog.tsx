@@ -28,7 +28,6 @@ export function ShareLinkDialog({
   setOpen,
   shareLinkId,
 }: ShareLinkDialogProps) {
-  const [isEditable, setIsEditable] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -55,7 +54,7 @@ export function ShareLinkDialog({
     updateMutation.mutate({
       path: { share_link_id: shareLinkId },
       body: {
-        is_editable: isEditable,
+        is_editable: false,
         is_active: isActive,
       },
     });
@@ -63,7 +62,6 @@ export function ShareLinkDialog({
 
   useEffect(() => {
     if (data) {
-      setIsEditable(data.is_editable);
       setIsActive(data.is_active);
     }
   }, [data]);
@@ -101,15 +99,6 @@ export function ShareLinkDialog({
                 onCheckedChange={setIsActive}
               />
               <Label htmlFor="active">Link is Active</Label>
-            </div>
-
-            <div className="flex items-center justify-start gap-x-3">
-              <Switch
-                id="editable"
-                checked={isEditable}
-                onCheckedChange={setIsEditable}
-              />
-              <Label htmlFor="editable">Allow Edits</Label>
             </div>
 
             <Button onClick={onSave} disabled={updateMutation.isPending}>
